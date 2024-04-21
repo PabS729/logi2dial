@@ -1,0 +1,8 @@
+transformers
+tensorboard
+sentencepiece
+pandas
+scikit-learn
+langchain
+python-dotenv
+spacy

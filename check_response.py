@@ -29,8 +29,8 @@ OPENAI_KEY = os.getenv('OPENAI_API_KEY')
 
 nlp = spacy.load("en_core_web_sm")
 
-async def generate_response(sentence, chat_history, prompt_sys, prompt_gen, temperature=0):
-    llm = ChatOpenAI(model_name="gpt-3.5-turbo-0613", temperature=temperature, openai_api_key=OPENAI_KEY)
+async def generate_response(model_name, sentence, chat_history, prompt_sys, prompt_gen, temperature=0):
+    llm = ChatOpenAI(model_name=model_name, temperature=temperature, openai_api_key=OPENAI_KEY)
     # llm = OpenAIChat(temperature=temperature, openai_api_key=API_KEY)
     
     await asyncio.sleep(0.1)
@@ -46,14 +46,14 @@ async def generate_response(sentence, chat_history, prompt_sys, prompt_gen, temp
                 HumanMessage(content=user_prompt)
                 ]
     
-    result = await llm.agenerate(message)
+    result = await llm.ainvoke(message)
     # print(results)
     return result
 
 
 async def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--file_to_annotate", type=str, default='CO2022.tsv')
+    parser.add_argument("--file_to_annotate", type=str, default='climate_train.csv')
     parser.add_argument("--definition", type=str, default='proposed')
     parser.add_argument("--mode", type=str, default='proposed')
     parser.add_argument("--save_fn", type=str, default='CO2022_pt1.xlsx')
@@ -62,20 +62,21 @@ async def main():
     parser.add_argument("--num_gen", type=int, default=10)
     args = parser.parse_args()
 
-    df_to_argue = pd.read_csv(args.file_to_annotate, sep='\t')
+    df_to_argue = pd.read_csv(args.file_to_annotate)
 
-    length_of_conversation = 10
+    length_of_conversation = 5
     # st = df_to_annotate["Text"].tolist()
-    sentences = df_to_argue["sentences"].values.tolist()
+    sentences = df_to_argue["source_article"].values.tolist()
 
     
     if args.sample > 0:
         sentences = random.sample(sentences, args.sample)
 
-    QS = [[], []]
     chat_history = ""
     conversation_teacher = []
     conversation_layman = []
+    model_layman = "gpt-4-turbo-2024-04-09"
+    model_teacher = "gpt-3.5-turbo-0125"
 
     for i in range(length_of_conversation):
 
@@ -87,31 +88,32 @@ async def main():
 
         if i == 0:
             prompt_teacher = PROMPT_IDENTIFY_COMPONENTS_START
-            results_conversation_teacher = await generate_response(sentences[0], None, sys_prompt_teacher, prompt_teacher, 0)
-            teacher_response = results_conversation_teacher.generations[0][0].text
+            results_conversation_teacher = await generate_response(model_teacher, sentences[76], None, sys_prompt_teacher, prompt_teacher, 0)
+            teacher_response = results_conversation_teacher.content
             conversation_teacher.append(teacher_response)
             chat_history += "teacher: " + teacher_response
             chat_history += "\n"
         else:
             prompt_teacher = PROMPT_IDENTIFY_COMPONENTS_CONTINUED
-            results_conversation_layman = await generate_response(sentences[0], chat_history, sys_prompt_layman, prompt_layman, 0)
-            layman_response = results_conversation_layman.generations[0][0].text
+            results_conversation_layman = await generate_response(model_layman, sentences[76], chat_history, sys_prompt_layman, prompt_layman, 0)
+            layman_response = results_conversation_layman.content
             conversation_layman.append(layman_response)
             chat_history += "layman: " + layman_response
             chat_history += "\n"
-            results_conversation_teacher = await generate_response(sentences[0], chat_history, sys_prompt_teacher, prompt_teacher, 0)
-            teacher_response = results_conversation_teacher.generations[0][0].text
+            results_conversation_teacher = await generate_response(model_teacher, sentences[76], chat_history, sys_prompt_teacher, prompt_teacher, 0)
+            teacher_response = results_conversation_teacher.content
             conversation_teacher.append(teacher_response)
             chat_history += "teacher: " + teacher_response
             chat_history += "\n"
-
+        print("done")
     conversation_layman.append('.')
 
     data_dict = {'teacher_response': conversation_teacher, 'layman_response': conversation_layman}
     df_result = pd.DataFrame(data_dict)
     df_result.to_excel(args.save_fn, index=False)
     print("done async")
-    
+    print(conversation_layman)
+    print(conversation_teacher)
 
 
 if __name__ == '__main__':

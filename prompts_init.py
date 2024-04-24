@@ -20,7 +20,7 @@ The warrant, which is either implied or stated explicitly, is the assumption tha
 Backing refers to any additional support of the warrant. In many cases, the warrant is implied, and therefore the backing provides support for the warrant by giving a specific example that justifies the warrant.
 The qualifier shows that a claim may not be true in all circumstances. Words like “presumably,” “some,” and “many” help your audience understand that you know there are instances where your claim may not be correct. 
 The rebuttal is an acknowledgement of another valid view of the situation. 
-Identify the claim, ground, warrant, backing, qualifier, and rebuttal in the following <sentence> given by the layman. Try to play the role of a teacher who knows logical fallacies and try to identify logical fallacies in the layman's response from <chat_history> by decomposing the layman's argument into components. After that, formulate a response to the layman's argument, and try to convince the layman that his argument is fallacious. Keep your response concise.
+Focus on the <sentence>, and try to identify logical fallacies in the layman's response from <chat_history> by decomposing the layman's argument into components. After that, formulate a response to the layman's argument, and try to convince the layman that his argument is fallacious. Keep your response concise.
 
 <sentence>: {sentence}
 <chat_history>: {history}

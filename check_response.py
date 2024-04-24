@@ -56,7 +56,7 @@ async def main():
     parser.add_argument("--file_to_annotate", type=str, default='climate_train.csv')
     parser.add_argument("--definition", type=str, default='proposed')
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='CO2022_pt1.xlsx')
+    parser.add_argument("--save_fn", type=str, default='climate_conv_1.xlsx')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=10)
@@ -78,6 +78,8 @@ async def main():
     model_layman = "gpt-4-turbo-2024-04-09"
     model_teacher = "gpt-3.5-turbo-0125"
 
+    example_argument = "As soon as the word emissions entered the language and became part of a religious ideology , electricity prices skyrocketed , electricity supply became more unreliable , subsidies for wind and solar energy went through the roof and employers and consumers had massive cost increases ."
+
     for i in range(length_of_conversation):
 
         
@@ -88,19 +90,19 @@ async def main():
 
         if i == 0:
             prompt_teacher = PROMPT_IDENTIFY_COMPONENTS_START
-            results_conversation_teacher = await generate_response(model_teacher, sentences[76], None, sys_prompt_teacher, prompt_teacher, 0)
+            results_conversation_teacher = await generate_response(model_teacher, example_argument, None, sys_prompt_teacher, prompt_teacher, 0)
             teacher_response = results_conversation_teacher.content
             conversation_teacher.append(teacher_response)
             chat_history += "teacher: " + teacher_response
             chat_history += "\n"
         else:
             prompt_teacher = PROMPT_IDENTIFY_COMPONENTS_CONTINUED
-            results_conversation_layman = await generate_response(model_layman, sentences[76], chat_history, sys_prompt_layman, prompt_layman, 0)
+            results_conversation_layman = await generate_response(model_layman, example_argument, chat_history, sys_prompt_layman, prompt_layman, 0)
             layman_response = results_conversation_layman.content
             conversation_layman.append(layman_response)
             chat_history += "layman: " + layman_response
             chat_history += "\n"
-            results_conversation_teacher = await generate_response(model_teacher, sentences[76], chat_history, sys_prompt_teacher, prompt_teacher, 0)
+            results_conversation_teacher = await generate_response(model_teacher, example_argument, chat_history, sys_prompt_teacher, prompt_teacher, 0)
             teacher_response = results_conversation_teacher.content
             conversation_teacher.append(teacher_response)
             chat_history += "teacher: " + teacher_response

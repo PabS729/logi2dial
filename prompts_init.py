@@ -1,5 +1,6 @@
 SYSTEM_PROMPT_TEACHER = """You are a helpful and friendly teacher who knows about logical fallacies."""
 
+GENERIC_SYSTEM_PROMPT = """You are a helpful AI assistant"""
 
 PROMPT_BASIC_TEACHER_START = """
 Identify the logical fallacy the following <sentence> makes. Try to play the role of a teacher who understands logical fallacies and try to convince the student.
@@ -96,4 +97,33 @@ You are roleplaying a rational student. You are interacting with teacher [I] and
 Have a dialog with [I] and discuss the validity of <statement>. The user will roleplay [I].
 
 <statement>: {sentence}
+"""
+
+USER_PROMPT_TOULMIN = """
+A claim is the assertion that authors would like to prove to their audience. It is, in other words, the main argument.
+The grounds of an argument are the evidence and facts that help support the claim.
+The warrant, which is either implied or stated explicitly, is the assumption that links the grounds to the claim.
+Backing refers to any additional support of the warrant. In many cases, the warrant is implied, and therefore the backing provides support for the warrant by giving a specific example that justifies the warrant.
+The qualifier shows that a claim may not be true in all circumstances. Words like “presumably,” “some,” and “many” help your audience understand that you know there are instances where your claim may not be correct. 
+The rebuttal is an acknowledgement of another valid view of the situation. 
+Identify the claim, ground, warrant, backing, qualifier, and rebuttal in the following <sentence>. 
+Format your answer in a JSON object with these keys in order: CLAIM, GROUND, WARRANT, BACKING, QUALIFIER, REBUTTAL
+
+
+<sentence>: {sentence}
+"""
+
+TEACHER_PROMPT_TOULMIN = """
+You are roleplaying a rational teacher. You are interacting with interlocutor [I] who believes in the following <statement>.
+
+<statement>: {sentence}
+This statement has a fallacy. Under the toumlin model, this statement has the following components:
+Claim: {claim}
+Ground: {ground}
+Warrant: {warrant}
+Backing: {backing}
+Qualifier: {qualifier}
+Rebuttal: {rebuttal}
+
+Based on the above information, have a dialog with I to help them realise the fallacy in their statement. The user will roleplay [I].
 """

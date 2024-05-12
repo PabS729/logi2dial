@@ -1,121 +1,123 @@
-from langchain.schema import (
-    AIMessage,
-    HumanMessage,
-    SystemMessage
-)
 
-from langchain.chat_models import ChatOpenAI
-from langchain.llms import OpenAIChat
-from langchain.callbacks import get_openai_callback
-
+from openai import OpenAI
+from def_logical_fallacy import *
 from ast import parse
 from collections import defaultdict
 import json
 import os
 import asyncio
 from prompts_init import *
-from dotenv import load_dotenv
-from pathlib import Path
-import spacy
 import argparse
 import pandas as pd
-from tqdm import tqdm
-from numpy import random
 
-env_path = '.env'
-load_dotenv(dotenv_path=env_path, verbose=True)
-
-OPENAI_KEY = os.getenv('OPENAI_API_KEY')
-
-nlp = spacy.load("en_core_web_sm")
-
-async def generate_response(model_name, sentence, chat_history, prompt_sys, prompt_gen, temperature=0):
-    llm = ChatOpenAI(model_name=model_name, temperature=temperature, openai_api_key=OPENAI_KEY)
+async def generate_response(role, model_name, sentence, teacher_res, student_res, prompt_gen, temperature=0, fallacy=None):
+    client = OpenAI()
     # llm = OpenAIChat(temperature=temperature, openai_api_key=API_KEY)
     
     await asyncio.sleep(0.1)
-    sys_prompt = prompt_sys
+
         
     p = prompt_gen
-    if chat_history != None:
-        user_prompt = p.format(sentence=sentence, history=chat_history)
+    msgs = []
+    if fallacy != None: 
+        definition = fallacy_dc[fallacy]
+        user_prompt = p.format(sentence=sentence, fallacy=fallacy, definition=definition)
+        msgs.append({"role": "system", "content": user_prompt})
     else:
         user_prompt = p.format(sentence=sentence)
-    message = [
-                SystemMessage(content=sys_prompt),
-                HumanMessage(content=user_prompt)
-                ]
-    
-    result = await llm.ainvoke(message)
+        msgs.append({"role": "system", "content": user_prompt})
+
+    #teacher and student take turns
+    if role == "teacher": 
+        for (t,s) in zip(teacher_res, student_res):
+            msgs.append({"role": "assistant", "content": t})
+            msgs.append({"role": "user", "content": s})
+    else:
+        for (t,s) in zip(teacher_res[:-2], student_res):
+            msgs.append({"role": "user", "content": t})
+            msgs.append({"role": "assistant", "content": s})
+        msgs.append({"role": "user", "content": teacher_res[-1]})
+    response = client.chat.completions.create(
+        model=model_name,
+        messages=msgs
+    )
     # print(results)
-    return result
+    return response
 
 
 async def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--file_to_annotate", type=str, default='climate_train.csv')
+    parser.add_argument("--file_to_annotate", type=str, default='edu_train_cleaned.csv')
     parser.add_argument("--definition", type=str, default='proposed')
+    parser.add_argument("--use_category", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='climate_conv_1.xlsx')
+    parser.add_argument("--save_fn", type=str, default='results/edu_conv_toulmin+cat_sampled_bothgpt4.xlsx')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=10)
     args = parser.parse_args()
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
+    # print(df_to_argue.loc[0])
 
     length_of_conversation = 5
     # st = df_to_annotate["Text"].tolist()
-    sentences = df_to_argue["source_article"].values.tolist()
-
+    sampled_df = df_to_argue.groupby("updated_label").sample(n=1, random_state=1)
     
-    if args.sample > 0:
-        sentences = random.sample(sentences, args.sample)
+    sentences = sampled_df["source_article"].values.tolist()
+    sentences = [
+        "That's what abortion is - killing innocent humans for money. Abortionists are government licensed hit men.""That's what abortion is - killing innocent humans for money. Abortionists are government licensed hit men.",
+        "Marie notices that many of her friends have started eating a low-carb diet and drinking protein shakes. Marie decides that if this many friends are eating this way that this must be the healthy way to eat so she joins them. This is an example of which logical fallacy?",
+        "You'll make the right decision because you have something that not many people do: you have heart.",
+        "Pamela never lies. She told me herself, so it must be true.",
+        "When the judge asked the defendant why he hadn't paid his parking fines, he said that he shouldn't have to pay them because the sign said 'Fine for parking here' and so he naturally presumed that it would be fine to park there.",
+        "My brother's girlfriend's Mother's hairdresser said that COVID numbers are going down, so I'm not going to bother with my mask",
+        "If the argument is supposed to be about whether or not we, as the American public should wear masks, and you argue: 'Asking an infant to wear a mask is ridiculous!'",
+        "All forest creatures live in the woods.All leprechauns are forest creatures.Therefore, some leprechauns live in the woods.",
+        "Mother: It’s bedtime Jane Jane: Mom, how do ants feed their babies? Mother: Don’t know dear, close your eyes now. Jane: But mama, do ant babies cry when they’re hungry?",
+        "every time Joe goes swimming he is wearing his Speedos. Something about wearing that Speedo must make him want to go swimming.",
+        "If you don’t say the Pledge of Allegiance, then you must be a traitor.",
+        "If I don't take the right classes in high school, then I won't be able to get into a good college. If I don't get into a good college, then I won't be able to get a job. If I can't get a job, then I am going to end up homeless.",
+        "Is your stupidity inborn?"
+    ]
+    print(len(sentences))
+    labels = sampled_df["updated_label"].values.tolist()
 
-    chat_history = ""
     conversation_teacher = []
-    conversation_layman = []
-    model_layman = "gpt-4-turbo-2024-04-09"
-    model_teacher = "gpt-3.5-turbo-0125"
+    conversation_student = []
+    model_student = "gpt-4-turbo-2024-04-09"
+    model_teacher = model_student
+    # model_teacher = "gpt-3.5-turbo-0125"
+    sampled_sentence = []
+    sampled_labels = []
 
-    example_argument = "As soon as the word emissions entered the language and became part of a religious ideology , electricity prices skyrocketed , electricity supply became more unreliable , subsidies for wind and solar energy went through the roof and employers and consumers had massive cost increases ."
+    for j in range(len(sentences)):
+        print(sentences[j])
+        example_label = labels[j]
+        example_argument = sentences[j]
+        if not args.use_category:
+            example_label = None
+        for _ in range(length_of_conversation):
+            sys_prompt_teacher = SYSTEM_PROMPT_TEACHER_NEW
+            sys_prompt_student = SYSTEM_PROMPT_STUDENT_NEW
 
-    for i in range(length_of_conversation):
-
-        
-        sys_prompt_teacher = SYSTEM_PROMPT_TEACHER
-        sys_prompt_layman = SYSTEM_PROMPT_LAYMAN
-        prompt_layman = PROMPT_LAYMAN_CONTINUED
-
-
-        if i == 0:
-            prompt_teacher = PROMPT_IDENTIFY_COMPONENTS_START
-            results_conversation_teacher = await generate_response(model_teacher, example_argument, None, sys_prompt_teacher, prompt_teacher, 0)
+            results_conversation_teacher = await generate_response("teacher", model_teacher, example_argument, conversation_teacher, conversation_student, sys_prompt_teacher)
             teacher_response = results_conversation_teacher.content
             conversation_teacher.append(teacher_response)
-            chat_history += "teacher: " + teacher_response
-            chat_history += "\n"
-        else:
-            prompt_teacher = PROMPT_IDENTIFY_COMPONENTS_CONTINUED
-            results_conversation_layman = await generate_response(model_layman, example_argument, chat_history, sys_prompt_layman, prompt_layman, 0)
-            layman_response = results_conversation_layman.content
-            conversation_layman.append(layman_response)
-            chat_history += "layman: " + layman_response
-            chat_history += "\n"
-            results_conversation_teacher = await generate_response(model_teacher, example_argument, chat_history, sys_prompt_teacher, prompt_teacher, 0)
-            teacher_response = results_conversation_teacher.content
-            conversation_teacher.append(teacher_response)
-            chat_history += "teacher: " + teacher_response
-            chat_history += "\n"
-        print("done")
-    conversation_layman.append('.')
 
-    data_dict = {'teacher_response': conversation_teacher, 'layman_response': conversation_layman}
+            results_conversation_student = await generate_response("student", model_student, example_argument, conversation_teacher, conversation_student, sys_prompt_student)
+            student_response = results_conversation_student.content
+            conversation_student.append(student_response)
+
+                
+            sampled_sentence.append(example_argument)
+            sampled_labels.append(example_label)
+        conversation_student.append('.')
+
+    data_dict = {'teacher_response': conversation_teacher, 'layman_response': conversation_layman, 'sentence_sample': sampled_sentence, 'labels': sampled_labels}
     df_result = pd.DataFrame(data_dict)
     df_result.to_excel(args.save_fn, index=False)
     print("done async")
-    print(conversation_layman)
-    print(conversation_teacher)
 
 
 if __name__ == '__main__':

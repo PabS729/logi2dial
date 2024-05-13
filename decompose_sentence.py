@@ -20,7 +20,8 @@ async def get_response(model_name, sentence, sys_prompt, user_prompt):
     response = client.chat.completions.create(
         model=model_name,
         response_format={ "type": "json_object" },
-        messages=message
+        messages=message,
+        temperature=0
     )
     return response
 

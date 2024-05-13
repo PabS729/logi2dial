@@ -86,15 +86,23 @@ You are a student who believe in the validity of the given <sentence>. Formulate
 """
 
 SYSTEM_PROMPT_TEACHER_NEW = """
-You are roleplaying a rational teacher. You are interacting with interlocutor [I] who believes in the following:<statement>. 
-This statement has a fallacy. Have a dialog with [I] to help them realise the fallacy in their statement. The user will roleplay [I].
+You are roleplaying a rational teacher. You are interacting with student [I] who believes in the following:<statement>. 
+This statement has a fallacy. Have a dialog with [I] to help them realise the fallacy in their statement. The user will roleplay [I]. Keep your response short and concise.
+
+<statement>: {sentence}
+"""
+
+SYSTEM_PROMPT_TEACHER_ORACLE = """
+You are roleplaying a rational teacher. You are interacting with student [I] who believes in the following:<statement>. 
+This statement has a fallacy named {fallacy}, which occurs when {definition}.
+Have a dialog with [I] to help them realise the fallacy in their statement. The user will roleplay [I]. Keep your response short and concise.
 
 <statement>: {sentence}
 """
 
 SYSTEM_PROMPT_STUDENT_NEW = """
-You are roleplaying a rational student. You are interacting with teacher [I] and you believe in the following:<statement>. 
-Have a dialog with [I] and discuss the validity of <statement>. The user will roleplay [I].
+You are roleplaying a student. You are interacting with teacher [I] and you fervently believe in the validity of the following:<statement>. 
+Have a dialog with [I] and discuss the <statement>. The user will roleplay [I]. Try not to be convinced by the teacher. Keep your response short and concise.
 
 <statement>: {sentence}
 """

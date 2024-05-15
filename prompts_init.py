@@ -169,5 +169,5 @@ PROMPT_TEACHER_POINT_OUT = """
 You are roleplaying a rational teacher. You are interacting with student [I] who believes in the following <statement>. 
 The following <list> of statements have already been agreed on, and they contain a contradiction to <statement>. Find this contradiction and have a dialogue with [I] about it. The user will roleplay [I]. Keep your response short and concise.
 <statement>: {sentence}
-<list>: {agreement_bank}
+<list>: {fact_bank}
 """

@@ -69,9 +69,9 @@ async def main():
     parser.add_argument("--components_to_read", type=str, default='decomposed_sentences_toulmin.xlsx')
     parser.add_argument("--definition", type=str, default='proposed')
     parser.add_argument("--use_category", type=bool, default=False)
-    parser.add_argument("--use_toulmin", type=bool, default=False)
+    parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/basic_conv_stubborn.xlsx')
+    parser.add_argument("--save_fn", type=str, default='results/basic_conv_toulmin_adjusted.xlsx')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=10)
@@ -127,7 +127,7 @@ async def main():
         if not args.use_category:
             example_label = None
         for _ in range(length_of_conversation):
-            sys_prompt_teacher = SYSTEM_PROMPT_TEACHER_NEW
+            sys_prompt_teacher = TEACHER_PROMPT_TOULMIN
             sys_prompt_student = SYSTEM_PROMPT_STUDENT_NEW
 
             results_conversation_teacher = await generate_response("teacher", model_teacher, 

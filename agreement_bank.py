@@ -116,17 +116,17 @@ async def main():
     prompt_agent = PROMPT_AGENT_CHECK_AGREEMENT
     agreement_bank = []
 
-    #first, the teacher finds all facts and put them into the fact bank
+    #First, the teacher finds all facts and put them into the fact bank
     fact_bank_res = await generate_response("fact_bank", model_teacher, example_sentence, 
                                             None, None, None, None, None, prompt_fact_bank, 0)
     fact_dict = fact_bank_res.choices[0].message.content
 
-    #next, the teacher identifies the minimum set of facts that generates a contradiction
+    #Next, the teacher identifies the minimum set of facts that generates a contradiction
     contradiction_res = await generate_response("find_contradiction", model_teacher, example_sentence, 
                                                 None, fact_dict, None, None, None, prompt_find_contradiction, 0)
     contradiction_dict = contradiction_res.choices[0].message.content
     
-    #iterate through all statements in the minimum set and get the student to agree on them
+    #Iterate through all statements in the minimum set and get the student to agree on them
     for target in contradiction_dict.values():
         done = False
         chat_history = ""
@@ -144,7 +144,7 @@ async def main():
             agreed = agent_res.choices[0].message.content
             if agreed:
                 done = True
-                
+
 
 
 

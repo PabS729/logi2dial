@@ -13,7 +13,7 @@ import time
 role_bank = ["agent", "fact_bank", "find_contradiction", "point_out", "student", "get_agreement"]
 
 async def generate_response(role, model_name, sentence, history, bank, target_statement, 
-                            teacher_res, student_res, prompt_gen, temperature=0, components=None):
+                            teacher_res, student_res, prompt_gen, temperature=0):
     client = OpenAI()
 
     p = prompt_gen
@@ -102,6 +102,7 @@ async def main():
     conversation_student = []
     model_student = "gpt-4-turbo-2024-04-09"
     model_teacher = model_student
+    model_agent = model_teacher
     # model_teacher = "gpt-3.5-turbo-0125"
     sampled_sentence = []
     sampled_labels = []
@@ -110,11 +111,40 @@ async def main():
     done = False
     prompt_fact_bank = PROMPT_FACT_BANK
     prompt_find_contradiction = PROMPT_TEACHER_FIND_CONTRADICTION
-    fact_bank_res = await generate_response("fact_bank", model_teacher, example_sentence, None, None, None, None, None, prompt_fact_bank)
+    prompt_teacher_agreement = PROMPT_TEACHER_AGREEMENT
+    prompt_student = SYSTEM_PROMPT_STUDENT_NEW
+    prompt_agent = PROMPT_AGENT_CHECK_AGREEMENT
+    agreement_bank = []
+
+    #first, the teacher finds all facts and put them into the fact bank
+    fact_bank_res = await generate_response("fact_bank", model_teacher, example_sentence, 
+                                            None, None, None, None, None, prompt_fact_bank, 0)
     fact_dict = fact_bank_res.choices[0].message.content
-    contradiction_res = await generate_response("find_contradiction", model_teacher, example_sentence, None, fact_dict, None, None, None, prompt_find_contradiction)
+
+    #next, the teacher identifies the minimum set of facts that generates a contradiction
+    contradiction_res = await generate_response("find_contradiction", model_teacher, example_sentence, 
+                                                None, fact_dict, None, None, None, prompt_find_contradiction, 0)
     contradiction_dict = contradiction_res.choices[0].message.content
-    while not done:
+    
+    #iterate through all statements in the minimum set and get the student to agree on them
+    for target in contradiction_dict.values():
+        done = False
+        chat_history = ""
+        while not done: 
+            teacher_res = await generate_response("get_agreement", model_teacher, example_sentence, 
+                                                  None, None, target, conversation_teacher, conversation_student, prompt_teacher_agreement, 0)
+            conversation_teacher.append(teacher_res.choices[0].message.content)
+            chat_history += "teacher: " + teacher_res.choices[0].message.content + "\n"
+            student_res = await generate_response("student", model_student, example_sentence, 
+                                                  None, None, None, conversation_teacher, conversation_student, prompt_student, 0)
+            conversation_student.append(student_res.choices[0].message.content)
+            chat_history += "student: " + student_res.choices[0].message.content + "\n"
+            agent_res = await generate_response("agent", model_agent, example_sentence, 
+                                                chat_history, None, None, None, None, prompt_agent, 0)
+            agreed = agent_res.choices[0].message.content
+            if agreed:
+                done = True
+                
 
 
 

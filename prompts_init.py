@@ -159,8 +159,8 @@ As a teacher, you know that a <list> of statements have already been agreed on. 
 <target>: {target_statement}
 """
 
-PROMPT_MEDIATOR = """
-You are roleplaying an agent that keep track of agreements. Check whether <statement> is agreed by the teacher and student using <chat_history>. Answer with "yes" or "no".
+PROMPT_AGENT_CHECK_AGREEMENT = """
+You are roleplaying an agent that keep track of agreements. Check whether <statement> is agreed by the teacher and student using <chat_history>. Answer with "True" if the statement is agreed or "False" otherwise.
 <statement>: {sentence} 
 <history>: {chat_history}
 """

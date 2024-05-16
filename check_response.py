@@ -71,7 +71,7 @@ async def main():
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/basic_conv_TOULMIN_sample2_im.xlsx')
+    parser.add_argument("--save_fn", type=str, default='results/basic_conv_stubborn.xlsx')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=10)

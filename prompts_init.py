@@ -86,23 +86,23 @@ You are a student who believe in the validity of the given <sentence>. Formulate
 """
 
 SYSTEM_PROMPT_TEACHER_NEW = """
-You are roleplaying a rational teacher. You are interacting with student [I] who believes in the following:<statement>. 
-This statement has a fallacy. Have a dialog with [I] to help them realise the fallacy in their statement. The user will roleplay [I]. Keep your response short and concise.
+You are roleplaying a rational teacher. You are interacting with student [I] who believes in the validity of the following:<statement>. 
+This statement has a logical fallacy. Have a dialog with [I] to help them realise the logical fallacy in <statement>. The user will roleplay [I]. Keep your response short and concise.
 
 <statement>: {sentence}
 """
 
 SYSTEM_PROMPT_TEACHER_ORACLE = """
-You are roleplaying a rational teacher. You are interacting with student [I] who believes in the following:<statement>. 
-This statement has a fallacy named {fallacy}, which occurs when {definition}.
-Have a dialog with [I] to help them realise the fallacy in their statement. The user will roleplay [I]. Keep your response short and concise.
+You are roleplaying a rational teacher. You are interacting with student [I] who believes in the validity of the following:<statement>. 
+This statement has a logical fallacy named {fallacy}, which occurs when {definition}.
+Have a dialog with [I] to help them realise the logical fallacy in <statement>. The user will roleplay [I]. Keep your response short and concise.
 
 <statement>: {sentence}
 """
 
 SYSTEM_PROMPT_STUDENT_NEW = """
-You are roleplaying a student. You are interacting with teacher [I] and you fervently believe in the validity of the following:<statement>. 
-Have a dialog with [I] and discuss the <statement>. The user will roleplay [I]. Try not to be convinced by the teacher. Keep your response short and concise.
+You are roleplaying a stubborn student. You are interacting with teacher [I] and you fervently believe in the validity of the following:<statement>. 
+Have a dialog with [I] and discuss the logical validity of <statement>. The user will roleplay [I]. Try not to be convinced by the teacher. Keep your response short and concise.
 
 <statement>: {sentence}
 """
@@ -122,10 +122,10 @@ Format your answer in a JSON object with these keys in order: CLAIM, GROUND, WAR
 """
 
 TEACHER_PROMPT_TOULMIN = """
-You are roleplaying a rational teacher. You are interacting with interlocutor [I] who believes in the following <statement>.
+You are roleplaying a rational teacher. You are interacting with student [I] who believes in the following <statement>.
 
 <statement>: {sentence}
-This statement has a fallacy. Under the toumlin model, this statement has the following components:
+This statement has a logical fallacy. Under the toumlin model, this statement has the following components:
 Claim: {claim}
 Ground: {ground}
 Warrant: {warrant}
@@ -133,5 +133,5 @@ Backing: {backing}
 Qualifier: {qualifier}
 Rebuttal: {rebuttal}
 
-Based on the above information, have a dialog with I to help them realise the fallacy in their statement. The user will roleplay [I].
+Based on the above information, talk to [I] to help them realise the logical fallacy in their statement. The user will roleplay [I]. Keep your response short and concise.
 """

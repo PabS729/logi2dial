@@ -66,12 +66,12 @@ async def generate_response(role, model_name, sentence,
 async def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--file_to_annotate", type=str, default='edu_train_cleaned.csv')
-    parser.add_argument("--components_to_read", type=str, default='decomposed_sentences_tou_sample2.xlsx')
+    parser.add_argument("--components_to_read", type=str, default='decomposed_sentences_toulmin.xlsx')
     parser.add_argument("--definition", type=str, default='proposed')
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/basic_conv_stubborn.xlsx')
+    parser.add_argument("--save_fn", type=str, default='results/basic_conv_toulmin_adjusted.xlsx')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=10)
@@ -84,33 +84,31 @@ async def main():
 
     length_of_conversation = 5
     # st = df_to_annotate["Text"].tolist()
-    sampled_df = df_to_argue.groupby("updated_label").sample(n=1, random_state=2)
+    sampled_df = df_to_argue.groupby("updated_label").sample(n=1, random_state=1)
     
     sentences = sampled_df["source_article"].values.tolist()
-    # sentences = [
-    #     "That's what abortion is - killing innocent humans for money. Abortionists are government licensed hit men.""That's what abortion is - killing innocent humans for money. Abortionists are government licensed hit men.",
-    #     "Marie notices that many of her friends have started eating a low-carb diet and drinking protein shakes. Marie decides that if this many friends are eating this way that this must be the healthy way to eat so she joins them. This is an example of which logical fallacy?",
-    #     "You'll make the right decision because you have something that not many people do: you have heart.",
-    #     "Pamela never lies. She told me herself, so it must be true.",
+    sentences = [
+        "That's what abortion is - killing innocent humans for money. Abortionists are government licensed hit men.""That's what abortion is - killing innocent humans for money. Abortionists are government licensed hit men.",
+        "Marie notices that many of her friends have started eating a low-carb diet and drinking protein shakes. Marie decides that if this many friends are eating this way that this must be the healthy way to eat so she joins them. This is an example of which logical fallacy?",
+        "You'll make the right decision because you have something that not many people do: you have heart.",
+        "Pamela never lies. She told me herself, so it must be true.",
 
-    #     "When the judge asked the defendant why he hadn't paid his parking fines, he said that he shouldn't have to pay them because the sign said 'Fine for parking here' and so he naturally presumed that it would be fine to park there.",
-    #     "My brother's girlfriend's Mother's hairdresser said that COVID numbers are going down, so I'm not going to bother with my mask",
-    #     "If the argument is supposed to be about whether or not we, as the American public should wear masks, and you argue: 'Asking an infant to wear a mask is ridiculous!'",
-    #     "All forest creatures live in the woods.All leprechauns are forest creatures.Therefore, some leprechauns live in the woods.",
-    #     "Mother: It’s bedtime Jane Jane: Mom, how do ants feed their babies? Mother: Don’t know dear, close your eyes now. Jane: But mama, do ant babies cry when they’re hungry?",
-    #     "every time Joe goes swimming he is wearing his Speedos. Something about wearing that Speedo must make him want to go swimming.",
-    #     "If you don’t say the Pledge of Allegiance, then you must be a traitor.",
-    #     "If I don't take the right classes in high school, then I won't be able to get into a good college. If I don't get into a good college, then I won't be able to get a job. If I can't get a job, then I am going to end up homeless.",
-    #     "Is your stupidity inborn?"
-    # ]
+        "When the judge asked the defendant why he hadn't paid his parking fines, he said that he shouldn't have to pay them because the sign said 'Fine for parking here' and so he naturally presumed that it would be fine to park there.",
+        "My brother's girlfriend's Mother's hairdresser said that COVID numbers are going down, so I'm not going to bother with my mask",
+        "If the argument is supposed to be about whether or not we, as the American public should wear masks, and you argue: 'Asking an infant to wear a mask is ridiculous!'",
+        "All forest creatures live in the woods.All leprechauns are forest creatures.Therefore, some leprechauns live in the woods.",
+        "Mother: It’s bedtime Jane Jane: Mom, how do ants feed their babies? Mother: Don’t know dear, close your eyes now. Jane: But mama, do ant babies cry when they’re hungry?",
+        "every time Joe goes swimming he is wearing his Speedos. Something about wearing that Speedo must make him want to go swimming.",
+        "If you don’t say the Pledge of Allegiance, then you must be a traitor.",
+        "If I don't take the right classes in high school, then I won't be able to get into a good college. If I don't get into a good college, then I won't be able to get a job. If I can't get a job, then I am going to end up homeless.",
+        "Is your stupidity inborn?"
+    ]
     print(len(sentences))
     labels = sampled_df["updated_label"].values.tolist()
 
     conversation_teacher = []
     conversation_student = []
-    omni = "gpt-4o"
     model_student = "gpt-4-turbo-2024-04-09"
-    # model_student = omni
     model_teacher = model_student
     # model_teacher = "gpt-3.5-turbo-0125"
     sampled_sentence = []

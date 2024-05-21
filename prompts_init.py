@@ -102,7 +102,7 @@ Have a dialog with [I] to help them realise the logical fallacy in <statement>. 
 
 SYSTEM_PROMPT_STUDENT_NEW = """
 You are roleplaying a stubborn student. You are interacting with teacher [I] and you fervently believe in the validity of the following:<statement>. 
-Have a dialog with [I] and discuss the logical validity of <statement>. The user will roleplay [I]. Try not to be convinced by the teacher. Keep your response short and concise.
+Respond to [I] and discuss the validity of <statement>. The user will roleplay [I]. Try not to be convinced by the teacher. Keep your response short and concise.
 
 <statement>: {sentence}
 """
@@ -138,36 +138,3 @@ Based on the above information, talk to [I] to help them realise the fallacy in 
 
 
 
-PROMPT_FACT_BANK = """
-What are the well-esablished facts in this <statement>?
-<statement>: {sentence}
-Format your answer in JSON with the numbers as keys.
-"""
-
-PROMPT_TEACHER_FIND_CONTRADICTION = """
-You are roleplaying a rational teacher. You are interacting with student [I] who believes in the following <statement>.
-Also, you know that a <list> of facts are derived from this statement. Find the minimum subset of facts from the <list> that generates a contradiction to the <statement>. Format your answer in JSON with numbers as keys, and facts as values.
-<statement>: {sentence}
-<list>: {fact_bank}
-"""
-
-PROMPT_TEACHER_AGREEMENT = """
-You are roleplaying a rational teacher. You are interacting with student [I] who believes in the following <statement>.
-As a teacher, you know that a <list> of statements have already been agreed on. Have a dialogue with [I] to get them agree on <target>. The user will roleplay [I]. Keep your response short and concise.
-<statement>: {sentence}
-<list>: {agreement_bank}
-<target>: {target_statement}
-"""
-
-PROMPT_AGENT_CHECK_AGREEMENT = """
-You are roleplaying an agent that keep track of agreements. Check whether <statement> is agreed by the teacher and student using <chat_history>. Answer with "True" if the statement is agreed or "False" otherwise.
-<statement>: {sentence} 
-<history>: {chat_history}
-"""
-
-PROMPT_TEACHER_POINT_OUT = """
-You are roleplaying a rational teacher. You are interacting with student [I] who believes in the following <statement>. 
-The following <list> of statements have already been agreed on, and they contain a contradiction to <statement>. Find this contradiction and have a dialogue with [I] about it. The user will roleplay [I]. Keep your response short and concise.
-<statement>: {sentence}
-<list>: {fact_bank}
-"""

@@ -5,12 +5,12 @@ from collections import defaultdict
 import json
 import os
 import asyncio
-from prompts_init import *
+from prompt_bank import *
 import argparse
 import pandas as pd
 import time
 
-role_bank = ["agent", "fact_bank", "find_contradiction", "point_out", "student", "get_agreement"]
+role_bank = ["agent", "fact_bank", "find_contradiction", "point_out", "student", "get_agreement", "check_agreement"]
 
 async def generate_response(role, model_name, sentence, history, bank, target_statement, 
                             teacher_res, student_res, prompt_gen, temperature=0):
@@ -20,9 +20,9 @@ async def generate_response(role, model_name, sentence, history, bank, target_st
     msgs = []
     if role == "agent" : 
         user_prompt = p.format(sentence=sentence, chat_history=history)
-    elif role == "fact_bank" or "student":
+    elif role in ["fact_bank", "student", "check_agreement"]:
         user_prompt = p.format(sentence=sentence)
-    elif role == "find_contradiction" or "point_out": 
+    elif role in ["find_contradiction", "point_out"]: 
         user_prompt = p.format(sentence=sentence, fact_bank=bank)
     else:
         user_prompt = p.format(sentence=sentence, agreement_bank=bank, target_statement=target_statement)
@@ -36,22 +36,31 @@ async def generate_response(role, model_name, sentence, history, bank, target_st
             msgs.append({"role": "assistant", "content": t})
             msgs.append({"role": "user", "content": s})
     if role == "student":
-        for (t,s) in zip(teacher_res[:-2], student_res):
-            msgs.append({"role": "user", "content": t})
-            msgs.append({"role": "assistant", "content": s})
+        if zip(teacher_res[:-2], student_res) != None: 
+            for (t,s) in zip(teacher_res[:-2], student_res):
+                msgs.append({"role": "user", "content": t})
+                msgs.append({"role": "assistant", "content": s})
         msgs.append({"role": "user", "content": teacher_res[-1]})
     done = False
     while not done:
         try: 
-            response = client.chat.completions.create(
-            model=model_name,
-        messages=msgs,
-        temperature=temperature
-        )
-            print("done")
+            if role in ["fact_bank", "find_contradiction"]:
+                response = client.chat.completions.create(
+                model=model_name,
+            messages=msgs,
+            temperature=temperature,
+            response_format={ "type": "json_object" }
+            )
+            else:
+                response = client.chat.completions.create(
+                model=model_name,
+                messages=msgs,
+                temperature=temperature,
+                )
+            # print("done")
             done = True
-        except:
-            print("error caught, waiting...")
+        except Exception as e:
+            print("error caught, waiting...", e)
             time.sleep(60)
     return response
 
@@ -63,7 +72,7 @@ async def main():
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/basic_conv_toulmin_adjusted.xlsx')
+    parser.add_argument("--save_fn", type=str, default='results/agreement_bank_example4_tuned.xlsx')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=10)
@@ -98,57 +107,101 @@ async def main():
     print(len(sentences))
     labels = sampled_df["updated_label"].values.tolist()
 
-    conversation_teacher = []
-    conversation_student = []
-    model_student = "gpt-4-turbo-2024-04-09"
+
+    model_student = "gpt-4o"
     model_teacher = model_student
     model_agent = model_teacher
     # model_teacher = "gpt-3.5-turbo-0125"
     sampled_sentence = []
     sampled_labels = []
 
-    example_sentence = sentences[4]
+    example_sentence = sentences[5]
     done = False
     prompt_fact_bank = PROMPT_FACT_BANK
     prompt_find_contradiction = PROMPT_TEACHER_FIND_CONTRADICTION
     prompt_teacher_agreement = PROMPT_TEACHER_AGREEMENT
     prompt_student = SYSTEM_PROMPT_STUDENT_NEW
     prompt_agent = PROMPT_AGENT_CHECK_AGREEMENT
+    prompt_doublecheck = PROMPT_TEACHER_CHECK_AGREEMENT
+    prompt_student_check =PROMPT_STUDENT_CHECK
     agreement_bank = []
 
     #First, the teacher finds all facts and put them into the fact bank
     fact_bank_res = await generate_response("fact_bank", model_teacher, example_sentence, 
                                             None, None, None, None, None, prompt_fact_bank, 0)
-    fact_dict = fact_bank_res.choices[0].message.content
+    fact_dict = json.loads(fact_bank_res.choices[0].message.content)
+    print(fact_dict)
 
     #Next, the teacher identifies the minimum set of facts that generates a contradiction
     contradiction_res = await generate_response("find_contradiction", model_teacher, example_sentence, 
                                                 None, fact_dict, None, None, None, prompt_find_contradiction, 0)
-    contradiction_dict = contradiction_res.choices[0].message.content
-    
+    contradiction_dict = json.loads(contradiction_res.choices[0].message.content)
+    print(contradiction_dict)
     #Iterate through all statements in the minimum set and get the student to agree on them
+    conversation_teacher = []
+    conversation_student = []
+    agreement_bank = []
     for target in contradiction_dict.values():
+        count = 0
         done = False
-        chat_history = ""
+        chat_history = "\n"
+        conv_teacher = []
+        conv_student = []
+        alternative_appr = False
         while not done: 
             teacher_res = await generate_response("get_agreement", model_teacher, example_sentence, 
-                                                  None, None, target, conversation_teacher, conversation_student, prompt_teacher_agreement, 0)
+                                                  None, agreement_bank, target, conv_teacher, conv_student, prompt_teacher_agreement, 0)
             conversation_teacher.append(teacher_res.choices[0].message.content)
+            conv_teacher.append(teacher_res.choices[0].message.content)
             chat_history += "teacher: " + teacher_res.choices[0].message.content + "\n"
+
             student_res = await generate_response("student", model_student, example_sentence, 
-                                                  None, None, None, conversation_teacher, conversation_student, prompt_student, 0)
+                                                  None, None, None, conv_teacher, conv_student, prompt_student, 0)
             conversation_student.append(student_res.choices[0].message.content)
+            conv_student.append(student_res.choices[0].message.content)
             chat_history += "student: " + student_res.choices[0].message.content + "\n"
+            checked_agreement = await generate_response("check_agreement", model_teacher, target, None, None, None, None, None, prompt_doublecheck, 0)
+            parsed_agr = [checked_agreement.choices[0].message.content]
+            print(parsed_agr)
+            student_res = await generate_response("student", model_student, example_sentence, 
+                                                  None, None, None, parsed_agr, [], prompt_student_check, 0)
+            rs = student_res.choices[0].message.content
+            print(rs)
+            doublecheck_history = "teacher: " + parsed_agr[0] + "\n" + "student: " + rs
             agent_res = await generate_response("agent", model_agent, example_sentence, 
-                                                chat_history, None, None, None, None, prompt_agent, 0)
+                                                doublecheck_history, None, None, None, None, prompt_agent, 0)
             agreed = agent_res.choices[0].message.content
+            print(agreed)
+            sampled_sentence.append(example_sentence)
+            sampled_labels.append("")
+            count += 1
+            print(count)
+            print(chat_history)
             if agreed:
                 done = True
+                agreement_bank.append(target)
+            else:
+                if count == length_of_conversation:
+                    done = True
+                    alternative_appr = True
+
+        if alternative_appr:
+            continue
 
 
+    point_out_res = await generate_response("point_out", model_teacher, example_sentence, 
+                                            None, contradiction_dict, None, None, None, PROMPT_TEACHER_POINT_OUT, 0)
+    conversation_teacher.append(point_out_res.choices[0].message.content)
+    print(point_out_res.choices[0].message.content)
+    student_res = await generate_response("student", model_student, example_sentence, 
+                                                  None, None, None, conversation_teacher, conversation_student, prompt_student, 0)
+    conversation_student.append(student_res.choices[0].message.content)
+    print(student_res.choices[0].message.content)
+    sampled_sentence.append(example_sentence)
+    sampled_labels.append("")
 
 
-
+    print(len(conversation_teacher), len(conversation_student), len(sampled_sentence), len(sampled_labels))
     data_dict = {'teacher_response': conversation_teacher, 'layman_response': conversation_student, 'sentence_sample': sampled_sentence, 'labels': sampled_labels}
     df_result = pd.DataFrame(data_dict)
     df_result.to_excel(args.save_fn, index=False)

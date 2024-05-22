@@ -39,18 +39,19 @@ Check with the student whether the following <statement> is agreed on.
 """
 
 SYSTEM_PROMPT_STUDENT_NEW = """
-You are roleplaying a stubborn student. You are interacting with teacher [I] and you fervently believe in the validity of the following:<statement>. 
+You are roleplaying a stubborn student. You are interacting with teacher [I] and you fervently believe in the validity of the following:<statement>. You also agree to all statements in <agreement_bank> 
 Respond to [I] and discuss the validity of <statement>. The user will roleplay [I]. Try not to be convinced by the teacher. Keep your response short and concise.
 
 <statement>: {sentence}
+<agreement_bank>: {agreement_bank}
 """
 
-PROMPT_STUDENT_CHECK = """
-You are roleplaying a stubborn student. You are interacting with teacher [I] and you fervently believe in the validity of the following:<statement>. 
-Do you agree with the statement said by the teacher? Answer with "Yes" or "no".
+# PROMPT_STUDENT_CHECK = """
+# You are roleplaying a stubborn student. You are interacting with teacher [I] and you fervently believe in the validity of the following:<statement>. 
+# Do you agree with the statement said by the teacher? Answer with "Yes" or "no".
 
-<statement>: {sentence}
-"""
+# <statement>: {sentence}
+# """
 
 # PROMPT_TEACHER_REASSURE = """
 # You are roleplaying a rational teacher. You are interacting with student [I] who believes in the following <statement>. 

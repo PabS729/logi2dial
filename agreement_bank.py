@@ -74,7 +74,7 @@ async def main():
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/agreement_bank_sampled_seed2_full.xlsx')
+    parser.add_argument("--save_fn", type=str, default='results/agreement_bank_test_full_sampleseed2.xlsx')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=10)
@@ -210,13 +210,16 @@ async def main():
 
         print(agreement_bank)
         point_out_res = await generate_response("point_out", model_teacher, example_sentence, 
-                                                None, contradiction_dict, None, None, None, PROMPT_TEACHER_POINT_OUT, 0)
+                                                None, contradiction_dict, None, conv_teacher, conv_student, PROMPT_TEACHER_POINT_OUT, 0)
         conversation_teacher.append(point_out_res.choices[0].message.content)
+        conv_teacher.append(point_out_res.choices[0].message.content)
         print(point_out_res.choices[0].message.content)
+        
         student_res = await generate_response("student", model_student, example_sentence, 
                                                     None, agreement_bank, None, conv_teacher, conv_student, prompt_student, 0)
         conversation_student.append(student_res.choices[0].message.content)
         print(student_res.choices[0].message.content)
+        # print(conv_teacher, conv_student)
         sampled_sentence.append(example_sentence)
         sampled_labels.append(example_label)
         factdicts.append("")

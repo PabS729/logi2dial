@@ -46,17 +46,9 @@ Respond to [I] and discuss the validity of <statement>. The user will roleplay [
 <agreement_bank>: {agreement_bank}
 """
 
-# PROMPT_STUDENT_CHECK = """
-# You are roleplaying a stubborn student. You are interacting with teacher [I] and you fervently believe in the validity of the following:<statement>. 
-# Do you agree with the statement said by the teacher? Answer with "Yes" or "no".
+PROMPT_AGENT_CHECK_RESPONSE = """
+You are roleplaying a language expert. Check whether the student in the following <response> is repeating or paraphrasing the <statement>. Answer with "Yes" or "No".
+<response>: {chat_history}
+<statement>: {sentence}
 
-# <statement>: {sentence}
-# """
-
-# PROMPT_TEACHER_REASSURE = """
-# You are roleplaying a rational teacher. You are interacting with student [I] who believes in the following <statement>. 
-# The following <list> of statements have already been agreed on, and they contain a logical contradiction to <statement>.  Show this contradiction to [I]. The user will roleplay [I]. Keep your response short and concise.
-# <statement>: {sentence}
-# <list>: {fact_bank}
-
-# """
+"""

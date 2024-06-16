@@ -11,6 +11,14 @@ Format your answer in JSON with the numbers as keys.
 # <list>: {fact_bank}
 # """
 
+PROMPT_IDENTIFY_CATEGORY = """
+What logical fallacy does the following <statement> have? 
+
+<statement>: {sentence}
+
+Format your answer in JSON with key: "1": <type of fallacy commited>
+"""
+
 PROMPT_TEACHER_AGREEMENT = """
 You are roleplaying a rational teacher. You are interacting with student [I]. 
 Keep in mind that <target> is a fact. Talk to [I] to get them agree that <target> is a fact. The user will roleplay [I]. Keep your response short and concise.
@@ -53,9 +61,9 @@ You are roleplaying a language expert. Check whether the student in the followin
 """
 
 PROMPT_COUNTEREXAMPLE = """
-Below is the <premise> and <conclusion> of an argument. State a real-world counterexample with a similar <premise> but leads to a false conclusion. Answer with the counterexample. 
-<premise>: {premise}
-<conclusion>: {conclusion}
+Below is an <argument> with a logical fallacy. Think about the given <strategy> to counter this argument and state a real-world counterexample of the argument. Answer with the counterexample. 
+<argument>: {sentence}
+<strategy>: {counter}
 
 Format your answer in JSON with the following key: "1": <counterexample>
 """

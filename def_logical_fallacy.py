@@ -15,4 +15,23 @@ fallacy_dc = {
 "intentional":"an appeal is made to some form of ethics, authority, or credibility."
 }
 
+strategy_dc = {
+"faulty generalization": "If the argument is a slippery slope, find a counterexample with the first sub-claim's premise and a conclusion that is contrary to the last sub-claim's conclusion. Otherwise, find a real-world example that is contrary to the conclusion.",
+"false causality": "an argument assumes that since two events are correlated, they must also have a cause and effect relationship",
+"circular reasoning": "an argument uses the claim it is trying to prove as proof that the claim is true.",
+"ad populum": "find a real-world example with a similar premise to the original argument, but the conclusion is clearly false",
+"ad hominem": "find a real-world example where another person has the same attribute as the person being attacked, but exhibits traits that are opposite to the conclusion of the argument",
+"fallacy of logic": "there is a logical flaw in the reasoning behind the argument, such as a propositional logic flaw",
+"appeal to emotion": "Find a real-world example with a similar premise, but leads to a different outcome compared with the conclusion.",
+"false dilemma": "find a real-world example with the same premise to the original argument, but can lead to a different position from the two discussed in the argument",
+"equivocation": "ambiguous or evasive language is used to avoid committing oneself to a position, or the same word is used in an argument but with different meanings.",
+"fallacy of extension":"Understand the original position of the proponent and the interpretations made to this position. Make an example that represents the original position, but leads to conclusions opposite from the interpretation.",
+"fallacy of relevance":"the speaker attempts to divert attention from the primary argument by offering a point that does not suffice as counterpoint/supporting evidence (even if it is true)",
+"fallacy of credibility":"find a real-world example where someone famous said something in a similar premise, and what he or she said was proven clearly wrong",
+"intentional":"an appeal is made to some form of ethics, authority, or credibility."
 
+}
+
+V1_adp = "find a situation with a similar premise to the original argument, but the conclusion is clearly false"
+emo_alt = "Find a situation with a similar premise and conclusion, but it is clearly absurd should the conclusion and premise both holds. "
+straw_orig = "Understand the original position of the proponent. Make a real-world counterexample that represents the original position, but leads to conclusions opposite from the refutation made"

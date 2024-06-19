@@ -76,7 +76,7 @@ async def main():
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/agreement_test_0616_straw_mod.xlsx')
+    parser.add_argument("--save_fn", type=str, default='results/agreement_test_0618_fd.xlsx')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=10)
@@ -90,8 +90,8 @@ async def main():
     length_of_conversation = 5
     # st = df_to_annotate["Text"].tolist()
     sampled_df = df_to_argue.groupby("updated_label").sample(n=1, random_state=2)
-    sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "fallacy of extension"].sample(n=5, random_state=1)
-    strategy = strategy_dc["fallacy of extension"]
+    sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "false dilemma"].sample(n=5, random_state=1)
+    strategy = strategy_dc["false dilemma"]
     # strategy = emo_alt
     sentences = sampled_df["source_article"].values.tolist()
     # sentences = [
@@ -133,6 +133,7 @@ async def main():
     prompt_student = SYSTEM_PROMPT_STUDENT_NEW
     prompt_agent = PROMPT_AGENT_CHECK_AGREEMENT
     prompt_counter = PROMPT_COUNTEREXAMPLE
+    prompt_circ = PROMPT_CIRCULAR_REASONING
     prompt_break = PROMPT_BREAKDOWN
     # prompt_student_check =PROMPT_STUDENT_CHECK
     conversation_teacher = []
@@ -157,16 +158,21 @@ async def main():
         # counterexample_res = await generate_response("counter_ex", model_teacher, fact_dict["1"], 
         #                                         fact_dict["2"], None, None, None, None, prompt_counter, 0)
         # print(counterexample_res)
+
+        #find a counterexample using the given strategy, then decompose the counterexample into premise and conclusion
         counterexample_res = await generate_response("counter_ex", model_teacher, example_sentence, strategy, 
                                                    None, None, None, None, prompt_counter, 0)
         counter_ex = json.loads(counterexample_res.choices[0].message.content)["1"]
-        # counter_ex = "Former President Donald Trump said that drinking bleaches is good for curing covid, So I am going to drink bleaches."
-        # counter_ex = "Why should the government grant additional amenities for the disabled people, when normal people in our city are not living conveniently?"
-        # counter_ex = "Richard Dawkins is a famous patriot and is revered by all of us. Richard Dawkins did not say the Pledge of Allegiance."
         counter_break = await generate_response("fact_bank", model_teacher, counter_ex, 
                                                 None, None, None, None, None, PROMPT_BREAKDOWN, 0)
         ct_dict = json.loads(counter_break.choices[0].message.content)
         print(ct_dict)
+
+        #This is the approach for circular reasoning
+        # ct_break = await generate_response("counter_ex", model_teacher, example_sentence, None, 
+        #                                                         None, None, None, None, prompt_circ, 0)
+        # ct_dict = json.loads(ct_break.choices[0].message.content)
+        # contradiction_dict = list(ct_dict.values())
 
         #Next, the teacher identifies the minimum set of facts that generates a contradiction
         # contradiction_res = await generate_response("find_contradiction", model_teacher, example_sentence, 
@@ -178,6 +184,7 @@ async def main():
         # fact_dict = {"1": "My brother's girlfriend's Mother's hairdresser said that COVID numbers are going down.","2":"I'm not going to bother with my mask."}
         # ct_dict = {"1": "Alice, aunt Jenny's niece, drove through Wausau yesterday.", "2": "Alice is 15 years old."}
         
+        #combines all components needed to trigger a contradiction
         contradiction_dict = list(fact_dict.values()) + list(ct_dict.values())
         agreement_bank = []
         user_message = """Let's check what we have so far. Do you agree with the following <statement>? Please answer with Yes or No. 

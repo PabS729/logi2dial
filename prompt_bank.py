@@ -4,12 +4,12 @@ List the explicit and implicit facts in this <statement>. Combine them into a si
 Format your answer in JSON with the numbers as keys.
 """
 
-# PROMPT_TEACHER_FIND_CONTRADICTION = """
-# You are roleplaying a rational teacher. You are interacting with student [I] who believes in the following <statement>.
-# A <list> of facts are derived from this statement. Find the minimum subset of facts from the <list> that generates a contradiction to the <statement>. Answer with a list of facts selected from <list>. Format your answer in JSON with numbers as keys.
-# <statement>: {sentence}
-# <list>: {fact_bank}
-# """
+PROMPT_TEACHER_FIND_CONTRADICTION = """
+You are roleplaying a rational teacher. You are interacting with student [I] who believes in the following <statement>.
+A <list> of facts are derived from this statement. Find the minimum subset of facts from the <list> that generates a contradiction to the <statement>. Answer with a list of facts selected from <list>. Format your answer in JSON with numbers as keys.
+<statement>: {sentence}
+<list>: {counter}
+"""
 
 PROMPT_IDENTIFY_CATEGORY = """
 What logical fallacy does the following <statement> have? 
@@ -57,6 +57,18 @@ PROMPT_AGENT_CHECK_RESPONSE = """
 You are roleplaying a language expert. Check whether the student in the following <response> is repeating or paraphrasing the <statement>. Answer with "Yes" or "No".
 <response>: {chat_history}
 <statement>: {sentence}
+
+"""
+
+PROMPT_CIRCULAR_REASONING = """
+Below is an <argument> with circular reasoning fallacy. Think about the following questions. 
+Q1: What should hold true for the premise to be true?
+q2: What should hold true for the conclusion to be true?
+
+Answer with the template: for <replace with premise/conclusion of argument> to be true. It must hold that <your answer>.
+Format your answer in JSON with the following keys: "1": <answer to Q1>. "2": <answer to Q2>.
+<argument>: {sentence}
+
 
 """
 

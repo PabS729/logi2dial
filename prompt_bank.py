@@ -87,3 +87,9 @@ Conclusion: Logical result of the relationship between the premises. Conclusions
 Find the premises and conclusion in the following <statement>. Paraphrase if necessary. Format your answer in JSON with keys: "1": <premise>. "2": <conclusion>.
 <statement>: {sentence}
 """
+
+SYSTEM_CLASSIFY_FALLACY = """
+What logical fallacy does the following <sentence> have?
+<sentence>: {sentence}
+Format your answer in JSON with the following key: "1": <type_of_logical_fallacy>
+"""

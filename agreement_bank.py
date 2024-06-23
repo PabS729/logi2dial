@@ -76,7 +76,7 @@ async def main():
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/agreement_test_0618_fd.xlsx')
+    parser.add_argument("--save_fn", type=str, default='results/agreement_test_0620_straw_10.xlsx')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=10)
@@ -90,8 +90,8 @@ async def main():
     length_of_conversation = 5
     # st = df_to_annotate["Text"].tolist()
     sampled_df = df_to_argue.groupby("updated_label").sample(n=1, random_state=2)
-    sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "false dilemma"].sample(n=5, random_state=1)
-    strategy = strategy_dc["false dilemma"]
+    sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "fallacy of extension"].sample(n=5, random_state=10)
+    strategy = strategy_dc["fallacy of extension"]
     # strategy = emo_alt
     sentences = sampled_df["source_article"].values.tolist()
     # sentences = [

@@ -25,7 +25,7 @@ strategy_dc = {
 "appeal to emotion": "Find a real-world example with a similar premise, but leads to a false conclusion.",
 "false dilemma": "Take note of the two positions to choose from the sentence. Find a real-world example with the same premise, but can lead to a third conclusion different from the positions mentioned.",
 "equivocation": " Identify the key word which is spoken with two different meanings. Find an example where the key word is used with its original meaning. ",
-"fallacy of extension":"Understand the original position of the proponent and the interpretations made to this position. Make an example that represents the original position, but leads to conclusions opposite from the interpretation.",
+"fallacy of extension":"Understand the original position of the proponent and the interpretations made to this position. Find a real-world example that represents the original position, but leads to conclusions opposite from the interpretation.",
 "fallacy of relevance": "Find a real-world example with a similar premise to the original argument, but leads to a false conclusion",
 "fallacy of credibility":"find a real-world example where someone famous said something in a similar premise, and what he or she said was proven clearly wrong",
 "intentional":"an appeal is made to some form of ethics, authority, or credibility."

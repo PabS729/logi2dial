@@ -88,8 +88,19 @@ Find the premises and conclusion in the following <statement>. Paraphrase if nec
 <statement>: {sentence}
 """
 
+#Good for now. 
 SYSTEM_CLASSIFY_FALLACY = """
-What logical fallacy does the following <sentence> have?
+What logical fallacy does the following <sentence> have? 
+Select from these categories: ad hominem, ad populum, circular reasoning, faulty generalization, false causality, strawman fallacy, slippery slope, fallacy of relevance, appeal to authority, appeal to emotion, false dilemma, equivocation, fallacy of logic
 <sentence>: {sentence}
 Format your answer in JSON with the following key: "1": <type_of_logical_fallacy>
+"""
+
+
+#"Select from these categories: ad hominem, ad populum, circular reasoning, faulty generalization, false causality, strawman fallacy, fallacy of relevance, appeal to authority, appeal to emotion, false dilemma, equivocation, fallacy of logic"
+#Not so good for a pure classification task
+SYSTEM_CHECK = """
+The logical fallacy {fallacy} occurs when {definition}. Is the following <sentence> an example of such fallacy?
+<sentence>: {sentence}
+Answer with "Yes" or "No". Format your answer in JSON with the following key: "1": <your_answer>
 """

@@ -12,7 +12,6 @@ fallacy_dc = {
 "fallacy of extension":"Also known as straw man, this is when an argument appears to be refuted by being replaced with an argument with a similar but weaker argument.",
 "fallacy of relevance":"the speaker attempts to divert attention from the primary argument by offering a point that does not suffice as counterpoint/supporting evidence (even if it is true)",
 "fallacy of credibility":"an appeal is made to some form of ethics, authority, or credibility.",
-"intentional":"an appeal is made to some form of ethics, authority, or credibility."
 }
 
 strategy_dc = {

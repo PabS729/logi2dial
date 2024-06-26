@@ -7,9 +7,11 @@ import json
 import os
 import asyncio
 from prompt_bank import *
+from def_logical_fallacy import *
 import argparse
 import pandas as pd
 import time
+from tqdm import tqdm
 
 
 async def generate_response(model_name, sentence, prompt_gen, temperature=0):
@@ -34,7 +36,7 @@ async def generate_response(model_name, sentence, prompt_gen, temperature=0):
         temperature=temperature,
         response_format={ "type": "json_object" }
         )
-            print("done")
+            # print("done")
             done = True
         except:
             print("error caught, waiting...")
@@ -50,7 +52,7 @@ async def main():
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/classification_full.xlsx')
+    parser.add_argument("--save_fn", type=str, default='results/classification_full_gpt4o_cat.xlsx')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=10)
@@ -70,18 +72,33 @@ async def main():
     gt_labels = df_to_argue["updated_label"].values.tolist()
 
     # model_teacher = model_student
-    model_teacher = "gpt-3.5-turbo-0125"
+    model_teacher = "gpt-4o"
     sampled_sentence = []
     sampled_labels = []
-
-    for j in range(len(sentences)):
+    full = []
+    for k in range(12):
+        full.append([])
+    for j in tqdm(range(len(sentences))):
         example_argument = sentences[j]
+        # ct = 0
+        # for k in fallacy_dc.keys():
+        #     results_conversation_teacher = await generate_response(model_teacher, example_argument, k, fallacy_dc[k], SYSTEM_CHECK, 0)
+        #     cat = results_conversation_teacher.choices[0].message.content
+        #     cat = json.loads(cat)["1"]
+        #     full[ct].append(cat)
+        #     ct+=1
         results_conversation_teacher = await generate_response(model_teacher, example_argument, SYSTEM_CLASSIFY_FALLACY, 0)
         cat = results_conversation_teacher.choices[0].message.content
         cat = json.loads(cat)["1"]
         sampled_labels.append(cat)
 
     data_dict = {'sentence_sample': sentences, 'labels': sampled_labels, 'gt_labels': gt_labels}
+    # data_dict = {"sentence": sentences, "gt_labels": gt_labels}
+    # print(len(full[0]))
+    # ct = 0
+    # for k in fallacy_dc.keys():
+    #     data_dict[k] = full[ct]
+    #     ct+=1
     df_result = pd.DataFrame(data_dict)
     df_result.to_excel(args.save_fn, index=False)
     print("done async")

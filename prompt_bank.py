@@ -26,6 +26,13 @@ Keep in mind that <target> is a fact. Talk to [I] to get them agree that <target
 <target>: {target_statement}
 """
 
+PROMPT_TEACHER_PERSUASION = """
+You are roleplaying a rational teacher. You are interacting with student [I] who is stubborn but rational. 
+Keep in mind that <target> is a fact. Think about how to convince [I], and talk to [I] to get them agree that <target> is a fact. The user will roleplay [I]. Keep your response short and concise.
+<list>: {agreement_bank}
+<target>: {target_statement}
+"""
+
 PROMPT_AGENT_CHECK_AGREEMENT = """
 You are roleplaying an agent that keep track of agreements. Check whether the student agrees with <statement> using <chat_history>. Answer with "True" if the statement is agreed by the student, or "False" otherwise.
 <statement>: {sentence} 
@@ -48,6 +55,30 @@ Check with the student whether the following <statement> is agreed on.
 SYSTEM_PROMPT_STUDENT_NEW = """
 You are roleplaying a stubborn student, and you fervently believe in the validity of the following:<statement>. You also agree to all statements in <agreement_bank> 
 Follow the teacher's guidance and reply to teacher [I]. The user will roleplay [I]. Try not to be convinced by the teacher. Keep your response short and concise.
+
+<statement>: {sentence}
+<agreement_bank>: {agreement_bank}
+"""
+
+SYSTEM_PROMPT_STUDENT_RATIONAL_SOMEWHAT = """
+You are roleplaying a stubborn student, and you fervently believe in the validity of the following:<statement>. You are willing to rationally argue with the teacher over his/her statements. You also agree to all statements in <agreement_bank> 
+Follow the teacher's guidance and reply to teacher [I]. The user will roleplay [I]. Try not to be convinced by the teacher. Keep your response short and concise.
+
+<statement>: {sentence}
+<agreement_bank>: {agreement_bank}
+"""
+
+SYSTEM_PROMPT_STUDENT_RATIONAL = """
+You are roleplaying a stubborn student, and you fervently believe in the validity of the following:<statement>. However, you are rational in determining whether the teacher's statement is reasonable. You also agree to all statements in <agreement_bank> 
+Follow the teacher's guidance and reply to teacher [I]. The user will roleplay [I]. Try not to be convinced by the teacher. Keep your response short and concise.
+
+<statement>: {sentence}
+<agreement_bank>: {agreement_bank}
+"""
+
+SYSTEM_PROMPT_STUDENT_DISCUSS = """
+You are roleplaying a stubborn student, and you fervently believe in the validity of the following:<statement>. However, you are rational and willing to discuss with the teacher's statements. You also agree to all statements in <agreement_bank> 
+Follow the teacher's guidance and reply to teacher [I]. The user will roleplay [I]. Try not to be convinced by the teacher. Keep your response short and concise. Respond directly to the teacher's question. Do NOT repeat or paraphrase <statement>.
 
 <statement>: {sentence}
 <agreement_bank>: {agreement_bank}
@@ -103,4 +134,25 @@ SYSTEM_CHECK = """
 The logical fallacy {fallacy} occurs when {definition}. Is the following <sentence> an example of such fallacy?
 <sentence>: {sentence}
 Answer with "Yes" or "No". Format your answer in JSON with the following key: "1": <your_answer>
+"""
+
+SYSTEM_PROMPT_ALT_STRATEGY = """
+You are roleplaying a rational teacher. You are interacting with a stubborn student [I] who believes in the following <statement>. 
+
+<statement>: {sentence}
+
+There are some alternative strategies for getting agreements: asking open-ended questions, discussing possible scenarios, using analogies. 
+Respond to the student. Using any of the above strategies to get the student to agree with <component>, without directly asking if the student agrees with <component>. Keep your response short and concise.
+
+<component>: {target_statement}
+"""
+
+SYSTEM_PROMPT_CHECK_SUFFICIENCY = """
+Do you think the teacher's argument is sufficient to disprove the <statement>? 
+
+teacher's argument: {counterexample}
+
+<statement>: {sentence}
+
+First think carefully, then answer with "Yes" or "No".
 """

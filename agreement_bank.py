@@ -76,7 +76,7 @@ async def main():
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/agreement_test_0620_straw_10.xlsx')
+    parser.add_argument("--save_fn", type=str, default='results/agreement_test_0702_straw_nore_1_ch.xlsx')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=10)
@@ -89,8 +89,8 @@ async def main():
 
     length_of_conversation = 5
     # st = df_to_annotate["Text"].tolist()
-    sampled_df = df_to_argue.groupby("updated_label").sample(n=1, random_state=2)
-    sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "fallacy of extension"].sample(n=5, random_state=10)
+    # sampled_df = df_to_argue.groupby("updated_label").sample(n=1, random_state=2)
+    sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "fallacy of extension"].sample(n=5, random_state=1)
     strategy = strategy_dc["fallacy of extension"]
     # strategy = emo_alt
     sentences = sampled_df["source_article"].values.tolist()
@@ -129,8 +129,9 @@ async def main():
     done = False
     prompt_fact_bank = PROMPT_FACT_BANK
     # prompt_find_contradiction = PROMPT_TEACHER_FIND_CONTRADICTION
-    prompt_teacher_agreement = PROMPT_TEACHER_AGREEMENT
-    prompt_student = SYSTEM_PROMPT_STUDENT_NEW
+    prompt_teacher_agreement = PROMPT_TEACHER_PERSUASION
+    prompt_teacher_alt = SYSTEM_PROMPT_ALT_STRATEGY
+    prompt_student = SYSTEM_PROMPT_STUDENT_DISCUSS
     prompt_agent = PROMPT_AGENT_CHECK_AGREEMENT
     prompt_counter = PROMPT_COUNTEREXAMPLE
     prompt_circ = PROMPT_CIRCULAR_REASONING
@@ -227,7 +228,8 @@ async def main():
                 conversation_student.append(student_res.choices[0].message.content)
                 conv_student.append(student_res.choices[0].message.content)
                 chat_history += "student: " + student_res.choices[0].message.content + "\n"
-                print(chat_history)
+                print(teacher_res.choices[0].message.content)
+                print(student_res.choices[0].message.content)
 
                 agent_res = await generate_response("agent", model_agent, target, 
                                                     chat_history, None, None, None, None, prompt_agent, 0)
@@ -253,10 +255,50 @@ async def main():
                 else:
                     if count == length_of_conversation:
                         done = True
-                        alternative_appr = True
+                        # alternative_appr = True
 
             if alternative_appr:
-                continue
+                conv_teacher = []
+                conv_student = []
+                chat_history = ""
+                done = False
+                count = 0
+                while not done:
+                #Find alternative strategies here
+                    
+                    factdicts.append("")
+                    contra_dicts.append("")
+                    teacher_res = await generate_response("get_agreement", model_teacher, example_sentence, 
+                                                        None, agreement_bank, target, conv_teacher, conv_student, prompt_teacher_alt, 0)
+                    conversation_teacher.append(teacher_res.choices[0].message.content)
+                    conv_teacher.append(teacher_res.choices[0].message.content)
+                    count+=1
+                    chat_history += "teacher: " + teacher_res.choices[0].message.content + "\n"
+
+                    student_res = await generate_response("student", model_student, example_sentence, 
+                                                        None, agreement_bank, None, conv_teacher, conv_student, prompt_student, 0)
+                    conversation_student.append(student_res.choices[0].message.content)
+                    conv_student.append(student_res.choices[0].message.content)
+                    chat_history += "student: " + student_res.choices[0].message.content + "\n"
+                    print(teacher_res.choices[0].message.content)
+                    print(student_res.choices[0].message.content)
+
+                    agent_res = await generate_response("agent", model_agent, target, 
+                                                        chat_history, None, None, None, None, prompt_agent, 0)
+
+                    agreed = agent_res.choices[0].message.content
+                    sampled_sentence.append(example_sentence)
+                    sampled_labels.append(example_label)
+
+                    if agreed == "True": 
+                        done = True
+                        agreement_bank.append(target)
+
+                    else:
+                        if count == length_of_conversation:
+                            done = True
+
+
 
         print(agreement_bank)
         point_out_res = await generate_response("point_out", model_teacher, example_sentence, 

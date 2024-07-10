@@ -9,64 +9,8 @@ from prompt_bank import *
 import argparse
 import pandas as pd
 import time
-
-role_bank = ["agent", "fact_bank", "find_contradiction", "point_out", "student", "get_agreement", "check_agreement"]
-
-async def generate_response(role, model_name, sentence, history, bank, target_statement, 
-                            teacher_res, student_res, prompt_gen, temperature=0):
-    client = OpenAI()
-
-    p = prompt_gen
-    msgs = []
-    if role == "agent" : 
-        user_prompt = p.format(sentence=sentence, chat_history=history)
-    elif role in ["fact_bank", "check_agreement"]:
-        user_prompt = p.format(sentence=sentence)
-    elif role in ["find_contradiction", "point_out"]: 
-        user_prompt = p.format(sentence=sentence, fact_bank=bank)
-    elif role == "counter_ex":
-        user_prompt = p.format(sentence=sentence, counter=history)
-    elif role == "student":
-        user_prompt = p.format(sentence=sentence, agreement_bank=bank)
-    else:
-        user_prompt = p.format(sentence=sentence, agreement_bank=bank, target_statement=target_statement)
-    
-
-    msgs.append({"role": "system", "content": user_prompt})
-
-    #teacher and student take turns
-    if role == "get_agreement": 
-        for (t,s) in zip(teacher_res, student_res):
-            msgs.append({"role": "assistant", "content": t})
-            msgs.append({"role": "user", "content": s})
-    if role == "student":
-        if zip(teacher_res[:-2], student_res) != None: 
-            for (t,s) in zip(teacher_res[:-2], student_res):
-                msgs.append({"role": "user", "content": t})
-                msgs.append({"role": "assistant", "content": s})
-        msgs.append({"role": "user", "content": teacher_res[-1]})
-    done = False
-    while not done:
-        try: 
-            if role in ["fact_bank", "find_contradiction", "counter_ex"]:
-                response = client.chat.completions.create(
-                model=model_name,
-            messages=msgs,
-            temperature=temperature,
-            response_format={ "type": "json_object" }
-            )
-            else:
-                response = client.chat.completions.create(
-                model=model_name,
-                messages=msgs,
-                temperature=temperature,
-                )
-            # print("done")
-            done = True
-        except Exception as e:
-            print("error caught, waiting...", e)
-            time.sleep(60)
-    return response
+from check_score import *
+from generate_response import *
 
 async def main():
     parser = argparse.ArgumentParser()
@@ -94,26 +38,6 @@ async def main():
     strategy = strategy_dc_commonsense["ad populum"]
     # strategy = emo_alt
     sentences = sampled_df["source_article"].values.tolist()
-    # sentences = [
-    #     "That's what abortion is - killing innocent humans for money. Abortionists are government licensed hit men.""That's what abortion is - killing innocent humans for money. Abortionists are government licensed hit men.",
-        # "Marie notices that many of her friends have started eating a low-carb diet and drinking protein shakes. Marie decides that if this many friends are eating this way that this must be the healthy way to eat so she joins them.",
-    #     "You'll make the right decision because you have something that not many people do: you have heart.",
-    #     "Pamela never lies. She told me herself, so it must be true.",
-
-        # "When the judge asked the defendant why he hadn't paid his parking fines, he said that he shouldn't have to pay them because the sign said 'Fine for parking here' and so he naturally presumed that it would be fine to park there.",
-        # "Bob's brother's girlfriend's Mother's hairdresser said that COVID numbers are going down, so Bob's not going to bother with his mask",
-    #     "If the argument is supposed to be about whether or not we, as the American public should wear masks, and you argue: 'Asking an infant to wear a mask is ridiculous!'",
-    #     "All forest creatures live in the woods.All leprechauns are forest creatures.Therefore, some leprechauns live in the woods.",
-    #     "Mother: It’s bedtime Jane Jane: Mom, how do ants feed their babies? Mother: Don’t know dear, close your eyes now. Jane: But mama, do ant babies cry when they’re hungry?",
-        # "every time Joe goes swimming he is wearing his Speedos. Something about wearing that Speedo must make him want to go swimming.",
-    #     "If you don’t say the Pledge of Allegiance, then you must be a traitor.",
-        # "If I don't take the right classes in high school, then I won't be able to get into a good college. If I don't get into a good college, then I won't be able to get a job. If I can't get a job, then I am going to end up homeless.",
-    #     "Is your stupidity inborn?"
-    # ]
-    # sentences = ["People should move to the Midwest because Mujtaba from the Wall Street Journal says the cost of living is cheaper there."]
-    # sentences = ["After Jhon said that we should put more money into health and education, Warren responded by saying that he was surprised that Jhon hates our country so much that he wants to leave it defenseless by cutting military spending."]
-    # sentences = ["You can hardly blame President Clinton for having extramarital affairs. Many presidents, when faced with similar situations, have yielded to the same temptations."]
-    print(len(sentences))
     labels = sampled_df["updated_label"].values.tolist()
 
 
@@ -146,51 +70,50 @@ async def main():
         example_label = labels[j]
         agreement_bank = []
         print(example_sentence)
-        # type_of_fallacy = await generate_response("fact_bank", model_teacher, example_sentence, 
-        #                                           None, None, None, None, None, PROMPT_IDENTIFY_CATEGORY, 0)
-        # fallacy = type_of_fallacy.choices[0].message.content
-        # print(fallacy)
-        #First, the teacher finds all facts and put them into the fact bank
+
+        #First identify the category of fallacy
+        type_of_fallacy = await generate_response("fact_bank", model_teacher, example_sentence, 
+                                                  None, None, None, None, None, PROMPT_IDENTIFY_CATEGORY, 0)
+        fallacy = type_of_fallacy.choices[0].message.content
+        print(fallacy)
+        strategy = strategy_dc_commonsense["ad populum"]
+
+        #At the same time, the teacher finds all facts and put them into the fact bank
         fact_bank_res = await generate_response("fact_bank", model_teacher, example_sentence, 
                                                 None, None, None, None, None, PROMPT_BREAKDOWN, 0)
         fact_dict = json.loads(fact_bank_res.choices[0].message.content)
         print(fact_dict)
+
+        if fallacy == "circular reasoning": 
+            ct_break = await generate_response("counter_ex", model_teacher, example_sentence, None, 
+                                                              None, None, None, None, prompt_circ, 0)
+            ct_dict = json.loads(ct_break.choices[0].message.content)
+            contradiction_dict = list(ct_dict.values())
+
+        else:
+            #find a counterexample using the given strategy, then decompose the counterexample into premise and conclusion
+            #TODO: add code for changing counterexamples, should the threshold check fail
+            counterexample_res = await generate_response("counter_ex", model_teacher, example_sentence, strategy, 
+                                                    None, None, None, None, prompt_counter, 0)
+            counter_ex = json.loads(counterexample_res.choices[0].message.content)["1"]
+            counter_break = await generate_response("fact_bank", model_teacher, counter_ex, 
+                                                    None, None, None, None, None, PROMPT_BREAKDOWN, 0)
+            ct_dict = json.loads(counter_break.choices[0].message.content)
+            print(ct_dict)
+            contradiction_dict = list(fact_dict.values()) + list(ct_dict.values())
+
+            #check the counterexample with Claude/mistralai
+            results_rational_agent = await generate_response(model_agent, example_sentence, AGENT_CHECK_COUNTEREXAMPLE, 0)
+            # score = results_conversation_teacher.content[0].text
+            score = results_rational_agent.choices[0].message.content
+            print(score)
         
-        # counterexample_res = await generate_response("counter_ex", model_teacher, fact_dict["1"], 
-        #                                         fact_dict["2"], None, None, None, None, prompt_counter, 0)
-        # print(counterexample_res)
-
-        #find a counterexample using the given strategy, then decompose the counterexample into premise and conclusion
-        counterexample_res = await generate_response("counter_ex", model_teacher, example_sentence, strategy, 
-                                                   None, None, None, None, prompt_counter, 0)
-        counter_ex = json.loads(counterexample_res.choices[0].message.content)["1"]
-        counter_break = await generate_response("fact_bank", model_teacher, counter_ex, 
-                                                None, None, None, None, None, PROMPT_BREAKDOWN, 0)
-        ct_dict = json.loads(counter_break.choices[0].message.content)
-        print(ct_dict)
-
-        #This is the approach for circular reasoning
-        # ct_break = await generate_response("counter_ex", model_teacher, example_sentence, None, 
-        #                                                         None, None, None, None, prompt_circ, 0)
-        # ct_dict = json.loads(ct_break.choices[0].message.content)
-        # contradiction_dict = list(ct_dict.values())
-
-        #Next, the teacher identifies the minimum set of facts that generates a contradiction
-        # contradiction_res = await generate_response("find_contradiction", model_teacher, example_sentence, 
-        #                                             None, fact_dict, None, None, None, prompt_find_contradiction, 0)
-        # contradiction_dict = json.loads(contradiction_res.choices[0].message.content)
-        # print(contradiction_dict)
-        # contra_dicts.append(contradiction_dict)
-        #Iterate through all statements in the minimum set and get the student to agree on them
-        # fact_dict = {"1": "My brother's girlfriend's Mother's hairdresser said that COVID numbers are going down.","2":"I'm not going to bother with my mask."}
-        # ct_dict = {"1": "Alice, aunt Jenny's niece, drove through Wausau yesterday.", "2": "Alice is 15 years old."}
-        
-        #combines all components needed to trigger a contradiction
-        contradiction_dict = list(fact_dict.values()) + list(ct_dict.values())
         agreement_bank = []
         user_message = """Let's check what we have so far. Do you agree with the following <statement>? Please answer with Yes or No. 
         <statement>: {sentence}
         """
+
+        #TODO: Add agent rating steps and change student behavior steps
         for target in contradiction_dict:
             print(target)
             count = 0

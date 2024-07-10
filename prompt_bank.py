@@ -28,7 +28,7 @@ Keep in mind that <target> is a fact. Talk to [I] to get them agree that <target
 
 PROMPT_TEACHER_PERSUASION = """
 You are roleplaying a rational teacher. You are interacting with student [I] who is stubborn but rational. 
-Keep in mind that <target> is a fact. Think about how to convince [I], and talk to [I] to get them agree that <target> is a fact. The user will roleplay [I]. Keep your response short and concise.
+Keep in mind that <target> is a fact. Think about how to convince [I], and talk to [I] to get them agree that <target> is a fact. The user will roleplay [I]. Keep your response direct, short and concise.
 <list>: {agreement_bank}
 <target>: {target_statement}
 """
@@ -104,7 +104,7 @@ Format your answer in JSON with the following keys: "1": <answer to Q1>. "2": <a
 """
 
 PROMPT_COUNTEREXAMPLE = """
-Below is an <argument> with a logical fallacy. Think about the given <strategy> to counter this argument and state a real-world counterexample of the argument. Answer with the counterexample. 
+Below is an <argument> with a logical fallacy. Think about the given <strategy> to counter this argument and state a counterexample of the argument. Answer with the counterexample. 
 <argument>: {sentence}
 <strategy>: {counter}
 
@@ -156,3 +156,24 @@ teacher's argument: {counterexample}
 
 First think carefully, then answer with "Yes" or "No".
 """
+
+AGENT_CHECK_COUNTEREXAMPLE = """
+1. Does the premise and conclusion from the <counterexample> relate to the topic of <argument>?
+
+<counterexample>: {example}
+<argument>:{statement}
+
+If yes, then is the <counterexample> sufficient enough to refute <argument>? It is sufficient if any of the following holds: 
+
+1. The counterexample argues that some of the premises from <argument> are dubious or even false. 
+2. The counterexample argues that the conclusion from <argument> leads to absurd results
+3. The counterexample show that conclusion does not follow the premise.
+4. The counterexample show that the premise is not strong enough to support the conclusion.
+
+Answer with "Yes" or "No".
+"""
+
+#TODO: add prompt for 
+#1. changing student behavior, 
+#2. rating teacher responses, 
+#3. coming up with different counterexample, if the original counterexample did not pass threshold

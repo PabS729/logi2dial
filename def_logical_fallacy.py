@@ -32,6 +32,25 @@ strategy_dc = {
 
 }
 
+
+strategy_dc_commonsense = {
+"faulty generalization": "If the argument is a slippery slope, find a counterexample with the first sub-claim's premise and a conclusion that is contrary to the last sub-claim's conclusion. Otherwise, find an example that is contrary to the conclusion.",
+"false causality": "find an example with the same premise, but leads to an opposite conclusion",
+"circular reasoning": "Talk about what should hold true for the premise to be true, and talk about what should hold true for the conclusion to be true.",
+"ad populum": "find a real-world example with a similar premise to the original argument, but the conclusion is clearly false",
+"ad hominem": "find an example where another person has the same attribute as the person being attacked, but exhibits traits that are opposite to the conclusion of the argument",
+# "fallacy of logic": "there is a logical flaw in the reasoning behind the argument, such as a propositional logic flaw",
+"appeal to emotion": "Find an example with a similar premise, but leads to a false conclusion.",
+"false dilemma": "Take note of the two positions to choose from the sentence. Find an example in the same premise, but can lead to a third conclusion different from the positions mentioned.",
+"equivocation": " Identify the key word which is spoken with two different meanings. Find an example where the key word is used with its original meaning. ",
+"fallacy of extension":"Understand the original position of the proponent and the interpretations made to this position. Find an example that represents the original position, but leads to conclusions opposite from the interpretation.",
+"fallacy of relevance": "Find an example with a similar premise to the original argument, but leads to a false conclusion",
+"fallacy of credibility":"find an example where someone famous said something in the same topic, and what he or she said was proven clearly wrong",
+"intentional":"an appeal is made to some form of ethics, authority, or credibility.",
+"false analogy": "Regarding the two subjects of comparison, find one attribute from one of the subjects that leads to opposite conclusions from the argument."
+
+}
+
 V1_adp = "find a situation with a similar premise to the original argument, but the conclusion is clearly false"
 emo_alt = "Find a situation with a similar premise and conclusion, but it is clearly absurd should the conclusion and premise both holds. "
 straw_orig = "Understand the original position of the proponent. Make a real-world counterexample that represents the original position, but leads to conclusions opposite from the refutation made"

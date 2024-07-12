@@ -111,6 +111,14 @@ Below is an <argument> with a logical fallacy. Think about the given <strategy> 
 Format your answer in JSON with the following key: "1": <counterexample>
 """
 
+PROMPT_ALT_COUNTEREXAMPLE = """
+Below is an <argument> with a logical fallacy. Think about the given <strategy> to counter this argument and state a counterexample of the argument that is different from <counterstatement>. Answer with the counterexample. 
+<argument>: {sentence}
+<strategy>: {agreement_bank}
+<counterstatemente>: {target_statement}
+
+"""
+
 PROMPT_BREAKDOWN = """
 Premises: Proposition used as evidence in an argument.
 Conclusion: Logical result of the relationship between the premises. Conclusions serve as the thesis of the argument.
@@ -126,7 +134,6 @@ Select from these categories: ad hominem, ad populum, circular reasoning, faulty
 <sentence>: {sentence}
 Format your answer in JSON with the following key: "1": <type_of_logical_fallacy>
 """
-
 
 #"Select from these categories: ad hominem, ad populum, circular reasoning, faulty generalization, false causality, strawman fallacy, fallacy of relevance, appeal to authority, appeal to emotion, false dilemma, equivocation, fallacy of logic"
 #Not so good for a pure classification task
@@ -173,7 +180,31 @@ If yes, then is the <counterexample> sufficient enough to refute <argument>? It 
 Answer with "Yes" or "No".
 """
 
-#TODO: add prompt for 
-#1. changing student behavior, 
-#2. rating teacher responses, 
-#3. coming up with different counterexample, if the original counterexample did not pass threshold
+SYSTEM_FORCE_AGREEMENT = """
+You are a student who stubbornly believe in <statement>. However, you are convinced by the teacher on <target>. Agree to the teacher's words.
+
+<statement>: {sentence}
+<target>: {target_statement}
+"""
+
+SYSTEM_RATE_RESPONSE_AGENT_RELEVANCE = """
+1. Does the teacher's <response> include asking for agreement over the <sentence>?
+
+<sentence>: {sentence}
+
+Answer with yes or no. 
+
+"""
+
+SYSTEM_RATE_RESPONSE_AGENT_MULTI = """
+
+Q1. As a misinformation believer who believes in <sentence>, do you find the teacher’s <response> convincing?
+Q2. The <response> is cogent if it has acceptable premises that are relevant to its conclusion and that are sufficient to draw the conclusion. Is the response cogent?
+Q3. The <response> is effective if it persuades the target audience of (or corroborates agreement with) the teacher’s stance on the issue. Is the response effective?
+Q4. The <response> is sufficient if it gives enough support to make it rational to draw its conclusion. Is the response sufficient?
+
+<sentence>:{sentence}
+<response>: {response}
+
+Answer with "1" if "Yes" or "0" if "No". Format your answer in JSON with the following keys: "1": <answer to Q1>, "2": <answer to Q2>, "3": <answer to Q3>, "4":, <answer to Q4>
+"""

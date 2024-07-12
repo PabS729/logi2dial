@@ -14,51 +14,55 @@ import time
 from tqdm import tqdm
 from dotenv import load_dotenv
 import anthropic
+from mistralai.client import MistralClient
 from mistralai.async_client import MistralAsyncClient
 from mistralai.models.chat_completion import ChatMessage
 
 
 load_dotenv()
 key = os.getenv("ANTHROPIC_API_KEY")
-
+# key = os.environ["ANTHROPIC_API_KEY"]
+print(key)
 client = anthropic.Anthropic(
     # defaults to os.environ.get("ANTHROPIC_API_KEY")
     api_key=key,
 )
-key = os.environ("MISTRAL_API_KEY")
-cl = MistralAsyncClient(api_key=key)
+# key = os.environ["MISTRAL_API_KEY"]
 
-async def generate_response(model_name, sentence, prompt_gen, temperature=0):
+
+def check_score(model_name, sentence, prompt_gen, temperature=0):
     
     # llm = OpenAIChat(temperature=temperature, openai_api_key=API_KEY)
     
-    await asyncio.sleep(0.01)
+    # await asyncio.sleep(0.01)
 
-        
+    # cl = MistralClient(api_key=key)
     p = prompt_gen
     user_prompt = p.format(sentence=sentence)
     msgs = []
-    msgs.append(ChatMessage(role="system", content=user_prompt))
+    msgs.append(ChatMessage(role="user", content=user_prompt))
 
     #teacher and student take turns
     done = False
     while not done:
         try: 
-        #     message = client.messages.create(
-        #     model="claude-3-5-sonnet-20240620",
-        #     max_tokens=1000,
-        #     temperature=temperature,
-        #     messages=msgs
-        # )
+            message = client.messages.create(
+            model="claude-3-5-sonnet-20240620",
+            max_tokens=1000,
+            temperature=temperature,
+            messages=msgs
+        )
             # message = msgs
-            response = cl.chat_stream(model=model_name, messages=msgs)
-
-            # print("done")
+            # response = client.chat_stream(model=model_name, messages=msgs)
+            
+            # print(next(response))
+            print("done")
             done = True
-        except:
+        except Exception as e:
             print("error caught, waiting...")
+            print(e)
             time.sleep(60)
-    return response
+    return message
 
 
 #For testing Mistralai/Claude 3.5 API only
@@ -70,7 +74,7 @@ async def main():
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/classification_full_gpt4o_cat.xlsx')
+    parser.add_argument("--save_fn", type=str, default='results/m_claude.xlsx')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=10)
@@ -96,12 +100,15 @@ async def main():
     full = []
     for k in range(12):
         full.append([])
-    for j in tqdm(range(len(sentences))):
+    for j in tqdm(range(5)):
+        
         example_argument = sentences[j]
+        print(example_argument)
 
-        results_rational_agent = await generate_response(model_agent, example_argument, SYSTEM_CLASSIFY_FALLACY, 0)
+        results_rational_agent = check_score(model_agent, example_argument, SYSTEM_CLASSIFY_FALLACY, 0)
         # score = results_conversation_teacher.content[0].text
-        score = results_rational_agent.choices[0].message.content
+        # print(results_rational_agent)
+        score = results_rational_agent.content[0].text
         print(score)
 
     data_dict = {'sentence_sample': sentences, 'labels': sampled_labels, 'gt_labels': gt_labels}

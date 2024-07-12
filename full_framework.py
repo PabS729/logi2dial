@@ -67,6 +67,7 @@ async def main():
     contra_dicts = []
 
     Threshold_counter = 0.5
+    Threshold_res = 3
     for j in range(len(sentences)):
         example_sentence = sentences[j]
         example_label = labels[j]
@@ -96,24 +97,33 @@ async def main():
             #find a counterexample using the given strategy, then decompose the counterexample into premise and conclusion
             #TODO: add code for changing counterexamples, should the threshold check fail
             done = False
+            fd = True
             while not done: 
-                counterexample_res = await generate_response("counter_ex", model_teacher, example_sentence, strategy, 
-                                                        None, None, None, None, prompt_counter, 0)
-                counter_ex = json.loads(counterexample_res.choices[0].message.content)["1"]
-                counter_break = await generate_response("fact_bank", model_teacher, counter_ex, 
-                                                        None, None, None, None, None, PROMPT_BREAKDOWN, 0)
-                ct_dict = json.loads(counter_break.choices[0].message.content)
-                print(ct_dict)
-                contradiction_dict = list(fact_dict.values()) + list(ct_dict.values())
+                if fd:
+                    counterexample_res = await generate_response("counter_ex", model_teacher, example_sentence, strategy, 
+                                                            None, None, None, None, prompt_counter, 0)
+                    counter_ex = json.loads(counterexample_res.choices[0].message.content)["1"]
+                    counter_break = await generate_response("fact_bank", model_teacher, counter_ex, 
+                                                            None, None, None, None, None, PROMPT_BREAKDOWN, 0)
+                    ct_dict = json.loads(counter_break.choices[0].message.content)
+                    print(ct_dict)
+                    contradiction_dict = list(fact_dict.values()) + list(ct_dict.values())
 
-                #check the counterexample with Claude/mistralai
-                results_rational_agent = await generate_response(model_agent, example_sentence, AGENT_CHECK_COUNTEREXAMPLE, 0)
-                # score = results_conversation_teacher.content[0].text
-                score = results_rational_agent.choices[0].message.content
-                print(score)
+                    #check the counterexample with Claude/mistralai
+                    results_rational_agent = await generate_response(model_agent, example_sentence, AGENT_CHECK_COUNTEREXAMPLE, 0)
+                    # score = results_conversation_teacher.content[0].text
+                    score = results_rational_agent.content[0].text
+                    print(score)
 
+                #If the counterexample does not meet threshold, come up with a new counterexample and recompute score
                 if score <= Threshold_counter:
-                    continue
+                    fd = False
+                    counterexample_res = generate_response("counter_x", model_teacher, example_sentence, None, strategy, 
+                                                        counter_ex, None, None, prompt_counter, 0)
+                    counter_ex = json.loads(counterexample_res.choices[0].message.content)["1"]
+                    results_rational_agent = await generate_response(model_agent, example_sentence, AGENT_CHECK_COUNTEREXAMPLE, 0)
+                    # score = results_conversation_teacher.content[0].text
+                    score = results_rational_agent.content[0].text
                 else:
                     done = True
         
@@ -146,12 +156,25 @@ async def main():
                 conv_teacher.append(teacher_res.choices[0].message.content)
                 chat_history += "teacher: " + teacher_res.choices[0].message.content + "\n"
 
-                
+                agent_res_RELE = await check_score(model_agent, conversation_teacher[count], SYSTEM_RATE_RESPONSE_AGENT_RELEVANCE, 0)
+                agent_res_multi = await check_score(model_agent, conversation_teacher[count], SYSTEM_RATE_RESPONSE_AGENT_MULTI, 0)
 
+                score_rele = agent_res_RELE.content[0].text
 
-                #Student responds to teacher
-                student_res = await generate_response("student", model_student, example_sentence, 
-                                                    None, agreement_bank, None, conv_teacher, conv_student, prompt_student, 0)
+                ans_dict = json.loads(agent_res_multi.content[0].text)
+                score_1, score_2, score_3, score_4, = ans_dict["1"], ans_dict["2"], ans_dict["3"], ans_dict["4"]
+                tot_score = int(score_rele) + int(score_1) + int(score_2) + int(score_3) + int(score_4) 
+
+                if tot_score < Threshold_res:
+                #Student responds to teacher with stubborness
+                    student_res = await generate_response("student", model_student, example_sentence, 
+                                                        None, agreement_bank, None, conv_teacher, conv_student, prompt_student, 0)
+
+                else:
+                #Force the student to agree with the teacher
+                    student_res = await generate_response("student", model_student, example_sentence, 
+                                                        None, agreement_bank, None, conv_teacher, conv_student, SYSTEM_FORCE_AGREEMENT, 0)
+                    
                 conversation_student.append(student_res.choices[0].message.content)
                 conv_student.append(student_res.choices[0].message.content)
                 chat_history += "student: " + student_res.choices[0].message.content + "\n"
@@ -185,50 +208,11 @@ async def main():
                         done = True
                         # alternative_appr = True
 
-            if alternative_appr:
-                conv_teacher = []
-                conv_student = []
-                chat_history = ""
-                done = False
-                count = 0
-                while not done:
-                #Find alternative strategies here
-                    
-                    factdicts.append("")
-                    contra_dicts.append("")
-                    teacher_res = await generate_response("get_agreement", model_teacher, example_sentence, 
-                                                        None, agreement_bank, target, conv_teacher, conv_student, prompt_teacher_alt, 0)
-                    conversation_teacher.append(teacher_res.choices[0].message.content)
-                    conv_teacher.append(teacher_res.choices[0].message.content)
-                    count+=1
-                    chat_history += "teacher: " + teacher_res.choices[0].message.content + "\n"
-
-                    student_res = await generate_response("student", model_student, example_sentence, 
-                                                        None, agreement_bank, None, conv_teacher, conv_student, prompt_student, 0)
-                    conversation_student.append(student_res.choices[0].message.content)
-                    conv_student.append(student_res.choices[0].message.content)
-                    chat_history += "student: " + student_res.choices[0].message.content + "\n"
-                    print(teacher_res.choices[0].message.content)
-                    print(student_res.choices[0].message.content)
-
-                    agent_res = await generate_response("agent", model_agent, target, 
-                                                        chat_history, None, None, None, None, prompt_agent, 0)
-
-                    agreed = agent_res.choices[0].message.content
-                    sampled_sentence.append(example_sentence)
-                    sampled_labels.append(example_label)
-
-                    if agreed == "True": 
-                        done = True
-                        agreement_bank.append(target)
-
-                    else:
-                        if count == length_of_conversation:
-                            done = True
 
 
 
         print(agreement_bank)
+        #Teacher points out the contradiction
         point_out_res = await generate_response("point_out", model_teacher, example_sentence, 
                                                 None, contradiction_dict, None, conv_teacher, conv_student, PROMPT_TEACHER_POINT_OUT, 0)
         conversation_teacher.append(point_out_res.choices[0].message.content)

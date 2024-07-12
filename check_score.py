@@ -30,15 +30,15 @@ client = anthropic.Anthropic(
 # key = os.environ["MISTRAL_API_KEY"]
 
 
-def check_score(model_name, sentence, prompt_gen, temperature=0):
+async def check_score(model_name, sentence, example, prompt_gen, temperature=0):
     
     # llm = OpenAIChat(temperature=temperature, openai_api_key=API_KEY)
     
-    # await asyncio.sleep(0.01)
+    await asyncio.sleep(0.01)
 
     # cl = MistralClient(api_key=key)
     p = prompt_gen
-    user_prompt = p.format(sentence=sentence)
+    user_prompt = p.format(sentence=sentence, example=example)
     msgs = []
     msgs.append(ChatMessage(role="user", content=user_prompt))
 
@@ -50,7 +50,8 @@ def check_score(model_name, sentence, prompt_gen, temperature=0):
             model="claude-3-5-sonnet-20240620",
             max_tokens=1000,
             temperature=temperature,
-            messages=msgs
+            messages=msgs,
+            # tool_choice={ "type": "json_object" }
         )
             # message = msgs
             # response = client.chat_stream(model=model_name, messages=msgs)

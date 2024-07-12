@@ -34,7 +34,7 @@ async def main():
     length_of_conversation = 5
     # st = df_to_annotate["Text"].tolist()
     # sampled_df = df_to_argue.groupby("updated_label").sample(n=1, random_state=2)
-    sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "ad populum"].sample(n=5, random_state=2)
+    sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "ad populum"].sample(n=1, random_state=2)
     strategy = strategy_dc_commonsense["ad populum"]
     # strategy = emo_alt
     sentences = sampled_df["source_article"].values.tolist()
@@ -67,7 +67,7 @@ async def main():
     contra_dicts = []
 
     Threshold_counter = 0.5
-    Threshold_res = 3
+    Threshold_res = 2
     for j in range(len(sentences)):
         example_sentence = sentences[j]
         example_label = labels[j]
@@ -110,22 +110,23 @@ async def main():
                     contradiction_dict = list(fact_dict.values()) + list(ct_dict.values())
 
                     #check the counterexample with Claude/mistralai
-                    results_rational_agent = await generate_response(model_agent, example_sentence, AGENT_CHECK_COUNTEREXAMPLE, 0)
+                    results_rational_agent = await check_score(model_agent, example_sentence, counter_ex, AGENT_CHECK_COUNTEREXAMPLE, 0)
                     # score = results_conversation_teacher.content[0].text
                     score = results_rational_agent.content[0].text
                     print(score)
 
-                #If the counterexample does not meet threshold, come up with a new counterexample and recompute score
-                if score <= Threshold_counter:
+                
+                if "Yes" in score:
+                    done = True
                     fd = False
+                #If the counterexample does not meet threshold, come up with a new counterexample and recompute score
+                else:
                     counterexample_res = generate_response("counter_x", model_teacher, example_sentence, None, strategy, 
                                                         counter_ex, None, None, prompt_counter, 0)
                     counter_ex = json.loads(counterexample_res.choices[0].message.content)["1"]
-                    results_rational_agent = await generate_response(model_agent, example_sentence, AGENT_CHECK_COUNTEREXAMPLE, 0)
+                    results_rational_agent = await check_score(model_agent, example_sentence, counter_ex, AGENT_CHECK_COUNTEREXAMPLE, 0)
                     # score = results_conversation_teacher.content[0].text
                     score = results_rational_agent.content[0].text
-                else:
-                    done = True
         
         agreement_bank = []
         user_message = """Let's check what we have so far. Do you agree with the following <statement>? Please answer with Yes or No. 
@@ -152,18 +153,22 @@ async def main():
                 #Teacher ask for agreement
                 teacher_res = await generate_response("get_agreement", model_teacher, example_sentence, 
                                                     None, agreement_bank, target, conv_teacher, conv_student, prompt_teacher_agreement, 0)
-                conversation_teacher.append(teacher_res.choices[0].message.content)
-                conv_teacher.append(teacher_res.choices[0].message.content)
-                chat_history += "teacher: " + teacher_res.choices[0].message.content + "\n"
+                teacher_res = teacher_res.choices[0].message.content
+                print(teacher_res)
+                conversation_teacher.append(teacher_res)
+                conv_teacher.append(teacher_res)
+                chat_history += "teacher: " + teacher_res + "\n"
 
-                agent_res_RELE = await check_score(model_agent, conversation_teacher[count], SYSTEM_RATE_RESPONSE_AGENT_RELEVANCE, 0)
-                agent_res_multi = await check_score(model_agent, conversation_teacher[count], SYSTEM_RATE_RESPONSE_AGENT_MULTI, 0)
-
+                agent_res_RELE = await check_score(model_agent, example_sentence, conversation_teacher[count], SYSTEM_RATE_RESPONSE_AGENT_RELEVANCE, 0)
+                agent_res_multi = await check_score(model_agent, example_sentence, conversation_teacher[count], SYSTEM_RATE_RESPONSE_AGENT_MULTI, 0)
+                print(agent_res_RELE)
+                print(agent_res_multi)
                 score_rele = agent_res_RELE.content[0].text
 
                 ans_dict = json.loads(agent_res_multi.content[0].text)
                 score_1, score_2, score_3, score_4, = ans_dict["1"], ans_dict["2"], ans_dict["3"], ans_dict["4"]
                 tot_score = int(score_rele) + int(score_1) + int(score_2) + int(score_3) + int(score_4) 
+                print(tot_score)
 
                 if tot_score < Threshold_res:
                 #Student responds to teacher with stubborness
@@ -178,8 +183,6 @@ async def main():
                 conversation_student.append(student_res.choices[0].message.content)
                 conv_student.append(student_res.choices[0].message.content)
                 chat_history += "student: " + student_res.choices[0].message.content + "\n"
-                print(teacher_res.choices[0].message.content)
-                print(student_res.choices[0].message.content)
 
                 #doublechecking agreement
                 agent_res = await generate_response("agent", model_agent, target, 

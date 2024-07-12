@@ -167,8 +167,9 @@ First think carefully, then answer with "Yes" or "No".
 AGENT_CHECK_COUNTEREXAMPLE = """
 1. Does the premise and conclusion from the <counterexample> relate to the topic of <argument>?
 
+
+<argument>:{sentence}
 <counterexample>: {example}
-<argument>:{statement}
 
 If yes, then is the <counterexample> sufficient enough to refute <argument>? It is sufficient if any of the following holds: 
 
@@ -177,7 +178,7 @@ If yes, then is the <counterexample> sufficient enough to refute <argument>? It 
 3. The counterexample show that conclusion does not follow the premise.
 4. The counterexample show that the premise is not strong enough to support the conclusion.
 
-Answer with "Yes" or "No".
+Answer with ONLY "Yes" or "No". Format your answer in JSON with the following key: "1": <your_answer>
 """
 
 SYSTEM_FORCE_AGREEMENT = """
@@ -192,7 +193,7 @@ SYSTEM_RATE_RESPONSE_AGENT_RELEVANCE = """
 
 <sentence>: {sentence}
 
-Answer with yes or no. 
+Answer with "1" if "Yes" or "0" if "No". Format your answer in JSON with the following keys: "1": <YOUR_ANSWER>
 
 """
 
@@ -204,7 +205,7 @@ Q3. The <response> is effective if it persuades the target audience of (or corro
 Q4. The <response> is sufficient if it gives enough support to make it rational to draw its conclusion. Is the response sufficient?
 
 <sentence>:{sentence}
-<response>: {response}
+<response>: {example}
 
 Answer with "1" if "Yes" or "0" if "No". Format your answer in JSON with the following keys: "1": <answer to Q1>, "2": <answer to Q2>, "3": <answer to Q3>, "4":, <answer to Q4>
 """

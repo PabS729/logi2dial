@@ -34,7 +34,8 @@ strategy_dc = {
 
 
 strategy_dc_commonsense = {
-"faulty generalization": "If the argument is a slippery slope, find a counterexample with the first sub-claim's premise and a conclusion that is contrary to the last sub-claim's conclusion. Otherwise, find an example that is contrary to the conclusion.",
+"faulty generalization": "Find an example with a similar premise but the conclusion is the opposite from the original argument.",
+"slippery slope": "Find a counterexample with the first sub-claim's premise and a conclusion that is contrary to the last sub-claim's conclusion. ",
 "false causality": "find an example with the same premise, but leads to an opposite conclusion",
 "circular reasoning": "Talk about what should hold true for the premise to be true, and talk about what should hold true for the conclusion to be true.",
 "ad populum": "find a real-world example with a similar premise to the original argument, but the conclusion is clearly false",

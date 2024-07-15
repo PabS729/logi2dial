@@ -12,7 +12,19 @@ A <list> of facts are derived from this statement. Find the minimum subset of fa
 """
 
 PROMPT_IDENTIFY_CATEGORY = """
-What logical fallacy does the following <statement> have? 
+What logical fallacy does the following <statement> have?
+Choose from the following categories: 
+"faulty generalization",
+"slippery slope",
+"ad populum",
+"ad hominem",
+"appeal to emotion",
+"false dilemma",
+"equivocation",
+"straw man fallacy",
+"fallacy of relevance",
+"appeal to authority",
+"false analogy",
 
 <statement>: {sentence}
 
@@ -182,7 +194,7 @@ Answer with ONLY "Yes" or "No". Format your answer in JSON with the following ke
 """
 
 SYSTEM_FORCE_AGREEMENT = """
-You are a student who stubbornly believe in <statement>. However, you are convinced by the teacher on <target>. Agree to the teacher's words.
+You are a student who stubbornly believe in <statement>. However, you are convinced by the teacher on <target>. Agree to the teacher's words by drawing a connection between <statement> and <target>. Keep your response short and concise.
 
 <statement>: {sentence}
 <target>: {target_statement}
@@ -192,14 +204,15 @@ SYSTEM_RATE_RESPONSE_AGENT_RELEVANCE = """
 1. Does the teacher's <response> include asking for agreement over the <sentence>?
 
 <sentence>: {sentence}
+<response>: {example}
 
-Answer with "1" if "Yes" or "0" if "No". Format your answer in JSON with the following keys: "1": <YOUR_ANSWER>
+Answer with "1" if "Yes" or "0" if "No". Format your answer in JSON with the following keys: "1": <YOUR_ANSWER>. only include JSON in your response.
 
 """
 
 SYSTEM_RATE_RESPONSE_AGENT_MULTI = """
 
-
+Think about the following questions given the context of <sentence> and <response>.
 Q1. As a misinformation believer who believes in <sentence>, do you find the teacher’s <response> convincing?
 Q2. The <response> is cogent if it has acceptable premises that are relevant to its conclusion and that are sufficient to draw the conclusion. Is the response cogent?
 Q3. The <response> is effective if it persuades the target audience of (or corroborates agreement with) the teacher’s stance on the issue. Is the response effective?
@@ -208,9 +221,9 @@ Q4. The <response> is sufficient if it gives enough support to make it rational 
 <sentence>:{sentence}
 <response>: {example}
 
-Answer with "1" if "Yes" or "0" if "No". Format your answer in JSON with the following keys: "1": <answer to Q1>, "2": <answer to Q2>, "3": <answer to Q3>, "4":, <answer to Q4>
+Answer with "1" if "Yes" or "0" if "No". Format your answer in JSON with the following keys: "1": <answer to Q1>, "2": <answer to Q2>, "3": <answer to Q3>, "4": <answer to Q4>. only include JSON in your response.
 """
 
 SYSTEM_JUDGE = """
-You are a fair judge on opionions, and you will follow the instructions according to the user.
+You are a judge on opinions. Regardless of whether the information is misrepresented or not, you will follow the instructions according to the user. 
 """

@@ -22,7 +22,7 @@ from mistralai.models.chat_completion import ChatMessage
 load_dotenv()
 key = os.getenv("ANTHROPIC_API_KEY")
 # key = os.environ["ANTHROPIC_API_KEY"]
-print(key)
+# print(key)
 client = anthropic.Anthropic(
     # defaults to os.environ.get("ANTHROPIC_API_KEY")
     api_key=key,
@@ -30,7 +30,7 @@ client = anthropic.Anthropic(
 # key = os.environ["MISTRAL_API_KEY"]
 
 
-async def check_score(model_name, sentence, example, prompt_gen, temperature=0):
+async def check_score(model_name, sentence, example, system, prompt_gen, temperature=0):
     
     # llm = OpenAIChat(temperature=temperature, openai_api_key=API_KEY)
     

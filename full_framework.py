@@ -20,7 +20,7 @@ async def main():
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/agreement_test_0715_fd_test2.xlsx')
+    parser.add_argument("--save_fn", type=str, default='results/agreement_test_0716_adp_2.xlsx')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=10)
@@ -34,7 +34,7 @@ async def main():
     length_of_conversation = 5
     # st = df_to_annotate["Text"].tolist()
     # sampled_df = df_to_argue.groupby("updated_label").sample(n=1, random_state=2)
-    sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "false dilemma"].sample(n=1, random_state=5)
+    sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "ad populum"].sample(n=1, random_state=2)
     # strategy = strategy_dc_commonsense["fallacy of credibility"]
     # strategy = emo_alt
     sentences = sampled_df["source_article"].values.tolist()
@@ -85,8 +85,10 @@ async def main():
                                                   None, None, None, None, None, PROMPT_IDENTIFY_CATEGORY, 0)
         fallacy = json.loads(type_of_fallacy.choices[0].message.content)["1"]
         print(fallacy)
-        if fallacy in ["Appeal to Authority", "Appeal to Tradition"]:
+        if fallacy in ["appeal to authority", "appeal to tradition"]:
             fallacy = "fallacy of credibility"
+        if fallacy == "straw man fallacy": 
+            fallacy = "fallacy of extension"
         strategy = strategy_dc_commonsense[fallacy.lower()]
 
         #At the same time, the teacher finds all facts and put them into the fact bank
@@ -175,13 +177,12 @@ async def main():
                 score_rele = json.loads(agent_res_RELE.content[0].text)["1"]
 
                 ans_dict = json.loads(agent_res_multi.content[0].text)
-                score_1, score_2, score_3, score_4, = ans_dict["1"], ans_dict["2"], ans_dict["3"], ans_dict["4"]
+                score_1, score_2, score_3 = ans_dict["1"], ans_dict["2"], ans_dict["3"]
                 sc_rele.append(score_rele)
                 sc1.append(score_1)
                 sc2.append(score_2)
                 sc3.append(score_3)
-                sc4.append(score_4)
-                tot_score = int(score_rele) + int(score_1) + int(score_2) + int(score_3) + int(score_4) 
+                tot_score = int(score_rele) + int(score_1) + int(score_2) + int(score_3)
                 print(tot_score)
 
                 if tot_score < Threshold_res:
@@ -218,7 +219,7 @@ async def main():
                 print(rs_doublecheck)
                 # doublecheck_history = "teacher: " + user_message_context + "\n" + "student: " + rs_doublecheck
                 
-                if agreed == "True" and "Yes" in rs_doublecheck or tot_score > Threshold_res:
+                if (agreed == "True" and "Yes" in rs_doublecheck) or (tot_score >= Threshold_res):
                     done = True
                     agreement_bank.append(target)
                 else:
@@ -245,7 +246,6 @@ async def main():
         sc1.append("0")
         sc2.append("0")
         sc3.append("0")
-        sc4.append("0")
         print(student_res.choices[0].message.content)
         # print(conv_teacher, conv_student)
         sampled_sentence.append(example_sentence)
@@ -258,10 +258,9 @@ async def main():
     data_dict = {"fact_dict": factdicts,
                  "contradiction_dicts": contra_dicts,
                  'score_relevance': sc_rele,
-                 'score_convince': sc1,
-                 'score_cogency': sc2,
-                 'score_effective': sc3,
-                 'score_sufficient': sc4,
+                 'score_cogency': sc1,
+                 'score_effective': sc2,
+                 'score_sufficient': sc3,
                  'teacher_response': conversation_teacher, 
                  'layman_response': conversation_student, 
                  'sentence_sample': sampled_sentence, 

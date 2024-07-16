@@ -212,16 +212,15 @@ Answer with "1" if "Yes" or "0" if "No". Format your answer in JSON with the fol
 
 SYSTEM_RATE_RESPONSE_AGENT_MULTI = """
 
-Think about the following questions given the context of <sentence> and <response>.
-Q1. As a misinformation believer who believes in <sentence>, do you find the teacher’s <response> convincing?
-Q2. The <response> is cogent if it has acceptable premises that are relevant to its conclusion and that are sufficient to draw the conclusion. Is the response cogent?
-Q3. The <response> is effective if it persuades the target audience of (or corroborates agreement with) the teacher’s stance on the issue. Is the response effective?
-Q4. The <response> is sufficient if it gives enough support to make it rational to draw its conclusion. Is the response sufficient?
+As someone who believes in <sentence>, think about the following questions given the context of <sentence> and <response>. 
+Q1. The <response> is cogent if it has acceptable premises that are relevant to its conclusion and that are sufficient to draw the conclusion. Is the response cogent?
+Q2. The <response> is effective if it persuades the target audience of (or corroborates agreement with) the teacher’s stance on the issue. Is the response effective?
+Q3. The <response> is reasonable if it contributes to the issue’s resolution in a sufficient way that is acceptable to the target audience. Is the response reasonable?
 
 <sentence>:{sentence}
 <response>: {example}
 
-Answer with "1" if "Yes" or "0" if "No". Format your answer in JSON with the following keys: "1": <answer to Q1>, "2": <answer to Q2>, "3": <answer to Q3>, "4": <answer to Q4>. only include JSON in your response.
+Answer with "1" if "Yes" or "0" if "No". Format your answer in JSON with the following keys: "1": <answer to Q1>, "2": <answer to Q2>, "3": <answer to Q3>. only include JSON in your response.
 """
 
 SYSTEM_JUDGE = """

@@ -32,6 +32,14 @@ strategy_dc = {
 
 }
 
+option_refute = {
+"1. Showing that some of the premise of the argument is false." ,
+"2. Argue that the conclusion of the argument leads to absurd results.",
+"3. Show that the conclusion does not follow the premise",
+"4. Show that the argument begs the question"
+
+}
+
 
 strategy_dc_commonsense = {
 "faulty generalization": "Find an example with a similar premise but the conclusion is the opposite from the original argument.",
@@ -45,9 +53,9 @@ strategy_dc_commonsense = {
 "false dilemma": "Take note of the two positions to choose from the sentence. Find an example in the same premise, but can lead to a third conclusion different from the positions mentioned.",
 "equivocation": " Identify the key word which is spoken with two different meanings. Find an example where the key word is used with its original meaning. ",
 "fallacy of extension":"Understand the original position of the proponent and the interpretations made to this position. Find an example that represents the original position, but leads to conclusions opposite from the interpretation.",
-"fallacy of relevance": "Find an example with a similar premise to the original argument, but leads to a false conclusion",
+"fallacy of relevance": "Analyze the premise and conclusion of the argument. Find an example with a similar premise, but leads to the opposite conclusion",
 "fallacy of credibility":"find an example where someone famous said something in the same topic, and what he or she said was proven clearly wrong",
-"intentional":"an appeal is made to some form of ethics, authority, or credibility.",
+#"intentional":"an appeal is made to some form of ethics, authority, or credibility.",
 "false analogy": "Regarding the two subjects of comparison, find one attribute from one of the subjects that leads to opposite conclusions from the argument."
 
 }

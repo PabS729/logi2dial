@@ -11,6 +11,8 @@ import pandas as pd
 import time
 from check_score import *
 from generate_response import *
+from prompts_roleplay import *
+from respond_role import generate_res
 
 async def main():
     parser = argparse.ArgumentParser()
@@ -20,7 +22,7 @@ async def main():
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/agreement_test_0716_adp_2.xlsx')
+    parser.add_argument("--save_fn", type=str, default='results/agreement_test_0906_rele_chat_l_10.xlsx')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=10)
@@ -34,18 +36,19 @@ async def main():
     length_of_conversation = 5
     # st = df_to_annotate["Text"].tolist()
     # sampled_df = df_to_argue.groupby("updated_label").sample(n=1, random_state=2)
-    sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "ad populum"].sample(n=1, random_state=2)
+    sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "fallacy of relevance"].sample(n=3, random_state=10)
     # strategy = strategy_dc_commonsense["fallacy of credibility"]
     # strategy = emo_alt
     sentences = sampled_df["source_article"].values.tolist()
     labels = sampled_df["updated_label"].values.tolist()
 
 
-    model_student = "gpt-4o"
-    model_teacher = "gpt-4o"
+    # model_student = "gpt-4o"
+    # model_teacher = "gpt-4o"
+
+    model_teacher = "gpt-3.5-turbo"
+    model_student = 'gpt-3.5-turbo'
     model_agent = model_teacher
-    # model_teacher = "gpt-3.5-turbo-0125"
-    # model_student = 'gpt-3.5-turbo-0125'
     sampled_sentence = []
     sampled_labels = []
 
@@ -85,11 +88,23 @@ async def main():
                                                   None, None, None, None, None, PROMPT_IDENTIFY_CATEGORY, 0)
         fallacy = json.loads(type_of_fallacy.choices[0].message.content)["1"]
         print(fallacy)
-        if fallacy in ["appeal to authority", "appeal to tradition"]:
+        if fallacy.lower == "tu quoque":
+            fallacy = "ad hominem"
+        if fallacy.lower() in ["appeal to authority", "appeal to tradition", "appreal to nature"]:
             fallacy = "fallacy of credibility"
         if fallacy == "straw man fallacy": 
             fallacy = "fallacy of extension"
+        if fallacy == "red herring":
+            fallacy = "fallacy of relevance"
         strategy = strategy_dc_commonsense[fallacy.lower()]
+
+
+        profile_res = await generate_res("fact_bank", model_teacher, example_sentence, 
+                                                None, None, None, None, None, PROMPT_GENERATE_PROFILE, 0)
+        profile = json.loads(profile_res.choices[0].message.content)
+        print(profile)
+
+
 
         #At the same time, the teacher finds all facts and put them into the fact bank
         fact_bank_res = await generate_response("fact_bank", model_teacher, example_sentence, 
@@ -131,10 +146,11 @@ async def main():
                     first = False
                 #If the counterexample does not meet threshold, come up with a new counterexample and recompute score
                 else:
-                    counterexample_res = generate_response("counter_x", model_teacher, example_sentence, None, strategy, 
-                                                        counter_ex, None, None, prompt_counter, 0)
+                    counterexample_res = await generate_response("counter", model_teacher, example_sentence, None, strategy, 
+                                                        counter_ex, None, None, PROMPT_ALT_COUNTEREXAMPLE, 0)
+                    print(counterexample_res.choices[0].message.content)
                     counter_ex = json.loads(counterexample_res.choices[0].message.content)["1"]
-                    results_rational_agent = await check_score(model_agent, example_sentence, counter_ex, AGENT_CHECK_COUNTEREXAMPLE, 0)
+                    results_rational_agent = await check_score(model_agent, example_sentence, counter_ex, None, AGENT_CHECK_COUNTEREXAMPLE, 0)
                     # score = results_conversation_teacher.content[0].text
                     score = results_rational_agent.content[0].text
                     first = False
@@ -170,30 +186,33 @@ async def main():
                 conv_teacher.append(teacher_res)
                 chat_history += "teacher: " + teacher_res + "\n"
 
-                agent_res_RELE = await check_score(model_agent, target, conversation_teacher[count], SYSTEM_JUDGE, SYSTEM_RATE_RESPONSE_AGENT_RELEVANCE, 0)
+                agent_res_RELE = await check_score(model_agent, target, conversation_teacher[count], SYSTEM_JUDGE, PROMPT_EFFECTIVE_STRAW, 0)
                 agent_res_multi = await check_score(model_agent, example_sentence, conversation_teacher[count], SYSTEM_JUDGE, SYSTEM_RATE_RESPONSE_AGENT_MULTI, 0)
                 print(agent_res_RELE)
                 print(agent_res_multi)
                 score_rele = json.loads(agent_res_RELE.content[0].text)["1"]
 
                 ans_dict = json.loads(agent_res_multi.content[0].text)
-                score_1, score_2, score_3 = ans_dict["1"], ans_dict["2"], ans_dict["3"]
-                sc_rele.append(score_rele)
-                sc1.append(score_1)
-                sc2.append(score_2)
-                sc3.append(score_3)
-                tot_score = int(score_rele) + int(score_1) + int(score_2) + int(score_3)
-                print(tot_score)
+                # score_1, score_2, score_3 = ans_dict["1"], ans_dict["2"], ans_dict["3"]
+                # sc_rele.append(score_rele)
+                # sc1.append(score_1)
+                # sc2.append(score_2)
+                # sc3.append(score_3)
+                # tot_score = int(score_rele) + int(score_1) + int(score_2) + int(score_3)
+                # print(tot_score)
 
-                if tot_score < Threshold_res:
+                # if tot_score < Threshold_res:
                 #Student responds to teacher with stubborness
-                    student_res = await generate_response("student", model_student, example_sentence, 
-                                                        None, agreement_bank, None, conv_teacher, conv_student, prompt_student, 0)
+                    # student_res = await generate_response("student", model_student, example_sentence, 
+                                                        # None, agreement_bank, None, conv_teacher, conv_student, prompt_student, 0)
 
-                else:
+                # else:
                 #Force the student to agree with the teacher
-                    student_res = await generate_response("student_agree", model_student, example_sentence, 
-                                                        None, agreement_bank, target, conv_teacher, conv_student, SYSTEM_FORCE_AGREEMENT, 0)
+                # student_res = await generate_res("student_agree", model_student, example_sentence, 
+                                                        # None, agreement_bank, target, conv_teacher, conv_student, PROMPT_ARGUE_FOR_LF, 0)
+
+                student_res = await generate_res("student", model_teacher, example_sentence, None, profile, None, conv_teacher, conv_student, PROMPT_ARGUE_FOR_LF, 0)
+
                     
                 conversation_student.append(student_res.choices[0].message.content)
                 conv_student.append(student_res.choices[0].message.content)
@@ -211,8 +230,10 @@ async def main():
                 count += 1
                 print(count)
 
+                tot_score = 0
                 user_message_context = user_message.format(sentence=target)
                 print(user_message_context)
+                #double checks whether student agrees with target, using hardcoded question
                 student_res_doublecheck = await generate_response("student", model_student, example_sentence, 
                                                     None, agreement_bank, None, [user_message_context], [], prompt_student, 0)
                 rs_doublecheck = student_res_doublecheck.choices[0].message.content

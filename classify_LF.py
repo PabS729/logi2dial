@@ -7,6 +7,7 @@ import json
 import os
 import asyncio
 from prompt_bank import *
+from respond_role import * 
 from def_logical_fallacy import *
 import argparse
 import pandas as pd
@@ -46,20 +47,20 @@ async def generate_response(model_name, sentence, prompt_gen, temperature=0):
 
 async def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--file_to_annotate", type=str, default='edu_train_final.csv')
+    parser.add_argument("--file_to_annotate", type=str, default='edu_train_final copy.xlsx')
     parser.add_argument("--components_to_read", type=str, default='decomposed_sentences_toulmin.xlsx')
     parser.add_argument("--definition", type=str, default='proposed')
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/classification_full_gpt4o_cat.xlsx')
+    parser.add_argument("--save_fn", type=str, default='results/classification_full_cht_0808.xlsx')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=10)
     
     args = parser.parse_args()
 
-    df_to_argue = pd.read_csv(args.file_to_annotate)
+    df_to_argue = pd.read_excel(args.file_to_annotate)
     df_components = pd.read_excel(args.components_to_read)
     
     # print(df_to_argue.loc[0])
@@ -72,7 +73,7 @@ async def main():
     gt_labels = df_to_argue["updated_label"].values.tolist()
 
     # model_teacher = model_student
-    model_teacher = "gpt-4o"
+    model_teacher = "gpt-3.5-turbo"
     sampled_sentence = []
     sampled_labels = []
     full = []

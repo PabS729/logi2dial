@@ -13,7 +13,8 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
     elif role in ["fact_bank", "gen_strategy", "t_edu"]:
         user_prompt = p.format(sentence=sentence)
     elif role == "student" or role == "conv":
-        user_prompt = p.format(sentence=sentence, NAME = profile["NAME"], AGE = profile["AGE"], BELIEF = profile["BELIEF"], BIAS = profile["BIAS"])
+        user_prompt = p.format(sentence=sentence, BELIEF = profile["BELIEF"], BIAS = profile["BIAS"], PERSONALITY = profile["PERSONALITY"], EDU_LEVEL = profile["EDU_LEVEL"])
+        # user_prompt = p.format(sentence=sentence, NAME = profile["NAME"], AGE = profile["AGE"], BELIEF = profile["BELIEF"], BIAS = profile["BIAS"], PERSONALITY = profile["PERSONALITY"], EDU_LEVEL = profile["EDU_LEVEL"])
     elif role == "teacher" or role == "thought":
         user_prompt = p.format(sentence=sentence, history=history)
     elif role in ["strategy", "teacher_st"]:
@@ -40,7 +41,7 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
     done = False
     while not done:
         try: 
-            if role in ["fact_bank", "find_contradiction", "counter_ex", "thought", "strategy", "gen_strategy"]:
+            if role in ["fact_bank", "find_contradiction", "counter_ex", "thought", "strategy", "agent"]:
                 response = client.chat.completions.create(
                 model=model_name,
             messages=msgs,

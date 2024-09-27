@@ -20,7 +20,7 @@ async def main():
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/roleplay_test_0909_equ_4o_1turn_7_w_edu_stu.xlsx')
+    parser.add_argument("--save_fn", type=str, default='results/roleplay_test_0927_adh_noCoT_t1.xlsx')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=10)
@@ -30,26 +30,31 @@ async def main():
     df_to_argue = pd.read_csv(args.file_to_annotate)
     df_components = pd.read_excel(args.components_to_read)
     # print(df_to_argue.loc[0])
-
-    length_of_conversation = 5
     # st = df_to_annotate["Text"].tolist()
-    # sampled_df = df_to_argue.groupby("updated_label").sample(n=1, random_state=2)
-    sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "equivocation"].sample(n=1, random_state=7)
+    df_to_argue = df_to_argue[df_to_argue.updated_label != "fallacy of logic"]
+    sampled_df = df_to_argue.groupby("updated_label").sample(n=10, random_state=10)
+    # sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "ad hominem"].sample(n=1, random_state=15)
     # strategy = strategy_dc_commonsense["fallacy of credibility"]
     # strategy = emo_alt
     sentences = sampled_df["source_article"].values.tolist()
     labels = sampled_df["updated_label"].values.tolist()
+    sentences = ["I knew him in high school and he almost flunked out. He can't be a good choice for mayor."]
+    labels = ["ad hominem"]
+
+    
+
+    # sentences = ["If you have never been born again, eternal separation from God in the Lake of Fire awaits you. If you are born again, then being with the Lord in heaven forever is your destiny. Which do you choose?"]
+    # labels = ["appeal to emotion"]
+
+    # sentences = ["I hold a doctorate in theology, have written 12 books, and personally met the Pope.  Therefore, when I say that Jesusâ€™ favorite snack was raisins dipped in wine, you should believe me."]
+    # labels = ["fallacy of credibility"]
+
+
 
 
     model_student = "gpt-4o"
     model_teacher = "gpt-4o"
 
-    prompt_check_convinced = """
-    The student believes in <sentence>, which contains a logical fallacy.
-    In <chat_history>, the teacher is trying to convince the student. According to the response from <chat_history>, do you think the student is convinced by the teacher? Answer with "yes" or "no". 
-    <sentence>: {sentence}
-    <chat_history>: {history}
-    """
 
     # model_teacher = "gpt-4o-mini"
     # model_student = 'gpt-4o-mini'
@@ -63,6 +68,7 @@ async def main():
     conversation_student = []
     anas = []
     pfs = []
+    n_persuasion = []
 
     Threshold_counter = 0.5
     Threshold_res = 2
@@ -85,10 +91,11 @@ async def main():
 
 
 
-        rounds = 8
+        rounds = 10
         conv_teacher = []
         conv_student =[]
         
+
         chat_history = ""
         for i in range(0, rounds):
             
@@ -103,31 +110,32 @@ async def main():
                 pfs.append("")
                 # thought_res = await generate_res("agent", model_teacher, example_sentence, chat_history, None, None, None, None, PROMPT_TEACHER_REFUTE, 0)
                 # thought = thought_res.choices[0].message.content
-                thought_res = await generate_res("thought", model_teacher, example_sentence, chat_history, None, None, None, None, PROMPT_THINK, 0)
+                # thought_res = await generate_res("thought", model_teacher, example_sentence, chat_history, None, None, None, None, PROMPT_THINK, 0)
 
-                thought = json.loads(thought_res.choices[0].message.content)
-                thought = thought["Q1"] +"\n"+ thought["Q2"] + "\n" + thought["Q3"]
-                print(thought)
+                # thought = json.loads(thought_res.choices[0].message.content)
+                # thought = thought["Q1"] +"\n"+ thought["Q2"] + "\n" + thought["Q3"]
+                # print(thought)
                 chat_history = ""
+                thought = ""
             
             anas.append(thought)
-
+            
             # curr_strat = await generate_response("strategy", model_teacher, example_sentence, 
                                                 # chat_history, strategy, None, None, None, PROMPT_ANALYZE_STAGE, 0)
             # curr_strat = json.loads(curr_strat.choices[0].message.content)["ans"]
             # print(curr_strat)
             # teacher_res = await generate_response("teacher_st", model_teacher, example_sentence, curr_strat, strategy, None, conv_teacher, conv_student, PROMPT_FOLLOW_STRATEGY, 0)
 
-            # teacher_res = await generate_response("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_No_CoT, 0)
+            teacher_res = await generate_res("t_edu", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_No_CoT, 0)
 
-            teacher_res = await generate_res("teacher", model_teacher, example_sentence, thought, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE, 0)
+            # teacher_res = await generate_res("teacher", model_teacher, example_sentence, thought, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE, 0)
             utterance_teacher = teacher_res.choices[0].message.content
             chat_history += "teacher: " + utterance_teacher + "\n"
             print(utterance_teacher)
             conversation_teacher.append(utterance_teacher)
             conv_teacher.append(utterance_teacher)
 
-            student_res = await generate_res("student", model_teacher, example_sentence, None, profile, None, conv_teacher, conv_student, PROMPT_ARGUE_FOR_LF, 0)
+            student_res = await generate_res("student", model_teacher, example_sentence, chat_history, profile, None, conv_teacher, conv_student, PROMPT_ARGUE_FOR_LF_PC, 1)
             utterance_student = student_res.choices[0].message.content
             chat_history += "student: " + utterance_student + "\n"
             print(utterance_student)
@@ -135,16 +143,27 @@ async def main():
             conv_student.append(utterance_student)
 
             print("%d\n", i)
-            agent_res = await generate_res("agent", model_teacher, example_sentence, chat_history, None, None, None, None, prompt_check_convinced, 0)
-            agent_res = agent_res.choices[0].message.content
+            agent_res = await generate_res("agent", model_teacher, example_sentence, chat_history, None, None, None, None, PROMPT_CHECK_FIN, 0)
+            agent_res = json.loads(agent_res.choices[0].message.content)
             print(agent_res)
-            if "yes" in agent_res.lower():
+
+            
+            if "yes" in agent_res["Q1"].lower():
+                n_persuasion.append(i+1)
                 break
+
+            else:
+                if i == 9 or "yes" in agent_res["Q2"].lower():
+                    n_persuasion.append("NO")
+                    break
+                else: 
+                    n_persuasion.append(0)
 
         #the student is convinced, time to educate the student
         conv_teacher = []
         conv_student =[]
-        for i in range(0,4):
+        for i in range(0,3):
+            n_persuasion.append(0)
 
             sampled_sentence.append("")
             sampled_labels.append("")
@@ -155,16 +174,21 @@ async def main():
             # print(thought)
             chat_history = ""
 
-            anas.append("")
 
-            teacher_res = await generate_res("t_edu", model_teacher, example_sentence, None, None, None,  conv_teacher, conv_student, PROMPT_TEACHER_EDUCATE, 0)
+            thought_res = await generate_res("thought", model_teacher, example_sentence, chat_history, None, None, None, None, PROMPT_TEACHER_EDU_THINK, 0)
+            thought = json.loads(thought_res.choices[0].message.content)["Q1"]
+            print(thought)
+
+            anas.append(thought)
+
+            teacher_res = await generate_res("teacher", model_teacher, example_sentence, thought, None, None,  conv_teacher, conv_student, PROMPT_TEACHER_EDUCATE, 0)
             utterance_teacher = teacher_res.choices[0].message.content
             chat_history += "teacher: " + utterance_teacher + "\n"
             print(utterance_teacher)
             conversation_teacher.append(utterance_teacher)
             conv_teacher.append(utterance_teacher)
 
-            student_res = await generate_res("student", model_teacher, example_sentence, None, profile, None, conv_teacher, conv_student, PROMPT_STUDENT_INTERACT, 0)
+            student_res = await generate_res("student", model_teacher, example_sentence, None, profile, None, conv_teacher, conv_student, PROMPT_STUDENT_INTERACT_NEW, 0)
             utterance_student = student_res.choices[0].message.content
             chat_history += "student: " + utterance_student + "\n"
             print(utterance_student)
@@ -178,13 +202,15 @@ async def main():
 
 
 
-    print(len(anas), len(conversation_teacher), len(conversation_student), len(sampled_sentence), len(sampled_labels))
+    print(len(anas), len(conversation_teacher), len(conversation_student), len(sampled_sentence), len(sampled_labels), len(pfs))
     data_dict = {
                  'teacher_analysis': anas,
                  'teacher_response': conversation_teacher, 
                  'layman_response': conversation_student, 
                  'sentence_sample': sampled_sentence, 
-                 'labels': sampled_labels
+                 'labels': sampled_labels,
+                 "profile": pfs,
+                 "rounds_persuaded": n_persuasion
                 }
     df_result = pd.DataFrame(data_dict)
     df_result.to_excel(args.save_fn, index=False)

@@ -1,23 +1,84 @@
 PROMPT_GENERATE_PROFILE = """
-Generate a social profile including the person's name, age, beliefs, and biases, for someone who believes in <sentence>. 
+Generate a social profile including the person's belief, bias, personality, and education level, for someone who believes in <sentence>. 
+For personality, consider the following five attributes: 
+1. inventive/curious vs. consistent/cautious
+2. efficient/organized vs. extravagant/careless
+3.outgoing/energetic vs. solitary/reserved
+4. friendly/compassionate vs. critical/judgmental
+5. sensitive/nervous vs. resilient/confident. 
+For each attribute, pick one from the two available options.
+For education level, choose from the following categories: Toddler, Elementary/Middle School, High School, Associate/Bachelor, Master/PHD. 
+If <sentence> is in the form of a dialogue, identify the speaker who made the logical fallacy in the dialogue, and generate a profile for that speaker.
 <sentence>: {sentence}
-Format your answer in JSON with the following keys: "NAME": <name of the person>, "AGE": <age of the person>, "BELIEF": <beliefs of the person>, "BIAS": <bias of the person>.
+
+
+Format your answer in JSON with the following keys: "BELIEF": <beliefs of the person>, "BIAS": <bias of the person>, "PERSONALITY": <in the format of such: "attribute_1: rating_1, attribute_2: rating_2...">, "EDU_LEVEL": <education level of the person>
 
 """
+
+#""
 
 PROMPT_ARGUE_FOR_LF = """
 You are a student with the following <social_profile> who believes in <sentence>. Think like real human with biases. 
 Think carefully before fomulating your response.
-Try to play as the student. The tones, emotions, reactions, and utterances should align with <social_profile>. Respond to the teacher. Keep your response short and concise.
+Try to play as the student. The tones, emotions, reactions, and utterances should align with <social_profile>. Respond to the teacher. Keep your response short and concise. 
 
 <social_profile>
 name: {NAME}
 age: {AGE}
 beliefs: {BELIEF}
 biases: {BIAS}
+personality: {PERSONALITY}
+education level: {EDU_LEVEL}
 
 <sentence>: {sentence}
 """
+
+PROMPT_ARGUE_FOR_LF_PC = """
+You are a student with the following <social_profile> who believes in <sentence>. Think like real human with biases. 
+Think carefully before fomulating your response.
+Try to play as the student. The tones, emotions, reactions, and utterances should align with <social_profile>. Respond to the teacher. Keep your response short and concise. 
+
+<social_profile>
+beliefs: {BELIEF}
+biases: {BIAS}
+personality: {PERSONALITY}
+education level: {EDU_LEVEL}
+
+<sentence>: {sentence}
+"""
+
+
+PROMPT_CHECK_FIN = """
+    The student believes in <sentence>, which contains a logical fallacy.
+    In <chat_history>, the teacher is trying to convince the student. Answer the following questions:
+    Q1. Do you think that the student is convinced by the teacher?
+    Q2. If the student is not convinced, has the teacher decided to end the dialogue?
+
+    <sentence>: {sentence}
+    <chat_history>: {history}
+
+    Answer with "yes" or "no". Format your answer in JSON with the following key: "Q1": <answer_to_Q1> "Q2": <answer_to_Q2>
+    """
+
+
+PROMPT_ARGUE_FOR_LF_NOREPEAT = """
+You are a student with the following <social_profile> who believes in <sentence>. Think like real human with biases. 
+Think carefully before fomulating your response.
+Try to play as the student. The tones, emotions, reactions, and utterances should align with <social_profile>. Respond to the teacher. Keep your response short and concise.
+Try to be creative, and do not repeat or paraphrase your ideas from the <utterance_last_turn>
+<social_profile>
+name: {NAME}
+age: {AGE}
+beliefs: {BELIEF}
+biases: {BIAS}
+personality: {PERSONALITY}
+education level: {EDU_LEVEL}
+
+<sentence>: {sentence}
+<utterance_last_turn>: {history}
+"""
+
 
 PROMPT_THINK = """
 You are a teacher who knows logical fallacies. You are interacting with a student who believes in <sentence>. 
@@ -35,7 +96,7 @@ format your answer in JSON with the following key: "Q1": <answer_to_Q1> "Q2": <a
 PROMPT_TEACHER_ARGUE = """
 
 You are a teacher who knows logical fallacies. You are interacting with a student who believes in <sentence>, which contains a logical fallacy. Be aware that the student may have strong bias towards <sentence>.
-Think carefully before fomulating your response. Talk to the student and try to convince the student that <sentence> is logically fallacious. Try to stick to the topic of educating logical fallacy. 
+Think carefully before fomulating your response. Talk to the student and try to convince the student that <sentence> is logically fallacious. Try to stick to the topic of educating logical fallacy, and try not to be convinced by the student.
 <thoughts> may be helpful when formulating the response, but do not try to copy the words directly from it.
 Keep your response short and concise.
 
@@ -47,7 +108,7 @@ Keep your response short and concise.
 PROMPT_TEACHER_ARGUE_No_CoT = """
 
 You are a teacher who knows logical fallacies. You are interacting with a student who believes in <sentence>, which contains a logical fallacy. Be aware that the student may have strong bias towards <sentence>.
-Think carefully before fomulating your response. Talk to the student and try to convince the student that <sentence> is logically fallacious. Try to stick to the topic of educating logical fallacy. 
+Think carefully before fomulating your response. Talk to the student and try to convince the student that <sentence> is logically fallacious. Try to stick to the topic of educating logical fallacy.
 Keep your response short and concise.
 
 <sentence>: {sentence}
@@ -93,17 +154,33 @@ format your answer in JSON with the following key: "Q1": <answer_to_Q1> "Q2": <a
 
 """
 
-PROMPT_TEACHER_EDUCATE = """
-You are a teacher who knows logical fallacies. You are interacting with a student who believes in <sentence>, which contains a logical fallacy.
+PROMPT_TEACHER_EDU_THINK = """
+You are a teacher who knows logical fallacies. You are interacting with a student who believes in <sentence>. 
 The student has already been convinced. 
-Some possible ways of interacting with the student:
+A <list> of some possible ways of interacting with the student, where each item has equal priority:
+
 1. Socratic questioning: using probing questions and focusing questions
 2. Break down the argument into premise and conclusion and explain how flaws in these relates to logical fallacy.
 3. Introduce similar scenarios regarding the logical fallacy and ask the student to identify them.
 4. encourage the student to reflect on the conversation just happened. 
 
-Pick one strategy from the list and use that strategy to educate the student regarding the Logical Fallacy made.. Keep your response short and concise.
+Think about the student's response in <dialogue_history>, pick one strategy from the <list> and answer the following question:
+How can you engage the student to help them learn more about the logical fallacy? 
+
+<sentence>:{sentence}
+<dialogue_history>: {history}
+
+format your answer in JSON with the following key: "Q1": <answer_to_Q1>
+
+"""
+
+PROMPT_TEACHER_EDUCATE = """
+You are a teacher who knows logical fallacies. You are interacting with a student who believes in <sentence>, which contains a logical fallacy.
+The student has already been convinced. Tlak to the student and educate the student regarding the logical fallacy. Refer to <thoughts> when formulating your response. 
+
+Keep your response short and concise, even if the student asks questions.
 <sentence>: {sentence}
+<thoughts>: {history}
 """
 
 PROMPT_TEACHER_REFUTE = """
@@ -147,13 +224,29 @@ Think carefully before fomulating your response. You are at stage <step> of the 
 PROMPT_STUDENT_INTERACT = """
 You are a student with the following <social_profile> who believes in <sentence>. Think like real human with biases. 
 Think carefully before fomulating your response.
-Try to play as the student and respond to the teacher. You already realized that <sentence> contains a logical fallacy, and you would like to learn about the logical fallacy.
+Try to play as the student and respond to the teacher. You are already convinced by the teacher that <sentence> contains a logical fallacy, and you would like to learn more about it. Try to be creative rather than repeating what the teacher says.
 
 <social_profile>
 name: {NAME}
 age: {AGE}
 beliefs: {BELIEF}
 biases: {BIAS}
+personality: {PERSONALITY}
+education level: {EDU_LEVEL}
+
+<sentence>: {sentence}
+"""
+
+PROMPT_STUDENT_INTERACT_NEW = """
+You are a student with the following <social_profile> who believes in <sentence>. Think like real human with biases. 
+Think carefully before fomulating your response.
+Try to play as the student and respond to the teacher. You are already convinced by the teacher that <sentence> contains a logical fallacy, and you would like to learn more about it. Try to be creative rather than repeating what the teacher says.
+
+<social_profile>
+beliefs: {BELIEF}
+biases: {BIAS}
+personality: {PERSONALITY}
+education level: {EDU_LEVEL}
 
 <sentence>: {sentence}
 """

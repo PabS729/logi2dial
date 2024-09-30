@@ -20,7 +20,7 @@ async def main():
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/roleplay_test_0927_adh_noCoT_t1.xlsx')
+    parser.add_argument("--save_fn", type=str, default='results/roleplay_test_0930_all_noCoT_t1.xlsx')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=10)
@@ -38,8 +38,8 @@ async def main():
     # strategy = emo_alt
     sentences = sampled_df["source_article"].values.tolist()
     labels = sampled_df["updated_label"].values.tolist()
-    sentences = ["I knew him in high school and he almost flunked out. He can't be a good choice for mayor."]
-    labels = ["ad hominem"]
+    # sentences = ["I knew him in high school and he almost flunked out. He can't be a good choice for mayor."]
+    # labels = ["ad hominem"]
 
     
 
@@ -79,9 +79,13 @@ async def main():
         print(example_sentence)
 
         #Generate social profile
-        profile_res = await generate_res("fact_bank", model_teacher, example_sentence, 
-                                                None, None, None, None, None, PROMPT_GENERATE_PROFILE, 0)
-        profile = json.loads(profile_res.choices[0].message.content)
+        # profile_res = await generate_res("fact_bank", model_teacher, example_sentence, 
+                                                # None, None, None, None, None, PROMPT_GENERATE_PROFILE, 0)
+        # profile = json.loads(profile_res.choices[0].message.content)
+
+        profile_res = await generate_res("gen_Strategy", model_teacher, example_sentence, 
+                                                None, None, None, None, None, PROMPT_GENERATE_BIO, 0)
+        profile = profile_res.choices[0].message.content
         print(profile)
         
         # strategy_res = await generate_response("gen_strategy", model_teacher, example_sentence, 
@@ -135,7 +139,9 @@ async def main():
             conversation_teacher.append(utterance_teacher)
             conv_teacher.append(utterance_teacher)
 
-            student_res = await generate_res("student", model_teacher, example_sentence, chat_history, profile, None, conv_teacher, conv_student, PROMPT_ARGUE_FOR_LF_PC, 1)
+            # student_res = await generate_res("student", model_teacher, example_sentence, chat_history, profile, None, conv_teacher, conv_student, PROMPT_ARGUE_FOR_LF_PC, 1)
+            student_res = await generate_res("student_bio", model_teacher, example_sentence, profile, None, None, conv_teacher, conv_student, PROMPT_ARGUE_FOR_LF_BIO, 1)
+
             utterance_student = student_res.choices[0].message.content
             chat_history += "student: " + utterance_student + "\n"
             print(utterance_student)
@@ -188,7 +194,9 @@ async def main():
             conversation_teacher.append(utterance_teacher)
             conv_teacher.append(utterance_teacher)
 
-            student_res = await generate_res("student", model_teacher, example_sentence, None, profile, None, conv_teacher, conv_student, PROMPT_STUDENT_INTERACT_NEW, 0)
+            # student_res = await generate_res("student", model_teacher, example_sentence, None, profile, None, conv_teacher, conv_student, PROMPT_STUDENT_INTERACT_NEW, 0)
+            student_res = await generate_res("student_bio", model_teacher, example_sentence, profile, None, None, conv_teacher, conv_student, PROMPT_STUDENT_INTERACT_BIO, 0)
+
             utterance_student = student_res.choices[0].message.content
             chat_history += "student: " + utterance_student + "\n"
             print(utterance_student)

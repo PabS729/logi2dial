@@ -16,7 +16,21 @@ Format your answer in JSON with the following keys: "BELIEF": <beliefs of the pe
 
 """
 
-#""
+PROMPT_GENERATE_BIO = """
+Describe the person in a paragraph, including the person's belief, bias, personality, and education level, for someone who believes in <sentence>. 
+For personality, consider the following five attributes: 
+1. inventive/curious vs. consistent/cautious
+2. efficient/organized vs. extravagant/careless
+3.outgoing/energetic vs. solitary/reserved
+4. friendly/compassionate vs. critical/judgmental
+5. sensitive/nervous vs. resilient/confident. 
+For each attribute, pick one from the two available options.
+For education level, choose from the following categories: Toddler, Elementary/Middle School, High School, Associate/Bachelor, Master/PHD. 
+If <sentence> is in the form of a dialogue, identify the speaker who made the logical fallacy in the dialogue, and generate a profile for that speaker.
+<sentence>: {sentence}
+
+Format your answer in a single paragraph. Make sure to include all required attributes.
+"""
 
 PROMPT_ARGUE_FOR_LF = """
 You are a student with the following <social_profile> who believes in <sentence>. Think like real human with biases. 
@@ -44,6 +58,17 @@ beliefs: {BELIEF}
 biases: {BIAS}
 personality: {PERSONALITY}
 education level: {EDU_LEVEL}
+
+<sentence>: {sentence}
+"""
+
+PROMPT_ARGUE_FOR_LF_BIO = """
+You are a student with the following <personal_bio> who believes in <sentence>. Think like real human with biases. 
+Think carefully before fomulating your response.
+Try to play as the student. The tones, emotions, reactions, and utterances should align with <personal_bio>. Respond to the teacher. Keep your response short and concise. 
+
+<personal_bio>: {history}
+
 
 <sentence>: {sentence}
 """
@@ -247,6 +272,16 @@ beliefs: {BELIEF}
 biases: {BIAS}
 personality: {PERSONALITY}
 education level: {EDU_LEVEL}
+
+<sentence>: {sentence}
+"""
+
+PROMPT_STUDENT_INTERACT_BIO = """
+You are a student with the following <social_profile> who believes in <sentence>. Think like real human with biases. 
+Think carefully before fomulating your response.
+Try to play as the student and respond to the teacher. You are already convinced by the teacher that <sentence> contains a logical fallacy, and you would like to learn more about it. Try to be creative rather than repeating what the teacher says.
+
+<social_profile>: {history}
 
 <sentence>: {sentence}
 """

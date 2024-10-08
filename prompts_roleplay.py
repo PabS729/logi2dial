@@ -153,20 +153,20 @@ education level: {EDU_LEVEL}
 PROMPT_THINK = """
 You are a teacher who knows logical fallacies. You are interacting with a student who believes in <sentence>. 
 Think about the student's response in <dialogue_history>, and answer the following question: 
-Q1: What is the student's logical flaw in the response?
+Q1: What is the student's logical flaw in their response?
 Q2: What is the student's main concern over your response?
 Q3: How can you make the student realize that he/she made a logical fallacy, given your role? 
 
 <sentence>: {sentence}
 <dialogue_history>: {history}
 
-format your answer in JSON with the following key: "Q1": <answer_to_Q1> "Q2": <answer_to_Q2> "Q3": <answer_to_Q3>
+format your answer in JSON with the following key: "Q1": <answer_to_Q1> "Q2": <answer_to_Q2> "Q3": <answer_to_Q3>. limit your answer to 30 words for each question.
 """
 
 PROMPT_TEACHER_ARGUE = """
 
 You are a teacher who knows logical fallacies. You are interacting with a student who believes in <sentence>, which contains a logical fallacy. Be aware that the student may have strong bias towards <sentence>.
-Think carefully before fomulating your response. Talk to the student and try to convince the student that <sentence> is logically fallacious. Try to stick to the topic of educating logical fallacy, and try not to be convinced by the student.
+Think carefully before fomulating your response. Talk to the student and try to convince the student that <sentence> is logically fallacious. Remember to point out the student's logical flaw. Try to stick to the topic of educating logical fallacy.
 <thoughts> may be helpful when formulating the response, but do not try to copy the words directly from it.
 Keep your response short and concise.
 

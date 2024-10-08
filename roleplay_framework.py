@@ -20,10 +20,10 @@ async def main():
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/roleplay_test_1007_0_200.xlsx')
+    parser.add_argument("--save_fn", type=str, default='results/roleplay_test_1007_CoT_')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--num_gen", type=int, default=10)
+    parser.add_argument("--num_gen", type=int, default=0)
     
     args = parser.parse_args()
 
@@ -38,8 +38,11 @@ async def main():
     # sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "ad populum"].sample(n=3, random_state=15)
     # strategy = strategy_dc_commonsense["fallacy of credibility"]
     # strategy = emo_alt
-    sentences = sampled_df["source_article"].values.tolist()[:200]
-    labels = sampled_df["updated_label"].values.tolist()[:200]
+    sentences = sampled_df["source_article"].values.tolist()
+    labels = sampled_df["updated_label"].values.tolist()
+
+    sentences = sentences[args.num_gen:len(sentences)]
+    labels = labels[args.num_gen:len(labels)]
 
     # sentences = ["I knew him in high school and he almost flunked out. He can't be a good choice for mayor."]
     # labels = ["ad hominem"]
@@ -129,13 +132,13 @@ async def main():
                 pfs.append("")
                 # thought_res = await generate_res("agent", model_teacher, example_sentence, chat_history, None, None, None, None, PROMPT_TEACHER_REFUTE, 0)
                 # thought = thought_res.choices[0].message.content
-                # thought_res = await generate_res("thought", model_teacher, example_sentence, chat_history, None, None, None, None, PROMPT_THINK, 0)
+                thought_res = await generate_res("thought", model_teacher, example_sentence, chat_history, None, None, None, None, PROMPT_THINK, 0)
 
-                # thought = json.loads(thought_res.choices[0].message.content)
-                # thought = thought["Q1"] +"\n"+ thought["Q2"] + "\n" + thought["Q3"]
+                thought = json.loads(thought_res.choices[0].message.content)
+                thought = thought["Q1"] +"\n"+ thought["Q2"] + "\n" + thought["Q3"]
                 # print(thought)
                 chat_history = ""
-                thought = ""
+                # thought = ""
             
             anas.append(thought)
             
@@ -145,9 +148,9 @@ async def main():
             # print(curr_strat)
             # teacher_res = await generate_response("teacher_st", model_teacher, example_sentence, curr_strat, strategy, None, conv_teacher, conv_student, PROMPT_FOLLOW_STRATEGY, 0)
 
-            teacher_res = await generate_res("t_edu", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_No_CoT, 0)
+            # teacher_res = await generate_res("t_edu", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_No_CoT, 0)
 
-            # teacher_res = await generate_res("teacher", model_teacher, example_sentence, thought, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE, 0)
+            teacher_res = await generate_res("teacher", model_teacher, example_sentence, thought, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE, 0)
             utterance_teacher = teacher_res.choices[0].message.content
             chat_history += "teacher: " + utterance_teacher + "\n"
             # print(utterance_teacher)
@@ -240,10 +243,10 @@ async def main():
                  "rounds_persuaded": n_persuasion
                 }
     df_result = pd.DataFrame(data_dict)
-    df_result.to_excel(args.save_fn, index=False)
+    df_result.to_excel(args.save_fn + str(args.num_gen) + ".xlsx", index=False)
 
     df_chats = pd.DataFrame({"chats": chats})
-    df_chats.to_excel(args.save_fn, index=False)
+    df_chats.to_excel("chat_history_" + args.save_fn + str(args.num_gen) + ".xlsx", index=False)
     print("done async")
 
 

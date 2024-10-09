@@ -20,7 +20,7 @@ async def main():
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/roleplay_test_1007_CoT_')
+    parser.add_argument("--save_fn", type=str, default='results/roleplay_test_1007_MISTRAL_adp')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -29,20 +29,30 @@ async def main():
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
     df_components = pd.read_excel(args.components_to_read)
-    sampled_df = df_to_argue
+    # sampled_df = df_to_argue
     
     # print(df_to_argue.loc[0])
     # st = df_to_annotate["Text"].tolist()
     # df_to_argue = df_to_argue[df_to_argue.updated_label != "fallacy of logic"]
     # sampled_df = df_to_argue.groupby("updated_label").sample(n=10, random_state=10)
-    # sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "ad populum"].sample(n=3, random_state=15)
+    sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "ad populum"].sample(n=1, random_state=15)
     # strategy = strategy_dc_commonsense["fallacy of credibility"]
     # strategy = emo_alt
     sentences = sampled_df["source_article"].values.tolist()
     labels = sampled_df["updated_label"].values.tolist()
 
-    sentences = sentences[args.num_gen:len(sentences)]
-    labels = labels[args.num_gen:len(labels)]
+    # max_len = args.num_gen + 200
+    # if  max_len > len(sentences):
+    #     max_len = len(sentences)
+
+    # max_len_l = args.num_gen +200
+    # if max_len_l > len(labels):
+    #     max_len_l = len(labels)
+
+    
+
+    # sentences = sentences[args.num_gen:max_len]
+    # labels = labels[args.num_gen:max_len_l]
 
     # sentences = ["I knew him in high school and he almost flunked out. He can't be a good choice for mayor."]
     # labels = ["ad hominem"]
@@ -93,12 +103,12 @@ async def main():
                                                 # None, None, None, None, None, PROMPT_GENERATE_PROFILE, 0)
         # profile = json.loads(profile_res.choices[0].message.content)
 
-        st_res = await generate_res("gen_Strategy", model_teacher, example_sentence, 
+        st_res = await generate_res("gen_Strategy", model_student, example_sentence, 
                                                 None, None, None, None, None, PROMPT_AGENT_ADD_OR_SIMPLIFY, 0)
-        st_res = st_res.choices[0].message.content
+        example_sentence = st_res.choices[0].message.content
         # print(st_res)
 
-        profile_res = await generate_res("gen_Strategy", model_teacher, st_res, 
+        profile_res = await generate_res("gen_Strategy", model_student, example_sentence, 
                                                 None, None, None, None, None, PROMPT_GENERATE_BIO_EXP, 0)
         profile = profile_res.choices[0].message.content
         # print(profile)
@@ -132,13 +142,13 @@ async def main():
                 pfs.append("")
                 # thought_res = await generate_res("agent", model_teacher, example_sentence, chat_history, None, None, None, None, PROMPT_TEACHER_REFUTE, 0)
                 # thought = thought_res.choices[0].message.content
-                thought_res = await generate_res("thought", model_teacher, example_sentence, chat_history, None, None, None, None, PROMPT_THINK, 0)
+                # thought_res = await generate_res("thought", model_teacher, example_sentence, chat_history, None, None, None, None, PROMPT_THINK, 0)
 
-                thought = json.loads(thought_res.choices[0].message.content)
-                thought = thought["Q1"] +"\n"+ thought["Q2"] + "\n" + thought["Q3"]
+                # thought = json.loads(thought_res.choices[0].message.content)
+                # thought = thought["Q1"] +"\n"+ thought["Q2"] + "\n" + thought["Q3"]
                 # print(thought)
                 chat_history = ""
-                # thought = ""
+                thought = ""
             
             anas.append(thought)
             
@@ -148,9 +158,9 @@ async def main():
             # print(curr_strat)
             # teacher_res = await generate_response("teacher_st", model_teacher, example_sentence, curr_strat, strategy, None, conv_teacher, conv_student, PROMPT_FOLLOW_STRATEGY, 0)
 
-            # teacher_res = await generate_res("t_edu", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_No_CoT, 0)
+            teacher_res = await generate_res("t_edu", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_No_CoT, 0)
 
-            teacher_res = await generate_res("teacher", model_teacher, example_sentence, thought, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE, 0)
+            # teacher_res = await generate_res("teacher", model_teacher, example_sentence, thought, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE, 0)
             utterance_teacher = teacher_res.choices[0].message.content
             chat_history += "teacher: " + utterance_teacher + "\n"
             # print(utterance_teacher)
@@ -158,7 +168,7 @@ async def main():
             conv_teacher.append(utterance_teacher)
 
             # student_res = await generate_res("student", model_teacher, example_sentence, chat_history, profile, None, conv_teacher, conv_student, PROMPT_ARGUE_FOR_LF_PC, 1)
-            student_res = await generate_res("student_bio", model_teacher, example_sentence, profile, None, None, conv_teacher, conv_student, PROMPT_ARGUE_FOR_LF_BIO, 1)
+            student_res = await generate_res("student_bio", model_student, example_sentence, profile, None, None, conv_teacher, conv_student, PROMPT_ARGUE_FOR_LF_BIO, 1)
 
             utterance_student = student_res.choices[0].message.content
             chat_history += "student: " + utterance_student + "\n"
@@ -168,7 +178,7 @@ async def main():
             conv_student.append(utterance_student)
 
             # print("%d\n", i)
-            agent_res = await generate_res("agent", model_teacher, example_sentence, chat_history, None, None, None, None, PROMPT_CHECK_FIN, 0)
+            agent_res = await generate_res("agent", model_student, example_sentence, chat_history, None, None, None, None, PROMPT_CHECK_FIN, 0)
             agent_res = json.loads(agent_res.choices[0].message.content)
             # print(agent_res)
             agent_responses.append(agent_res)

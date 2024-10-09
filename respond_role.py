@@ -1,10 +1,16 @@
 from openai import OpenAI
 import asyncio
 import time
+from mistralai.client import MistralClient
+import os
 
 async def generate_res(role, model_name, sentence, history, profile, target_statement, 
                             teacher_res, student_res, prompt_gen, temperature=0):
-    client = OpenAI()
+    if role == "t_edu":
+        client = MistralClient(api_key=os.environ["MISTRAL_API_KEY"])
+        # print("c")
+    else:
+        client = OpenAI()
 
     p = prompt_gen
     msgs = []
@@ -17,7 +23,7 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
         # user_prompt = p.format(sentence=sentence, NAME = profile["NAME"], AGE = profile["AGE"], BELIEF = profile["BELIEF"], BIAS = profile["BIAS"], PERSONALITY = profile["PERSONALITY"], EDU_LEVEL = profile["EDU_LEVEL"])
     elif role == "teacher" or role == "thought":
         user_prompt = p.format(sentence=sentence, history=history)
-    elif role in ["strategy", "teacher_st"]:
+    elif role in ["strategy", "teacher_st", "eval_s"]:
         user_prompt = p.format(sentence=sentence, history=history, profile=profile)
     else:
         user_prompt = p.format(sentence=sentence, history=history)
@@ -41,12 +47,18 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
     done = False
     while not done:
         try: 
-            if role in ["fact_bank", "find_contradiction", "counter_ex", "thought", "strategy", "agent"]:
+            if role in ["fact_bank", "find_contradiction", "counter_ex", "thought", "strategy", "agent", "eval_t", "eval_s"]:
                 response = client.chat.completions.create(
                 model=model_name,
             messages=msgs,
             temperature=temperature,
             response_format={ "type": "json_object" }
+            )
+            elif role == "t_edu":
+                response = client.chat(
+                model="mistral-large-latest",
+            messages=msgs,
+            temperature=temperature,
             )
             else:
                 response = client.chat.completions.create(

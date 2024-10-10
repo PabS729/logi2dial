@@ -1,6 +1,7 @@
 import pandas as pd
 
-df = pd.read_excel("full_3.5.xlsx")
+df = pd.read_excel("full_MISTRAL.xlsx")
+print(df.columns)
 
 df = df.loc[df["rounds_persuaded"] != "NO"]
 df = df.loc[df["rounds_persuaded"] != 0]["rounds_persuaded"]
@@ -11,7 +12,7 @@ STD = df.std()
 
 print(avg, STD)
 
-df = pd.read_excel("full_3.5_eval.xlsx")
+df = pd.read_excel("full_MISTRAL_eval.xlsx")
 
 
 

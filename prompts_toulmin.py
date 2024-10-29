@@ -3,7 +3,13 @@ Decompose this <sentence> according to the Toulmin's model.
 
 <sentence>: {sentence}
 
-Format your answer in JSON with the following keys: "claim": <claim of the sentence>, "grounds": <grounds of the sentence>, "warrant": <warrant of the sentence>
+Format your answer in JSON with the following keys: "claim": <claim of the sentence>, "grounds": <grounds of the sentence>, "warrant": <warrant of the sentence>.
+If there are multiple grounds to a claim, separate them with comma in the "grounds" section of your answer.
+"""
+
+SIMPLIFY_TOULM = """
+<sentence>: {sentence}
+According to the toulmin's model,
 """
 
 PROMPT_TEACHER_THINK = """

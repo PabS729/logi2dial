@@ -1,0 +1,117 @@
+inventive and curious solitary and reserved critical and judgmental resilient and confident  1.0 0 14 14
+inventive and curious extravagant and careless outgoing and energetic friendly and compassionate sensitive and nervous  0.880184331797235 1 191 217
+consistent and cautious efficient and organized solitary and reserved critical and judgmental resilient and confident  0.8184818481848185 2 248 303
+inventive and curious efficient and organized solitary and reserved critical and judgmental resilient and confident  0.9642857142857143 3 27 28
+inventive and curious outgoing and energetic friendly and compassionate critical and judgmental sensitive and nervous  1.0 4 5 5
+consistent and cautious efficient and organized solitary and reserved friendly and compassionate critical and judgmental resilient and confident  0.7272727272727273 5 8 11
+inventive and curious outgoing and energetic friendly and compassionate sensitive and nervous  0.92 6 46 50
+inventive and curious efficient and organized outgoing and energetic critical and judgmental resilient and confident  0.875 7 14 16
+inventive and curious extravagant and careless outgoing and energetic friendly and compassionate critical and judgmental sensitive and nervous  0.8 8 4 5
+inventive and curious efficient and organized solitary and reserved friendly and compassionate resilient and confident  0.8947368421052632 9 17 19
+ 0.8863636363636364 10 78 88
+inventive and curious extravagant and careless solitary and reserved friendly and compassionate sensitive and nervous  0.7647058823529411 11 26 34
+consistent and cautious efficient and organized solitary and reserved critical and judgmental sensitive and nervous  0.7741935483870968 12 24 31
+consistent and cautious solitary and reserved critical and judgmental sensitive and nervous  0.8823529411764706 13 15 17
+consistent and cautious solitary and reserved friendly and compassionate sensitive and nervous  0.8214285714285714 14 23 28
+inventive and curious extravagant and careless outgoing and energetic critical and judgmental sensitive and nervous  1.0 15 20 20
+consistent and cautious efficient and organized solitary and reserved friendly and compassionate resilient and confident  0.7894736842105263 16 15 19
+inventive and curious extravagant and careless outgoing and energetic friendly and compassionate resilient and confident  0.8709677419354839 17 27 31
+inventive and curious efficient and organized outgoing and energetic friendly and compassionate resilient and confident  0.8846153846153846 18 23 26
+consistent and cautious efficient and organized solitary and reserved friendly and compassionate sensitive and nervous  0.8717948717948718 19 34 39
+inventive and curious extravagant and careless solitary and reserved critical and judgmental resilient and confident  0.8421052631578947 20 16 19
+consistent and cautious solitary and reserved friendly and compassionate critical and judgmental sensitive and nervous  0.5 21 1 2
+consistent and cautious extravagant and careless outgoing and energetic friendly and compassionate sensitive and nervous  1.0 22 4 4
+consistent and cautious solitary and reserved critical and judgmental resilient and confident  0.7283950617283951 23 59 81
+consistent and cautious efficient and organized outgoing and energetic friendly and compassionate sensitive and nervous  0.9166666666666666 24 11 12
+extravagant and careless outgoing and energetic friendly and compassionate sensitive and nervous  0.8636363636363636 25 19 22
+inventive and curious efficient and organized solitary and reserved friendly and compassionate sensitive and nervous  0.9166666666666666 26 11 12
+inventive and curious efficient and organized outgoing and energetic friendly and compassionate sensitive and nervous  0.9090909090909091 27 40 44
+consistent and cautious outgoing and energetic critical and judgmental resilient and confident  1.0 28 3 3
+solitary and reserved critical and judgmental resilient and confident  0.7058823529411765 29 12 17
+inventive and curious solitary and reserved friendly and compassionate resilient and confident  0.6666666666666666 30 2 3
+consistent and cautious extravagant and careless solitary and reserved critical and judgmental resilient and confident  0.6190476190476191 31 26 42
+consistent and cautious extravagant and careless outgoing and energetic critical and judgmental sensitive and nervous  1.0 32 2 2
+consistent and cautious extravagant and careless outgoing and energetic friendly and compassionate resilient and confident  1.0 33 1 1
+consistent and cautious efficient and organized outgoing and energetic critical and judgmental resilient and confident  0.8571428571428571 34 12 14
+consistent and cautious extravagant and careless outgoing and energetic critical and judgmental resilient and confident  1.0 35 4 4
+consistent and cautious extravagant and careless solitary and reserved critical and judgmental sensitive and nervous  0.6538461538461539 36 17 26
+outgoing and energetic critical and judgmental resilient and confident  0.0 37 0 2
+consistent and cautious extravagant and careless solitary and reserved friendly and compassionate sensitive and nervous  1.0 38 7 7
+inventive and curious outgoing and energetic friendly and compassionate resilient and confident  0.8947368421052632 39 17 19
+inventive and curious outgoing and energetic friendly and compassionate critical and judgmental resilient and confident  1.0 40 4 4
+consistent and cautious solitary and reserved friendly and compassionate  1.0 41 2 2
+consistent and cautious outgoing and energetic friendly and compassionate sensitive and nervous  1.0 42 7 7
+efficient and organized solitary and reserved critical and judgmental resilient and confident  0.5 43 1 2
+inventive and curious extravagant and careless outgoing and energetic critical and judgmental resilient and confident  0.896551724137931 44 26 29
+extravagant and careless outgoing and energetic friendly and compassionate resilient and confident  1.0 45 16 16
+consistent and cautious extravagant and careless outgoing and energetic friendly and compassionate critical and judgmental resilient and confident  1.0 46 1 1
+consistent and cautious extravagant and careless solitary and reserved critical and judgmental  1.0 47 1 1
+inventive and curious solitary and reserved friendly and compassionate  0.6666666666666666 48 2 3
+consistent and cautious solitary and reserved friendly and compassionate resilient and confident  0.6363636363636364 49 7 11
+inventive and curious extravagant and careless solitary and reserved friendly and compassionate resilient and confident  1.0 50 3 3
+inventive and curious solitary and reserved friendly and compassionate critical and judgmental resilient and confident  0.0 51 0 1
+inventive and curious extravagant and careless solitary and reserved critical and judgmental sensitive and nervous  0.6923076923076923 52 9 13
+inventive and curious outgoing and energetic critical and judgmental resilient and confident  0.9090909090909091 53 10 11
+inventive and curious efficient and organized outgoing and energetic critical and judgmental sensitive and nervous  1.0 54 7 7
+inventive and curious solitary and reserved friendly and compassionate sensitive and nervous  0.7692307692307693 55 10 13
+inventive and curious efficient and organized outgoing and energetic solitary and reserved friendly and compassionate critical and judgmental sensitive and nervous  1.0 56 2 2
+sensitive and nervous  1.0 57 1 1
+solitary and reserved friendly and compassionate sensitive and nervous  1.0 58 6 6
+extravagant and careless solitary and reserved friendly and compassionate critical and judgmental resilient and confident  1.0 59 1 1
+consistent and cautious extravagant and careless solitary and reserved friendly and compassionate critical and judgmental resilient and confident  0.5 60 1 2
+consistent and cautious efficient and organized outgoing and energetic solitary and reserved critical and judgmental resilient and confident  1.0 61 2 2
+inventive and curious solitary and reserved critical and judgmental sensitive and nervous  1.0 62 3 3
+inventive and curious outgoing and energetic critical and judgmental sensitive and nervous  0.8571428571428571 63 6 7
+extravagant and careless solitary and reserved friendly and compassionate sensitive and nervous  1.0 64 2 2
+solitary and reserved critical and judgmental sensitive and nervous  1.0 65 2 2
+inventive and curious efficient and organized solitary and reserved critical and judgmental sensitive and nervous  1.0 66 4 4
+efficient and organized solitary and reserved friendly and compassionate resilient and confident  1.0 67 1 1
+inventive and curious efficient and organized outgoing and energetic friendly and compassionate critical and judgmental resilient and confident  1.0 68 1 1
+consistent and cautious extravagant and careless solitary and reserved friendly and compassionate critical and judgmental sensitive and nervous  1.0 69 1 1
+inventive and curious outgoing and energetic friendly and compassionate  1.0 70 3 3
+consistent and cautious solitary and reserved critical and judgmental  1.0 71 2 2
+inventive and curious extravagant and careless solitary and reserved critical and judgmental  0.5 72 1 2
+consistent and cautious solitary and reserved friendly and compassionate critical and judgmental resilient and confident  1.0 73 2 2
+consistent and cautious efficient and organized critical and judgmental resilient and confident  1.0 74 1 1
+inventive and curious outgoing and energetic critical and judgmental  1.0 75 1 1
+inventive and curious consistent and cautious outgoing and energetic friendly and compassionate resilient and confident  1.0 76 1 1
+inventive and curious efficient and organized outgoing and energetic solitary and reserved friendly and compassionate critical and judgmental sensitive and nervous resilient and confident  1.0 77 1 1
+outgoing and energetic friendly and compassionate sensitive and nervous  1.0 78 11 11
+consistent and cautious outgoing and energetic critical and judgmental sensitive and nervous  1.0 79 1 1
+outgoing and energetic friendly and compassionate  0.5 80 1 2
+inventive and curious extravagant and careless outgoing and energetic friendly and compassionate critical and judgmental resilient and confident  1.0 81 1 1
+inventive and curious friendly and compassionate sensitive and nervous  1.0 82 1 1
+extravagant and careless solitary and reserved critical and judgmental resilient and confident  1.0 83 2 2
+inventive and curious efficient and organized extravagant and careless outgoing and energetic friendly and compassionate critical and judgmental sensitive and nervous  1.0 84 1 1
+consistent and cautious efficient and organized outgoing and energetic solitary and reserved friendly and compassionate critical and judgmental resilient and confident  1.0 85 1 1
+extravagant and careless outgoing and energetic friendly and compassionate critical and judgmental resilient and confident  0.3333333333333333 86 1 3
+consistent and cautious outgoing and energetic friendly and compassionate resilient and confident  1.0 87 1 1
+consistent and cautious efficient and organized solitary and reserved friendly and compassionate  1.0 88 1 1
+inventive and curious consistent and cautious efficient and organized outgoing and energetic solitary and reserved friendly and compassionate critical and judgmental resilient and confident  0.0 89 0 1
+critical and judgmental sensitive and nervous  1.0 90 1 1
+inventive and curious extravagant and careless sensitive and nervous  1.0 91 1 1
+consistent and cautious efficient and organized outgoing and energetic friendly and compassionate resilient and confident  1.0 92 1 1
+outgoing and energetic friendly and compassionate resilient and confident  0.5 93 2 4
+inventive and curious extravagant and careless friendly and compassionate sensitive and nervous  1.0 94 1 1
+inventive and curious extravagant and careless outgoing and energetic friendly and compassionate  1.0 95 1 1
+inventive and curious solitary and reserved friendly and compassionate critical and judgmental sensitive and nervous  1.0 96 1 1
+inventive and curious efficient and organized outgoing and energetic resilient and confident  1.0 97 1 1
+inventive and curious consistent and cautious efficient and organized extravagant and careless outgoing and energetic solitary and reserved friendly and compassionate critical and judgmental sensitive and nervous resilient and confident  1.0 98 1 1
+extravagant and careless outgoing and energetic critical and judgmental sensitive and nervous  0.0 99 0 1
+consistent and cautious friendly and compassionate resilient and confident  1.0 100 1 1
+solitary and reserved friendly and compassionate resilient and confident  1.0 101 1 1
+extravagant and careless outgoing and energetic critical and judgmental resilient and confident  1.0 102 2 2
+consistent and cautious efficient and organized friendly and compassionate sensitive and nervous  1.0 103 1 1
+inventive and curious extravagant and careless solitary and reserved friendly and compassionate critical and judgmental sensitive and nervous  1.0 104 1 1
+inventive and curious efficient and organized extravagant and careless outgoing and energetic friendly and compassionate resilient and confident  0.0 105 0 1
+inventive and curious extravagant and careless outgoing and energetic critical and judgmental  1.0 106 1 1
+High School 0.8337028824833703 107 752 902
+PHD 0.925531914893617 108 87 94
+AssociateBachelor 0.8493150684931506 109 372 438
+High SchoolAssociate 0.7719298245614035 110 44 57
+High SchoolAssociateBachelor 0.8888888888888888 111 32 36
+ 0.8666666666666667 112 13 15
+Elementary 1.0 113 10 10
+Bachelor 1.0 114 2 2
+ElementaryAssociate 0.0 115 0 1
+High SchoolPHD 1.0 116 1 1

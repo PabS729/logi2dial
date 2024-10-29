@@ -13,7 +13,7 @@ prof = df["profile"].values.tolist()
 pers_list = ["inventive and curious", "consistent and cautious", "efficient and organized", 
              "extravagant and careless", "outgoing and energetic", "solitary and reserved", 
              "friendly and compassionate", "critical and judgmental", "sensitive and nervous", "resilient and confident"]
-ed = ["Toddler", "Elementary/Middle School", "High School", "Associate/Bachelor", "Master/PHD"]
+ed = ["Toddler", "Elementary", "High School", "Associate", "Bachelor", "PHD"]
 edu_levels = []
 comp_p = []
 

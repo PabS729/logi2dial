@@ -4,14 +4,13 @@ from ast import parse
 from collections import defaultdict
 import json
 import os
-import asyncio
-from prompts_roleplay import * 
 from prompts_toulmin import * 
 import argparse
 import pandas as pd
 import time
-from check_score import *
-from respond_role import *
+
+from persona_roleplay.respond_role import *
+from strategy_handle import * 
 
 async def main():
     parser = argparse.ArgumentParser()
@@ -30,45 +29,13 @@ async def main():
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
     df_components = pd.read_excel(args.components_to_read)
-    # sampled_df = df_to_argue
-    
-    # print(df_to_argue.loc[0])
-    # st = df_to_annotate["Text"].tolist()
-    # df_to_argue = df_to_argue[df_to_argue.updated_label != "fallacy of logic"]
-    # sampled_df = df_to_argue.groupby("updated_label").sample(n=10, random_state=10)
-    sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "ad populum"].sample(n=1, random_state=15)
+    # sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "ad populum"].sample(n=1, random_state=15)
     # strategy = strategy_dc_commonsense["fallacy of credibility"]
     # strategy = emo_alt
-    sentences = sampled_df["source_article"].values.tolist()
-    labels = sampled_df["updated_label"].values.tolist()
-
-    # max_len = args.num_gen + 200
-    # if  max_len > len(sentences):
-    #     max_len = len(sentences)
-
-    # max_len_l = args.num_gen +200
-    # if max_len_l > len(labels):
-    #     max_len_l = len(labels)
-
-    
-
-    # sentences = sentences[args.num_gen:max_len]
-    # labels = labels[args.num_gen:max_len_l]
-
-    # sentences = ["I knew him in high school and he almost flunked out. He can't be a good choice for mayor."]
-    # labels = ["ad hominem"]
-
-    
-
-    # sentences = ["Not tipping your waiter is like stealing money right out of someone's wallet."]
-    # labels = ["false analogy"]
-
-    # sentences = ["I hold a doctorate in theology, have written 12 books, and personally met the Pope.  Therefore, when I say that Jesusâ€™ favorite snack was raisins dipped in wine, you should believe me."]
-    # labels = ["fallacy of credibility"]
-
-
-
-
+    # sentences = sampled_df["source_article"].values.tolist()
+    # labels = sampled_df["updated_label"].values.tolist()
+    sentences = ["In fact, it's starting to fall apart not because of lawsuits -- though they are a problem, and John Edwards and I are committed to fixing them -- but because of the larger issue that we don't cover Americans."]
+    labels =["false causality"]
     model_student = "gpt-4o"
     model_teacher = "gpt-4o"
 
@@ -81,8 +48,6 @@ async def main():
     modified_sentence = []
     agent_responses = []
 
-    # example_sentence = sentences[-2]
-    # prompt_student_check =PROMPT_STUDENT_CHECK
     conversation_teacher = []
     conversation_student = []
     anas = []
@@ -99,23 +64,9 @@ async def main():
         print(example_sentence)
 
 
-        #Generate social profile
-        # profile_res = await generate_res("fact_bank", model_teacher, example_sentence, 
-                                                # None, None, None, None, None, PROMPT_GENERATE_PROFILE, 0)
-        # profile = json.loads(profile_res.choices[0].message.content)
-
-        st_res = await generate_res("gen_Strategy", model_student, example_sentence, 
-                                                None, None, None, None, None, PROMPT_AGENT_ADD_OR_SIMPLIFY, 0)
-        example_sentence = st_res.choices[0].message.content
-        # print(st_res)
-
-        profile_res = await generate_res("gen_Strategy", model_student, example_sentence, 
-                                                None, None, None, None, None, PROMPT_GENERATE_BIO_EXP, 0)
-        profile = profile_res.choices[0].message.content
-
-        toulmin_res = await generate_res("gen_Strategy", model_student, example_sentence, 
-                                                None, None, None, None, None, PROMPT_DECOMPOSE_TOULMIN, 0)
-        toulmin = toulmin_res.choices[0].message.content
+        # toulmin_res = await generate_res("gen_Strategy", model_student, example_sentence, 
+        #                                         None, None, None, None, None, PROMPT_DECOMPOSE_TOULMIN, 0)
+        # toulmin = toulmin_res.choices[0].message.content
 
 
 
@@ -130,67 +81,60 @@ async def main():
             
             if i == 0:
                 sampled_sentence.append(example_sentence)
-                modified_sentence.append(st_res)
                 sampled_labels.append(example_label)
-                pfs.append(profile)
-                thought = ""
+
+                thought = "D"
             else: 
                 sampled_sentence.append("")
-                modified_sentence.append("")
                 sampled_labels.append("")
-                pfs.append("")
-                # thought_res = await generate_res("agent", model_teacher, example_sentence, chat_history, None, None, None, None, PROMPT_TEACHER_REFUTE, 0)
-                # thought = thought_res.choices[0].message.content
-                thought_res = await generate_res("thought", model_teacher, example_sentence, chat_history, None, None, None, None, PROMPT_TEACHER_THINK, 0)
+                thought_res = await generate_res("strategy", model_teacher, example_sentence, chat_history, None, None, None, None, PROMPT_IDENTIFY_STUDENT_STATE, 0)
 
-                thought = json.loads(thought_res.choices[0].message.content)
-                thought = thought["Q1"] +"\n"+ thought["Q2"] + "\n" + thought["Q3"]
+                thought = json.loads(thought_res.choices[0].message.content)["Type"]
+                
                 print(thought)
                 chat_history = ""
-                thought = ""
             
             anas.append(thought)
-            
-            # curr_strat = await generate_response("strategy", model_teacher, example_sentence, 
-                                                # chat_history, strategy, None, None, None, PROMPT_ANALYZE_STAGE, 0)
-            # curr_strat = json.loads(curr_strat.choices[0].message.content)["ans"]
+
             # print(curr_strat)
-            teacher_res = await generate_res("teacher_st", model_teacher, example_sentence, thought, toulmin, None, conv_teacher, conv_student, PROMPT_TEACHER_TALK, 0)
+            teacher_res = await generate_res("teacher_st", model_teacher, example_sentence, indicator[str(thought)], STRATEGY_HANDLE_STUDENT[str(thought)], None, conv_teacher, conv_student, PROMPT_HANDLE_STUDENT_BEHAVIOR, 0)
 
 
             utterance_teacher = teacher_res.choices[0].message.content
             chat_history += "teacher: " + utterance_teacher + "\n"
-            # print(utterance_teacher)
+            print(utterance_teacher)
             conversation_teacher.append(utterance_teacher)
             conv_teacher.append(utterance_teacher)
 
-            # student_res = await generate_res("student", model_teacher, example_sentence, chat_history, profile, None, conv_teacher, conv_student, PROMPT_ARGUE_FOR_LF_PC, 1)
-            student_res = await generate_res("student_bio", model_student, example_sentence, profile, None, None, conv_teacher, conv_student, PROMPT_ARGUE_FOR_LF_BIO, 1)
-
+            student_res_thought = await generate_res("", model_teacher, example_sentence, utterance_teacher, None, None, conv_teacher, conv_student, PROMPT_STUDENT_THINK, 1)
+            student_res_thought = json.loads(student_res_thought.choices[0].message.content)["ans"]
+            print(student_res_thought)
+            student_res = await generate_res("student_bio", model_student, example_sentence, student_res_thought, None, None, conv_teacher, conv_student, PROMPT_STUDENT_TALK, 1)
+            
             utterance_student = student_res.choices[0].message.content
             chat_history += "student: " + utterance_student + "\n"
             full_chat += chat_history
-            # print(utterance_student)
+            print(utterance_student)
             conversation_student.append(utterance_student)
             conv_student.append(utterance_student)
 
             # print("%d\n", i)
-            agent_res = await generate_res("agent", model_student, example_sentence, chat_history, None, None, None, None, PROMPT_CHECK_FIN, 0)
-            agent_res = json.loads(agent_res.choices[0].message.content)
-            # print(agent_res)
-            agent_responses.append(agent_res)
+            # agent_res = await generate_res("agent", model_student, example_sentence, chat_history, None, None, None, None, PROMPT_CHECK_FIN, 0)
+            # agent_res = json.loads(agent_res.choices[0].message.content)
+            # # print(agent_res)
+            # agent_responses.append(agent_res)
 
             
-            if "yes" in agent_res["Q1"].lower():
-                n_persuasion.append(i+1)
-                break
+            # if "yes" in agent_res["Q1"].lower():
+            #     n_persuasion.append(i+1)
+            #     break
 
-            else:
-                if i == 9 or "yes" in agent_res["Q2"].lower():
-                    n_persuasion.append("NO")
-                    break
-                else: 
-                    n_persuasion.append(0)
+            # else:
+            #     if i == 9 or "yes" in agent_res["Q2"].lower():
+            #         n_persuasion.append("NO")
+            #         break
+            #     else: 
+            #         n_persuasion.append(0)
         chats.append(full_chat)
 
 

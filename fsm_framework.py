@@ -20,7 +20,7 @@ async def main():
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/roleplay_test_1007_4o_adp_toulmin')
+    parser.add_argument("--save_fn", type=str, default='results/toul_1113_s_t.xlsx')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -34,12 +34,13 @@ async def main():
     # strategy = emo_alt
     # sentences = sampled_df["source_article"].values.tolist()
     # labels = sampled_df["updated_label"].values.tolist()
-    sentences = ["In fact, it's starting to fall apart not because of lawsuits -- though they are a problem, and John Edwards and I are committed to fixing them -- but because of the larger issue that we don't cover Americans."]
-    labels =["false causality"]
+    # sentences = ["In fact, it's starting to fall apart not because of lawsuits -- though they are a problem, and John Edwards and I are committed to fixing them -- but because of the larger issue that we don't cover Americans."]
+    # labels =["false causality"]
     model_student = "gpt-4o"
     model_teacher = "gpt-4o"
 
-
+    sentences = ["Al Gore and I are committed to continuing this acquisition program, transforming the military. There's still fewer people in uniform today, but person - to - person, person - by - person, unit - by - unit, this is the most powerful and effective military, not only in the world today, but in the history of the world. And again, Al Gore and I will do whatever is necessary to keep it that way."]
+    labels = ["Slippery Slope"]
     # model_teacher = "gpt-4o-mini"
     # model_student = 'gpt-4o-mini'
     model_agent = model_teacher
@@ -57,6 +58,7 @@ async def main():
 
     Threshold_counter = 0.5
     Threshold_res = 2
+    lm_thought = []
     for j in range(len(sentences)):
         example_sentence = sentences[j]
         example_label = labels[j]
@@ -68,9 +70,7 @@ async def main():
         #                                         None, None, None, None, None, PROMPT_DECOMPOSE_TOULMIN, 0)
         # toulmin = toulmin_res.choices[0].message.content
 
-
-
-        rounds = 10
+        rounds = 7
         conv_teacher = []
         conv_student =[]
         
@@ -109,6 +109,7 @@ async def main():
             student_res_thought = await generate_res("", model_teacher, example_sentence, utterance_teacher, None, None, conv_teacher, conv_student, PROMPT_STUDENT_THINK, 1)
             student_res_thought = json.loads(student_res_thought.choices[0].message.content)["ans"]
             print(student_res_thought)
+            lm_thought.append(student_res_thought)
             student_res = await generate_res("student_bio", model_student, example_sentence, student_res_thought, None, None, conv_teacher, conv_student, PROMPT_STUDENT_TALK, 1)
             
             utterance_student = student_res.choices[0].message.content
@@ -141,14 +142,9 @@ async def main():
     print(len(anas), len(conversation_teacher), len(conversation_student), len(sampled_sentence), len(sampled_labels), len(pfs))
     data_dict = {
                  'teacher_analysis': anas,
+                 'layman_thought': lm_thought, 
                  'teacher_response': conversation_teacher, 
                  'layman_response': conversation_student, 
-                 'sentence_sample': sampled_sentence, 
-                 'modified_sample': modified_sentence,
-                 'labels': sampled_labels,
-                 "profile": pfs,
-                 'agent_res': agent_responses,
-                 "rounds_persuaded": n_persuasion
                 }
     df_result = pd.DataFrame(data_dict)
     df_result.to_excel(args.save_fn + str(args.num_gen) + ".xlsx", index=False)

@@ -43,7 +43,7 @@ You are having a discussion with the teacher. Please follow <thought> when formu
 """
 
 PROMPT_STUDENT_THINK = """
-You are a stubborn user interacting with teacher. You think that <sentence> is logically valid. You do not know Toulmin's model. You are not aware of any outside information beyond the context of <sentence>.
+You are a stubborn user interacting with teacher. You think that <sentence> is logically valid. You are not aware of any outside information beyond the context of <sentence>.
 As a user, you must be critical of the teacher's responses.
 You can consider the teacher’s <response> in those following angles:
     - Did the teacher explain the logical fallacy properly?
@@ -80,11 +80,49 @@ Format your answer in JSON with the following key: "Type": <index of feedback in
 
 """
 
-PROMPT_HANDLE_STUDENT_BEHAVIOR = """
-You are a teacher who knows toulmin's model, and you are interacting with a student on discussing validity of <sentence>. If you think <sentence> alone is logically valid, simply ask the student if they agree with <sentence>.
-Based on the student's response and <status>, follow the given <strategy> and talk to the student. Remember to focus on the topic of conversation and try not to be convinced by the student. Limit your response to 40 words.
+PROMPT_TALK_ABOUT_LF = """
+You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
+Use the provided <decomposition> to talk to the student. Analyze the logical flaw in the statement. When pointing out the logical flaw, make sure not the mention toulmin's model and use languages that a layman will understand.Limit your response to 50 words.
+
 <sentence>: {sentence}
-<status>:{history}
+<decomposition>: {history}
+
+"""
+
+PROMPT_SUMMARIZE = """
+You are an expert summarizer, and you are reviewing conversation from a speaker who is talking about <sentence>. Summarize the speaker's response, according to the given <chat_history>. Limit your answer to less than 30 words.
+
+<sentence>: {sentence}
+<chat_history>: {history}
+
+"""
+
+PROMPT_CHECK_TOPIC_RELEVANCE = """
+The student and teacher are discussing about the logical validity of <sentence>. The following <tracker> contains points that are being discussed.
+Check if the student's <response> is relevant to the points mentioned in <tracker>, as well as if the student's <response> revolves around the logical validity of <sentence>. If yes, summarize the student's topic in 15 words or less. If no, answer with "no", and give your reason in 15 words or less.
+<sentence>: {sentence}
+<tracker>: {history}
+<response>: {profile}
+
+"""
+
+
+PROMPT_HANDLE_STUDENT_BEHAVIOR = """
+You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
+Based on the student's response and <status>, think about the student's reponse. What is the student's concern, and how can you address the student's concern?
+
+Follow your thought and the given <strategy> and talk to the student.You can use toulmin's model to help explain your reasoning, but make sure not to mention toulmin's model and use languages that a layman will understand.
+Remember to focus on the topic of conversation and try not to be convinced by the student. Limit your response to less than or equal to 40 words.
+<sentence>: {sentence}
+<status>: {history}
 <strategy>: {profile}
 
+"""
+
+PROMPT_REMIND_FOCUSED = """
+You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. A <summary> concludes your previous talks.
+The student is talking about other things not related to the topic of the conversation. Ignore the student's reponse and remind the student of the topic of conversation. Limit your response to less than or equal to 40 words.
+
+<sentence>: {sentence}
+<summary>: {history}
 """

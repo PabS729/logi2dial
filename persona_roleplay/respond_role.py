@@ -48,7 +48,7 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
     done = False
     while not done:
         try: 
-            if role in ["", "fact_bank", "find_contradiction", "strategy", "thought", "gen_strategy", "agent", "eval_t", "eval_s"]:
+            if role in ["", "fact_bank", "find_contradiction", "strategy", "thought", "gen_strategy", "agent", "eval_t"]:
                 response = client.chat.completions.create(
                 model=model_name,
             messages=msgs,

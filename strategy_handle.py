@@ -1,21 +1,21 @@
 STRATEGY_HANDLE_STUDENT = {
     "1":"Address the student's concern and remind the student of the topic of conversation",#concerned
-    "2": "Talk about the point of disagreement and try to reach an agreement, while sticking to toulmin's model", #disagreement
+    "2": "Talk about the point of disagreement and try to reach an agreement", #disagreement
     "3": "Refute the student's argument by pointing out the student's logical flaw, or giving a real-world counterexample. At the same time, emphasize the condition under which the original sentence contains logical fallacy", #rebuttal
-    "4": "Remind the student of the topic of conversation (about toulmin's model)", #drawing attention away
-    "5": "Clarify your explanation according to the student's question. Be sure to stick to the topic of conversation about toulmin's model", #Clarification
+    "4": "Remind the student of the topic of conversation about discussion of logical validity", #drawing attention away
+    "5": "Clarify your explanation according to the student's question. Be sure to stick to the topic of conversation about discussion of logical validity", #Clarification
     "6": "Carry on the conversation.",
     "7": "Remind the student of the topic of conversation, and ask the student to stop repeating", #repetition
-    "D": "Using Toulmin's model and analyze the logical flaw in the statement. When pointing out the logical flaw, make sure not the mention toulmin's model and use languages that a layman will understand." #start of conversation, so initial state is null
+    "D": "Analyze the logical flaw in the statement. When pointing out the logical flaw, make sure not the mention toulmin's model and use languages that a layman will understand." #start of conversation, so initial state is null
 }
 
 indicator = {
 "1":"The student is concerned about the teacher's response.",
 "2":"The student disagrees with the teacher's response.",
 "3":"The student rebuts the teacher's response.",
-"4":"The student is drawing away attention from the topic of the conversation.",
+"4":"The student is talking about other things not related to the topic of the conversation.",
 "5": "The student asks for clarification from the teacher.",
-"6": "Carry on the conversation.",
+"6": "Student Agrees to the teacher",
 "7":"The student is repeating their previous response.",
 
 "D": "" #start of conversation, , so initial state is null

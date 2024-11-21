@@ -20,7 +20,7 @@ async def main():
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/toul_1113_s_t.xlsx')
+    parser.add_argument("--save_fn", type=str, default='results/toul_1120_cau_single_cut')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -39,25 +39,28 @@ async def main():
     model_student = "gpt-4o"
     model_teacher = "gpt-4o"
 
-    sentences = ["Al Gore and I are committed to continuing this acquisition program, transforming the military. There's still fewer people in uniform today, but person - to - person, person - by - person, unit - by - unit, this is the most powerful and effective military, not only in the world today, but in the history of the world. And again, Al Gore and I will do whatever is necessary to keep it that way."]
-    labels = ["Slippery Slope"]
+    # sentences = ["Al Gore and I are committed to continuing this acquisition program, transforming the military. There's still fewer people in uniform today, but person - to - person, person - by - person, unit - by - unit, this is the most powerful and effective military, not only in the world today, but in the history of the world. And again, Al Gore and I will do whatever is necessary to keep it that way."]
+    # labels = ["Slippery Slope"]
+
+    # sentences = ["You know, nobody likes who shot John, but I think the first negative campaign run in this election was by Governor Clinton, and I'm not going to sit there and be a punching bag; I'm going to stand up and say, hey, listen, here's my side of it."]
+    # labels = ["appeal to emotion"]
+    sentences = ["After all, the Welfare Reform Act, which Al Gore promised to lead the effort on to get people off of welfare to set time limits, to get people to enjoy the dignity of work. That was a bipartisan act that was adopted. The Anti - Crime Act that has helped to lower crime more than 20% in our country was also bipartisan. The Balanced Budget Act of 1997 which was critical to getting our economy to the point and our government to the point of unprecedented surplus we enjoy today also was bipartisan, and Al Gore was involved."]
+    labels = ["false cause"]
     # model_teacher = "gpt-4o-mini"
     # model_student = 'gpt-4o-mini'
     model_agent = model_teacher
     sampled_sentence = []
     sampled_labels = []
-    modified_sentence = []
-    agent_responses = []
 
     conversation_teacher = []
     conversation_student = []
+    sums = []
     anas = []
     pfs = []
-    n_persuasion = []
     chats = []
+    agr = []
+    reles = []
 
-    Threshold_counter = 0.5
-    Threshold_res = 2
     lm_thought = []
     for j in range(len(sentences)):
         example_sentence = sentences[j]
@@ -66,17 +69,18 @@ async def main():
         print(example_sentence)
 
 
-        # toulmin_res = await generate_res("gen_Strategy", model_student, example_sentence, 
-        #                                         None, None, None, None, None, PROMPT_DECOMPOSE_TOULMIN, 0)
-        # toulmin = toulmin_res.choices[0].message.content
+        toulmin_res = await generate_res("gen_Strategy", model_student, example_sentence, 
+                                                None, None, None, None, None, PROMPT_DECOMPOSE_TOULMIN, 0)
+        toulmin = toulmin_res.choices[0].message.content
 
-        rounds = 7
+        rounds = 10
         conv_teacher = []
         conv_student =[]
         
 
         chat_history = ""
         full_chat = ""
+        summary = ""
         for i in range(0, rounds):
             
             if i == 0:
@@ -84,20 +88,42 @@ async def main():
                 sampled_labels.append(example_label)
 
                 thought = "D"
+                reles.append("")
             else: 
+                
                 sampled_sentence.append("")
                 sampled_labels.append("")
-                thought_res = await generate_res("strategy", model_teacher, example_sentence, chat_history, None, None, None, None, PROMPT_IDENTIFY_STUDENT_STATE, 0)
 
-                thought = json.loads(thought_res.choices[0].message.content)["Type"]
+                relevance_res = await generate_res("eval_s", model_teacher, example_sentence, agreement_bank, utterance_student, None, conv_teacher, conv_student, PROMPT_CHECK_TOPIC_RELEVANCE, 0)
+                relevance = relevance_res.choices[0].message.content
+                print(relevance)
+                reles.append(relevance)
+
+                if relevance[:2] not in "no.":
+                    agreement_bank.append(relevance)
+                    thought_res = await generate_res("strategy", model_teacher, example_sentence, chat_history, None, None, None, None, PROMPT_IDENTIFY_STUDENT_STATE, 0)
+
+                    thought = json.loads(thought_res.choices[0].message.content)["Type"]
+                else: 
+                    thought = 4
                 
                 print(thought)
                 chat_history = ""
             
-            anas.append(thought)
+            # anas.append(thought)
 
             # print(curr_strat)
-            teacher_res = await generate_res("teacher_st", model_teacher, example_sentence, indicator[str(thought)], STRATEGY_HANDLE_STUDENT[str(thought)], None, conv_teacher, conv_student, PROMPT_HANDLE_STUDENT_BEHAVIOR, 0)
+                
+            anas.append(thought)
+
+            if i == 0:
+
+                teacher_res = await generate_res("tea", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_TALK_ABOUT_LF, 0)
+            elif thought == 4:
+                # print("taken")
+                teacher_res = await generate_res("teacher", model_teacher, example_sentence, summary, None, None, [], conv_student[-1], PROMPT_REMIND_FOCUSED, 0)
+            else:
+                teacher_res = await generate_res("teacher_st", model_teacher, example_sentence, indicator[str(thought)], STRATEGY_HANDLE_STUDENT[str(thought)], None, conv_teacher, conv_student, PROMPT_HANDLE_STUDENT_BEHAVIOR, 0)
 
 
             utterance_teacher = teacher_res.choices[0].message.content
@@ -106,36 +132,29 @@ async def main():
             conversation_teacher.append(utterance_teacher)
             conv_teacher.append(utterance_teacher)
 
-            student_res_thought = await generate_res("", model_teacher, example_sentence, utterance_teacher, None, None, conv_teacher, conv_student, PROMPT_STUDENT_THINK, 1)
+            summary = await generate_res("sum", model_teacher, example_sentence, conv_teacher, None, None, None, None, PROMPT_SUMMARIZE, 0)
+            summary = summary.choices[0].message.content
+            if i == 0:
+                agreement_bank.append(summary)
+            print(summary)
+            sums.append(summary)
+
+
+            student_res_thought = await generate_res("", model_teacher, example_sentence, summary, None, None, conv_teacher, conv_student, PROMPT_STUDENT_THINK, 1)
             student_res_thought = json.loads(student_res_thought.choices[0].message.content)["ans"]
             print(student_res_thought)
             lm_thought.append(student_res_thought)
             student_res = await generate_res("student_bio", model_student, example_sentence, student_res_thought, None, None, conv_teacher, conv_student, PROMPT_STUDENT_TALK, 1)
             
             utterance_student = student_res.choices[0].message.content
+ 
             chat_history += "student: " + utterance_student + "\n"
             full_chat += chat_history
             print(utterance_student)
             conversation_student.append(utterance_student)
             conv_student.append(utterance_student)
+            agr.append(agreement_bank)
 
-            # print("%d\n", i)
-            # agent_res = await generate_res("agent", model_student, example_sentence, chat_history, None, None, None, None, PROMPT_CHECK_FIN, 0)
-            # agent_res = json.loads(agent_res.choices[0].message.content)
-            # # print(agent_res)
-            # agent_responses.append(agent_res)
-
-            
-            # if "yes" in agent_res["Q1"].lower():
-            #     n_persuasion.append(i+1)
-            #     break
-
-            # else:
-            #     if i == 9 or "yes" in agent_res["Q2"].lower():
-            #         n_persuasion.append("NO")
-            #         break
-            #     else: 
-            #         n_persuasion.append(0)
         chats.append(full_chat)
 
 
@@ -145,6 +164,9 @@ async def main():
                  'layman_thought': lm_thought, 
                  'teacher_response': conversation_teacher, 
                  'layman_response': conversation_student, 
+                 'tracker': agr,
+                 'summary': sums,
+                 'student_check_relevance': reles
                 }
     df_result = pd.DataFrame(data_dict)
     df_result.to_excel(args.save_fn + str(args.num_gen) + ".xlsx", index=False)

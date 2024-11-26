@@ -34,9 +34,32 @@ If there are multiple grounds to a claim, separate them with comma in the "groun
 
 # """
 
+PROMPT_AGENT_CHECK = """
+You are a judge looking at the dialogue between a teacher and a student. They are discussing over <sentence>.
+Check the <chat_history>. Did the student show explicit agreement with the teacher's <assessment>? ONLY Answer with "yes" or "no".
+
+<sentence>: {sentence}
+<chat_history>: {history}
+<assessment>: {profile}
+"""
+
+PROMPT_CHECK_AGREEMENT = """
+You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
+The following <decomp> is part of the sentence decomposed using toulmin's model. Check if <decomp> is a valid component under toulmin's model, as well as whether <decomp> itself is logically valid. 
+ask the student if they agree with your judgement. Do not explicitly mention toulmin's model. Limit your response in 40 words.
+<sentence>: {sentence}
+<decomp>: {history}
+"""
+
+PROMPT_STUDENT_RESPOND = """
+You are a stubborn user interacting with a teacher. You believe that <sentence> is logically valid and you are critical over the teacher's response.
+Respond to teacher's question. Answer with "yes" or "no" and briefly give your reason for your answer. Answer with "yes" only if you fully agree with the teacher. Limit your response to 40 words or less.
+<sentence>: {sentence}
+"""
+
 PROMPT_STUDENT_TALK = """
 You are a stubborn user interacting with a teacher. You think that <sentence> is logically valid. You are not aware of any outside information beyond the context of <sentence>.
-You are having a discussion with the teacher. Please follow <thought> when formulating your response. Limit your response to 40 words. 
+You are having a discussion with the teacher. Please strictly follow <thought> when formulating your response. Limit your response to 40 words or less.
 <sentence>: {sentence}.
 <thought>: {history}
 
@@ -57,6 +80,9 @@ Format your answer in JSON with the following key: "ans": <your_answer>
 <sentence>: {sentence}
 <response>: {history}
 """
+
+#Design principle and theoretical basis: dialectic student. See chapter 3 from Argument_ Critical Thinking, Logic, and the Fallacies.
+
 
 PROMPT_IDENTIFY_STUDENT_STATE = """
 A student and a teacher are discussing the logical validity of <sentence>.
@@ -82,7 +108,7 @@ Format your answer in JSON with the following key: "Type": <index of feedback in
 
 PROMPT_TALK_ABOUT_LF = """
 You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
-Use the provided <decomposition> to talk to the student. Analyze the logical flaw in the statement. When pointing out the logical flaw, make sure not the mention toulmin's model and use languages that a layman will understand.Limit your response to 50 words.
+Use the provided <decomposition> to talk to the student. Analyze the logical flaw in the statement. When pointing out the logical flaw, make sure not the mention toulmin's model and use languages that a layman will understand.Limit your response to 50 words or less.
 
 <sentence>: {sentence}
 <decomposition>: {history}

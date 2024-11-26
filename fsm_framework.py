@@ -119,9 +119,9 @@ async def main():
             if i == 0:
 
                 teacher_res = await generate_res("tea", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_TALK_ABOUT_LF, 0)
-            elif thought == 4:
+            # elif thought == 4:
                 # print("taken")
-                teacher_res = await generate_res("teacher", model_teacher, example_sentence, summary, None, None, [], conv_student[-1], PROMPT_REMIND_FOCUSED, 0)
+                # teacher_res = await generate_res("teacher", model_teacher, example_sentence, summary, None, None, [], conv_student[-1], PROMPT_REMIND_FOCUSED, 0)
             else:
                 teacher_res = await generate_res("teacher_st", model_teacher, example_sentence, indicator[str(thought)], STRATEGY_HANDLE_STUDENT[str(thought)], None, conv_teacher, conv_student, PROMPT_HANDLE_STUDENT_BEHAVIOR, 0)
 

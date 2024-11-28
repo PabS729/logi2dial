@@ -17,15 +17,15 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
     msgs = []
     if role == "agent" : 
         user_prompt = p.format(sentence=sentence, history=history)
-    elif role in ["fact_bank", "gen_strategy", "t_edu"]:
-        user_prompt = p.format(sentence=sentence)
-    elif role == "student" or role == "conv":
+    elif role in ["fact_bank", "gen_strategy", "student", "conv"]:
         user_prompt = p.format(sentence=sentence)
         # user_prompt = p.format(sentence=sentence, NAME = profile["NAME"], AGE = profile["AGE"], BELIEF = profile["BELIEF"], BIAS = profile["BIAS"], PERSONALITY = profile["PERSONALITY"], EDU_LEVEL = profile["EDU_LEVEL"])
     elif role == "teacher" or role == "thought":
         user_prompt = p.format(sentence=sentence, history=history)
     elif role in ["strategy", "teacher_st", "eval_s", "t_edu"]:
         user_prompt = p.format(sentence=sentence, history=history, profile=profile)
+    elif role == "exp":
+        user_prompt = p.format(sentence=sentence, history=history, profile=profile, target_statement=target_statement)
     else:
         user_prompt = p.format(sentence=sentence, history=history)
     
@@ -34,7 +34,7 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
 
 
     #teacher and student take turns
-    if role in ["teacher_st", "teacher", "t_edu"]: 
+    if role in ["teacher_st", "teacher", "t_edu", "exp"]: 
         for (t,s) in zip(teacher_res, student_res):
             msgs.append({"role": "assistant", "content": t})
             msgs.append({"role": "user", "content": s})

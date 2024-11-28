@@ -3,6 +3,7 @@ from def_logical_fallacy import *
 from ast import parse
 from collections import defaultdict
 import json
+import copy
 import os
 from prompts_toulmin import * 
 import argparse
@@ -20,7 +21,7 @@ async def main():
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/toul_1122_cause_al')
+    parser.add_argument("--save_fn", type=str, default='results/toul_1127_sl_disagr_exp_alt_new')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -39,13 +40,13 @@ async def main():
     model_student = "gpt-4o"
     model_teacher = "gpt-4o"
 
-    # sentences = ["Al Gore and I are committed to continuing this acquisition program, transforming the military. There's still fewer people in uniform today, but person - to - person, person - by - person, unit - by - unit, this is the most powerful and effective military, not only in the world today, but in the history of the world. And again, Al Gore and I will do whatever is necessary to keep it that way."]
-    # labels = ["Slippery Slope"]
+    sentences = ["Al Gore and I are committed to continuing this acquisition program, transforming the military. There's still fewer people in uniform today, but person - to - person, person - by - person, unit - by - unit, this is the most powerful and effective military, not only in the world today, but in the history of the world. And again, Al Gore and I will do whatever is necessary to keep it that way."]
+    labels = ["Slippery Slope"]
 
     # sentences = ["You know, nobody likes who shot John, but I think the first negative campaign run in this election was by Governor Clinton, and I'm not going to sit there and be a punching bag; I'm going to stand up and say, hey, listen, here's my side of it."]
     # labels = ["appeal to emotion"]
-    sentences = ["After all, the Welfare Reform Act, which Al Gore promised to lead the effort on to get people off of welfare to set time limits, to get people to enjoy the dignity of work. That was a bipartisan act that was adopted. The Anti - Crime Act that has helped to lower crime more than 20% in our country was also bipartisan. The Balanced Budget Act of 1997 which was critical to getting our economy to the point and our government to the point of unprecedented surplus we enjoy today also was bipartisan, and Al Gore was involved."]
-    labels = ["false cause"]
+    # sentences = ["After all, the Welfare Reform Act, which Al Gore promised to lead the effort on to get people off of welfare to set time limits, to get people to enjoy the dignity of work. That was a bipartisan act that was adopted. The Anti - Crime Act that has helped to lower crime more than 20% in our country was also bipartisan. The Balanced Budget Act of 1997 which was critical to getting our economy to the point and our government to the point of unprecedented surplus we enjoy today also was bipartisan, and Al Gore was involved."]
+    # labels = ["false cause"]
     # model_teacher = "gpt-4o-mini"
     # model_student = 'gpt-4o-mini'
     model_agent = model_teacher
@@ -74,7 +75,7 @@ async def main():
         toulmin = json.loads(toulmin_res.choices[0].message.content)
         print(toulmin)
 
-        rounds = 5
+        rounds = 8
 
         
 
@@ -82,17 +83,37 @@ async def main():
         full_chat = ""
         summary = ""
         agr_bank = []
-
+        
+        coll_bank = []
         for k in toulmin.keys():
+            disagr_bank = []
+            conv_teacher = []
+            conv_student =[]
+            decomp = toulmin[k]
+            teacher_res = await generate_res("t", model_teacher, example_sentence, "["+ k + ": " + decomp + "]", None, None, conv_teacher, conv_student, PROMPT_AGREE_COMP, 0)
+            conv_teacher.append(teacher_res.choices[0].message.content)
+            utterance_teacher = teacher_res.choices[0].message.content
+            print(utterance_teacher)
+            student_res = await generate_res("student_bio", model_teacher, example_sentence, "["+ k + ": " + decomp + "]", None, None, conv_teacher, conv_student, PROMPT_STUDENT_RESPOND, 0)
+            conv_student.append(student_res.choices[0].message.content)
+            utterance_student = student_res.choices[0].message.content
+            print(utterance_student)
+            if "yes" in student_res:
+                continue
+
+        # for k in toulmin.keys():
+        if True:
             conv_teacher = []
             conv_student =[]
             decomp = toulmin[k]
             print(decomp)
-            teacher_res = await generate_res("t", model_teacher, example_sentence, "["+ k + ": " + decomp + "]", None, None, conv_teacher, conv_student, PROMPT_CHECK_AGREEMENT, 0)
+            # teacher_res = await generate_res("t", model_teacher, example_sentence, "["+ k + ": " + decomp + "]", None, None, conv_teacher, conv_student, PROMPT_JUDGEMENT, 0)
+            teacher_res = await generate_res("t", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_JUDGEMENT, 0)
             conv_teacher.append(teacher_res.choices[0].message.content)
             utterance_teacher = teacher_res.choices[0].message.content
             print(utterance_teacher)
-            student_res = await generate_res("student", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_STUDENT_RESPOND, 0)
+            # student_res = await generate_res("student_bio", model_teacher, example_sentence, "["+ k + ": " + decomp + "]", None, None, conv_teacher, conv_student, PROMPT_STUDENT_RESPOND, 0)
+            student_res = await generate_res("student_bio", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_STUDENT_RESPOND, 0)
             conv_student.append(student_res.choices[0].message.content)
             utterance_student = student_res.choices[0].message.content
             print(utterance_student)
@@ -100,6 +121,7 @@ async def main():
             lm_thought.append("")
             sums.append("")
             reles.append("")
+            coll_bank.append([])
             conversation_teacher.append(teacher_res.choices[0].message.content)
             conversation_student.append(student_res.choices[0].message.content)
 
@@ -118,23 +140,30 @@ async def main():
 
                         thought = "D"
                         reles.append("")
+                        coll_bank.append([])
                     else: 
                         
                         sampled_sentence.append("")
                         sampled_labels.append("")
 
-                        relevance_res = await generate_res("eval_s", model_teacher, example_sentence, agreement_bank, utterance_student, None, conv_teacher, conv_student, PROMPT_CHECK_TOPIC_RELEVANCE, 0)
-                        relevance = relevance_res.choices[0].message.content
+                        relevance_res = await generate_res("strategy", model_teacher, example_sentence, disagr_bank, utterance_student, None, conv_teacher, conv_student, PROMPT_CHECK_DISAGREEMENT, 0)
+                        relevance = json.loads(relevance_res.choices[0].message.content)
                         print(relevance)
                         reles.append(relevance)
 
-                        if relevance[:2] not in "no.":
+                        if "yes" in relevance["Q1"].lower():
                             agreement_bank.append(relevance)
+                            # disagr_bank.append(relevance)
                             thought_res = await generate_res("strategy", model_teacher, example_sentence, chat_history, None, None, None, None, PROMPT_IDENTIFY_STUDENT_STATE, 0)
 
                             thought = json.loads(thought_res.choices[0].message.content)["Type"]
                         else: 
                             thought = 4
+                        
+                        if "yes" in relevance["Q2"].lower():
+                            disagr_bank.append(relevance["Q2"])
+                        cp_bank = copy.deepcopy(disagr_bank)
+                        coll_bank.append(cp_bank)
                         
                         print(thought)
                         chat_history = ""
@@ -144,14 +173,16 @@ async def main():
                     # print(curr_strat)
                         
                     anas.append(thought)
+                    print(disagr_bank)
 
                     if i == 0:
                         teacher_res = await generate_res("tea", model_teacher, example_sentence, decomp, None, None, conv_teacher, conv_student, PROMPT_TALK_ABOUT_LF, 0)
+                        summary = ""
                     # elif thought == 4:
                         # print("taken")
                         # teacher_res = await generate_res("teacher", model_teacher, example_sentence, summary, None, None, [], conv_student[-1], PROMPT_REMIND_FOCUSED, 0)
                     else:
-                        teacher_res = await generate_res("teacher_st", model_teacher, example_sentence, indicator[str(thought)], STRATEGY_HANDLE_STUDENT[str(thought)], None, conv_teacher, conv_student, PROMPT_HANDLE_STUDENT_BEHAVIOR, 0)
+                        teacher_res = await generate_res("exp", model_teacher, example_sentence, indicator[str(thought)], STRATEGY_HANDLE_STUDENT[str(thought)], summary, conv_teacher, conv_student, PROMPT_HANDLE_STUDENT_BEHAVIOR, 0)
 
 
                     utterance_teacher = teacher_res.choices[0].message.content
@@ -181,16 +212,25 @@ async def main():
                     
         
                     chat_history += "student: " + utterance_student + "\n"
-                    agent_res = await generate_res("eval_s", model_student, example_sentence, chat_history, tmp, None, conv_teacher, conv_student, PROMPT_AGENT_CHECK, 0)
+                    agent_res = await generate_res("eval_s", model_student, example_sentence, chat_history, summary, None, conv_teacher, conv_student, PROMPT_AGENT_CHECK, 0)
                     res = agent_res.choices[0].message.content
                     print(res)
                     if "yes" in res.lower():
                         print("student agreed")
                         agr_bank.append(tmp)
-                        break
+                        if len(disagr_bank) != 0:
+                            disagr_bank.pop(-1)
                     full_chat += chat_history
+                    #after 7 rounds, check if all comments are fully addressed by the teacher. 
+                    if i >= 7:
+                        agent_res = await generate_res("eval_s", model_student, example_sentence, conv_teacher, disagr_bank, None, None, None, PROMPT_AGENT_CHECK, 0)
+                        res = agent_res.choices[0].message.content
+                        print(res)
+                        if "yes" in res.lower():
+                            break
+                    
 
-                    agr.append(agreement_bank)
+                    
 
         chats.append(full_chat)
 
@@ -203,13 +243,14 @@ async def main():
                  'layman_response': conversation_student, 
                 #  'tracker': agr,
                  'summary': sums,
-                 'student_check_relevance': reles
+                 'student_check_relevance': reles,
+                 'disagreement_bank': coll_bank
                 }
     df_result = pd.DataFrame(data_dict)
     df_result.to_excel(args.save_fn + str(args.num_gen) + ".xlsx", index=False)
 
-    df_chats = pd.DataFrame({"chats": chats})
-    df_chats.to_excel("chat_history_" + args.save_fn + str(args.num_gen) + ".xlsx", index=False)
+    # df_chats = pd.DataFrame({"chats": chats})
+    # df_chats.to_excel("chat_history_" + args.save_fn + str(args.num_gen) + ".xlsx", index=False)
     print("done async")
 
 

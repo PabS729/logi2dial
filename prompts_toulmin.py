@@ -35,31 +35,43 @@ If there are multiple grounds to a claim, separate them with comma in the "groun
 # """
 
 PROMPT_AGENT_CHECK = """
-You are a judge looking at the dialogue between a teacher and a student. They are discussing over <sentence>.
-Check the <chat_history>. Did the student show explicit agreement with the teacher's <assessment>? ONLY Answer with "yes" or "no".
+You are a judge looking at the dialogue between a teacher and a student. They are discussing over <sentence>. <assessment> is a brief summary of the teacher's response from previous rounds.
+Check the <chat_history> and <assessement> by teacher. Did the student show signs of agreement with the teacher that their question is addressed? ONLY Answer with "yes" or "no". If there's no teacher's response, answer with "No".
 
 <sentence>: {sentence}
 <chat_history>: {history}
 <assessment>: {profile}
 """
 
-PROMPT_CHECK_AGREEMENT = """
+PROMPT_AGREE_COMP = """
 You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
-The following <decomp> is part of the sentence decomposed using toulmin's model. Check if <decomp> is a valid component under toulmin's model, as well as whether <decomp> itself is logically valid. 
-ask the student if they agree with your judgement. Do not explicitly mention toulmin's model. Limit your response in 40 words.
+The following <decomp> is part of the sentence decomposed using toulmin's model. Check if <decomp> is a valid component of <sentence> under toulmin's model.
+Ask the student if they agree with your judgement. Do not explicitly mention toulmin's model. Limit your response in 40 words.
+<sentence>: {sentence}
+<decomp>: {history}
+
+"""
+
+
+
+PROMPT_JUDGEMENT = """
+You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
+The following <decomp> is <sentence> decomposed using toulmin's model. Check if <decomp> has any type of logical flaws.
+Ask the student if they agree with your judgement. Do not explicitly mention toulmin's model. Limit your response in 40 words.
 <sentence>: {sentence}
 <decomp>: {history}
 """
 
 PROMPT_STUDENT_RESPOND = """
 You are a stubborn user interacting with a teacher. You believe that <sentence> is logically valid and you are critical over the teacher's response.
-Respond to teacher's question. Answer with "yes" or "no" and briefly give your reason for your answer. Answer with "yes" only if you fully agree with the teacher. Limit your response to 40 words or less.
+Respond to teacher's question about <decomp>. Answer with "yes" or "no" and briefly give your reason for your answer. Limit your response to 40 words or less.
 <sentence>: {sentence}
+<decomp>: {history}
 """
 
 PROMPT_STUDENT_TALK = """
 You are a stubborn user interacting with a teacher. You think that <sentence> is logically valid. You are not aware of any outside information beyond the context of <sentence>.
-You are having a discussion with the teacher. Please strictly follow <thought> when formulating your response. Limit your response to 40 words or less.
+You are having a discussion with the teacher. Please strictly follow <thought> when formulating your response. First answer the teacher's question, then pick one option from <thought> and respond to teacher. Limit your response to 40 words or less.
 <sentence>: {sentence}.
 <thought>: {history}
 
@@ -125,23 +137,34 @@ You are an expert summarizer, and you are reviewing conversation from a speaker 
 
 PROMPT_CHECK_TOPIC_RELEVANCE = """
 The student and teacher are discussing about the logical validity of <sentence>. The following <tracker> contains points that are being discussed.
-Check if the student's <response> is relevant to the points mentioned in <tracker>, as well as if the student's <response> revolves around the logical validity of <sentence>. If yes, summarize the student's topic in 15 words or less. If no, answer with "no", and give your reason in 15 words or less.
+Check if the student's <response> is relevant to the points mentioned in <tracker>, as well as if the student's <response> revolves around the logical validity of <sentence>. If yes, summarize the student's topic in 15 words or less. If no, answer with no, and give your reason in 15 words or less.
 <sentence>: {sentence}
 <tracker>: {history}
 <response>: {profile}
 
 """
 
+PROMPT_CHECK_DISAGREEMENT = """
+The student and teacher are discussing about the logical validity of <sentence>. Please answer the following questions.
+Q1. Check if the student's <response> revolves around the logical validity of <sentence>. If yes, answer with yes and a summary of the student's topic in 15 words or less. If no, answer with no and give your reason in 15 words or less.
+Q2. Check if the student's <response> mentions new disagreements that are not included in <history>. If yes, answer with yes and a summary of the student's disagreements in 15 words or less. If no, answe with no and give your reason in 15 words or less.
+<sentence>: {sentence}
+<history>: {history}
+<response>: {profile}
+
+format your answer in JSON with the following component: "Q1": <answer_to_Q1>, "Q2": <answer_to_Q2>
+"""
 
 PROMPT_HANDLE_STUDENT_BEHAVIOR = """
 You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
 Based on the student's response and <status>, think about the student's reponse. What is the student's concern, and how can you address the student's concern?
 
-Follow your thought and the given <strategy> and talk to the student.You can use toulmin's model to help explain your reasoning, but make sure not to mention toulmin's model and use languages that a layman will understand.
-Remember to focus on the topic of conversation and try not to be convinced by the student. Limit your response to less than or equal to 40 words.
+Follow your thought as well as the given <strategy> and talk to the student. After this step, ask the student whether the student agrees with your <judgement>, or if they still have concerns. You can use toulmin's model to help explain your reasoning, but make sure not to mention toulmin's model and use languages that a layman will understand.
+Remember to focus on the topic of conversation and try not to be convinced by the student. Limit your response to less than or equal to 50 words.
 <sentence>: {sentence}
 <status>: {history}
 <strategy>: {profile}
+<judgement>: {target_statement}
 
 """
 
@@ -151,4 +174,14 @@ The student is talking about other things not related to the topic of the conver
 
 <sentence>: {sentence}
 <summary>: {history}
+"""
+
+PROMPT_CHECK_FULLY_ADDRESSED = """
+You are a judge taking a look over a teacher's <response> to a student on the logical validity of <sentence>.
+Do you think that teacher's <response> is sufficient to fully address ALL points mentioned in <disagreement_bank>? Answer with "yes" or "no".
+
+<sentence>: {sentence}
+<response>: {history}
+<diagreement_bank>: {profile}
+
 """

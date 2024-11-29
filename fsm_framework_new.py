@@ -21,7 +21,7 @@ async def main():
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/toul_1127_sl_disagr_exp_alt_new')
+    parser.add_argument("--save_fn", type=str, default='results/toul_1127_sl_disagr_exp_both_tf')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -83,6 +83,7 @@ async def main():
         full_chat = ""
         summary = ""
         agr_bank = []
+        coll_agr = []
         
         coll_bank = []
         for k in toulmin.keys():
@@ -98,9 +99,10 @@ async def main():
             conv_student.append(student_res.choices[0].message.content)
             utterance_student = student_res.choices[0].message.content
             print(utterance_student)
+            agr_bank.append(k + ": " + decomp)
             if "yes" in student_res:
                 continue
-
+        
         # for k in toulmin.keys():
         if True:
             conv_teacher = []
@@ -124,6 +126,9 @@ async def main():
             coll_bank.append([])
             conversation_teacher.append(teacher_res.choices[0].message.content)
             conversation_student.append(student_res.choices[0].message.content)
+            cp_agr = copy.deepcopy(agr_bank)
+            coll_agr.append(cp_agr)
+            # agr_bank.append()
 
             if "yes" in student_res.choices[0].message.content.lower():
                 print("initial agreement")
@@ -146,18 +151,20 @@ async def main():
                         sampled_sentence.append("")
                         sampled_labels.append("")
 
-                        relevance_res = await generate_res("strategy", model_teacher, example_sentence, disagr_bank, utterance_student, None, conv_teacher, conv_student, PROMPT_CHECK_DISAGREEMENT, 0)
+                        relevance_res = await generate_res("check", model_teacher, example_sentence, disagr_bank, utterance_student, agr_bank, conv_teacher, conv_student, PROMPT_CHECK_DISAGREEMENT, 0)
                         relevance = json.loads(relevance_res.choices[0].message.content)
                         print(relevance)
                         reles.append(relevance)
 
-                        if "yes" in relevance["Q1"].lower():
+                        if "yes" in relevance["Q1"].lower() and "no" in relevance["Q3"].lower():
                             agreement_bank.append(relevance)
                             # disagr_bank.append(relevance)
                             thought_res = await generate_res("strategy", model_teacher, example_sentence, chat_history, None, None, None, None, PROMPT_IDENTIFY_STUDENT_STATE, 0)
 
                             thought = json.loads(thought_res.choices[0].message.content)["Type"]
-                        else: 
+                        elif "yes" in relevance["Q3"].lower(): 
+                            thought = 7
+                        else:
                             thought = 4
                         
                         if "yes" in relevance["Q2"].lower():
@@ -217,9 +224,14 @@ async def main():
                     print(res)
                     if "yes" in res.lower():
                         print("student agreed")
-                        agr_bank.append(tmp)
+                        agr_bank.append(disagr_bank[-1])
+
                         if len(disagr_bank) != 0:
                             disagr_bank.pop(-1)
+                    
+                    cp_agr = copy.deepcopy(agr_bank)
+                    coll_agr.append(cp_agr)
+                    print(cp_agr)
                     full_chat += chat_history
                     #after 7 rounds, check if all comments are fully addressed by the teacher. 
                     if i >= 7:
@@ -244,7 +256,8 @@ async def main():
                 #  'tracker': agr,
                  'summary': sums,
                  'student_check_relevance': reles,
-                 'disagreement_bank': coll_bank
+                 'disagreement_bank': coll_bank,
+                 'agreement_bank': coll_agr
                 }
     df_result = pd.DataFrame(data_dict)
     df_result.to_excel(args.save_fn + str(args.num_gen) + ".xlsx", index=False)

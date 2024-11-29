@@ -24,7 +24,7 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
         user_prompt = p.format(sentence=sentence, history=history)
     elif role in ["strategy", "teacher_st", "eval_s", "t_edu"]:
         user_prompt = p.format(sentence=sentence, history=history, profile=profile)
-    elif role == "exp":
+    elif role == "exp" or role == "check":
         user_prompt = p.format(sentence=sentence, history=history, profile=profile, target_statement=target_statement)
     else:
         user_prompt = p.format(sentence=sentence, history=history)
@@ -48,7 +48,7 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
     done = False
     while not done:
         try: 
-            if role in ["", "fact_bank", "find_contradiction", "strategy", "thought", "gen_strategy", "agent", "eval_t"]:
+            if role in ["check","", "fact_bank", "find_contradiction", "strategy", "thought", "gen_strategy", "agent", "eval_t"]:
                 response = client.chat.completions.create(
                 model=model_name,
             messages=msgs,

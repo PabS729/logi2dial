@@ -5,7 +5,7 @@ STRATEGY_HANDLE_STUDENT = {
     "4": "Remind the student of the topic of conversation about discussion of logical validity", #drawing attention away
     "5": "Clarify your explanation according to the student's question. Be sure to stick to the topic of conversation about discussion of logical validity", #Clarification
     "6": "Carry on the conversation.",
-    "7": "Remind the student of the topic of conversation, and ask the student to stop repeating", #repetition
+    "7": "Remind the student of the topic of conversation, and tell the student that their concern is already addressed", #repetition
     "D": "Analyze the logical flaw in the statement. When pointing out the logical flaw, make sure not the mention toulmin's model and use languages that a layman will understand." #start of conversation, so initial state is null
 }
 

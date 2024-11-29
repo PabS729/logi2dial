@@ -36,7 +36,7 @@ If there are multiple grounds to a claim, separate them with comma in the "groun
 
 PROMPT_AGENT_CHECK = """
 You are a judge looking at the dialogue between a teacher and a student. They are discussing over <sentence>. <assessment> is a brief summary of the teacher's response from previous rounds.
-Check the <chat_history> and <assessement> by teacher. Did the student show signs of agreement with the teacher that their question is addressed? ONLY Answer with "yes" or "no". If there's no teacher's response, answer with "No".
+Check the <chat_history> and <assessement> by teacher. Did the student show signs of agreement with the teacher that their question is addressed? If yes, Answer with "yes", then summarize what the student agrees on. If no, answer with ONLY "No". If there's no teacher's response, answer with "No".
 
 <sentence>: {sentence}
 <chat_history>: {history}
@@ -71,7 +71,7 @@ Respond to teacher's question about <decomp>. Answer with "yes" or "no" and brie
 
 PROMPT_STUDENT_TALK = """
 You are a stubborn user interacting with a teacher. You think that <sentence> is logically valid. You are not aware of any outside information beyond the context of <sentence>.
-You are having a discussion with the teacher. Please strictly follow <thought> when formulating your response. First answer the teacher's question, then pick one option from <thought> and respond to teacher. Limit your response to 40 words or less.
+You are having a discussion with the teacher. Please strictly follow <thought> when formulating your response. First answer the teacher's question, then pick one option from <thought> which you think is most critical and respond to teacher. Limit your response to 40 words or less.
 <sentence>: {sentence}.
 <thought>: {history}
 
@@ -148,18 +148,20 @@ PROMPT_CHECK_DISAGREEMENT = """
 The student and teacher are discussing about the logical validity of <sentence>. Please answer the following questions.
 Q1. Check if the student's <response> revolves around the logical validity of <sentence>. If yes, answer with yes and a summary of the student's topic in 15 words or less. If no, answer with no and give your reason in 15 words or less.
 Q2. Check if the student's <response> mentions new disagreements that are not included in <history>. If yes, answer with yes and a summary of the student's disagreements in 15 words or less. If no, answe with no and give your reason in 15 words or less.
+Q3. Check if the student's <response> mentions disagreements that are included in <agreements>. If yes, answer with yes and give your reason in 15 words or less. If no, ONLY answer with "no".
 <sentence>: {sentence}
 <history>: {history}
 <response>: {profile}
+<agreements>: {target_statement}
 
-format your answer in JSON with the following component: "Q1": <answer_to_Q1>, "Q2": <answer_to_Q2>
+format your answer in JSON with the following component: "Q1": <answer_to_Q1>, "Q2": <answer_to_Q2>, "Q3": <answer_to_Q3>
 """
 
 PROMPT_HANDLE_STUDENT_BEHAVIOR = """
 You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
 Based on the student's response and <status>, think about the student's reponse. What is the student's concern, and how can you address the student's concern?
 
-Follow your thought as well as the given <strategy> and talk to the student. After this step, ask the student whether the student agrees with your <judgement>, or if they still have concerns. You can use toulmin's model to help explain your reasoning, but make sure not to mention toulmin's model and use languages that a layman will understand.
+Follow the given <strategy> first, then collect your thoughts and talk to the student. After this step, ask the student whether the student agrees with your <judgement>, or if they still have concerns. You can use toulmin's model to help explain your reasoning, but make sure not to mention toulmin's model and use languages that a layman will understand.
 Remember to focus on the topic of conversation and try not to be convinced by the student. Limit your response to less than or equal to 50 words.
 <sentence>: {sentence}
 <status>: {history}

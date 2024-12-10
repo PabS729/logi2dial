@@ -1,5 +1,5 @@
 from openai import OpenAI
-from def_logical_fallacy import *
+from contradict_app.def_logical_fallacy import *
 from ast import parse
 from collections import defaultdict
 import json

@@ -1,17 +1,15 @@
 from openai import OpenAI
-from def_logical_fallacy import *
+from contradict_app.def_logical_fallacy import *
 from ast import parse
 from collections import defaultdict
 import json
 import os
 import asyncio
-from prompts_roleplay import * 
 from prompts_toulmin import * 
 import argparse
 import pandas as pd
 import time
-from check_score import *
-from respond_role import *
+
 
 async def main():
     parser = argparse.ArgumentParser()

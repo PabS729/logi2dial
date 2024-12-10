@@ -16,7 +16,7 @@ indicator = {
 "4":"The student is talking about other things not related to the topic of the conversation.",
 "5": "The student asks for clarification from the teacher.",
 "6": "Student Agrees to the teacher",
-"7":"The student is repeating their previous response.",
+"7":"The student is asking questions that is already addressed before.",
 
 "D": "" #start of conversation, , so initial state is null
 }

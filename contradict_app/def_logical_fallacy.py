@@ -1,4 +1,4 @@
-
+#Definitions of fallacies and strategies. Used for prior attempts of finding contradictions.
 fallacy_dc = {
 "faulty generalization": "an argument applies a belief to a large population without having a large enough sample to do so",
 "false causality": "an argument assumes that since two events are correlated, they must also have a cause and effect relationship",

@@ -1,12 +1,12 @@
 
 from openai import OpenAI
-from def_logical_fallacy import *
+from contradict_app.def_logical_fallacy import *
 from ast import parse
 from collections import defaultdict
 import json
 import os
 import asyncio
-from prompts_init import *
+from contradict_app.prompts_init import *
 import argparse
 import pandas as pd
 import time

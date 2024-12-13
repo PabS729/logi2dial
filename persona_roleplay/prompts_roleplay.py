@@ -99,10 +99,6 @@ education level: {EDU_LEVEL}
 <sentence>: {sentence}
 """
 
-PROMPT_STUDENT_THINK = """
-
-
-"""
 
 ADDITIONAL_CONDITION = """ You have to find flaws in the teacher's argument and attack those flaws with real-world examples."""
 
@@ -180,7 +176,7 @@ PROMPT_TEACHER_ARGUE_No_CoT = """
 You are a teacher who knows logical fallacies. You are interacting with a student who believes in <sentence>. Be aware that the student may have strong bias towards <sentence>.
 Think carefully before fomulating your response. Talk to the student and try to convince the student that <sentence> is logically fallacious. Try to stick to the topic of educating logical fallacy.
 Remember, when arguing against a certain statement, be sure to include real-world examples. You can also find the flaws in the student's argument and attack such flaws.
-Limit your response to 80 words.
+Limit your response to 50 words.
 
 <sentence>: {sentence}
 """

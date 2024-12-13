@@ -8,6 +8,12 @@ Format your answer in JSON with the following keys: "claim": <claim of the sente
 If there are multiple grounds to a claim, separate them with comma in the "grounds" section of your answer.
 """
 
+PROMPT_STUDENT_STUBBORN = """
+You are a stubborn user interacting with a teacher. You believe that <sentence> is logically valid and you are critical over the teacher's response.
+Respond to teacher's question. Answer with "yes" or "no" and briefly give your reason for your answer. Limit your response to 40 words or less.
+<sentence>: {sentence}
+
+"""
 
 # PROMPT_TEACHER_THINK = """
 # You are a teacher who knows toulmin's theory. You are interacting with a student who believes in <sentence>. 
@@ -59,7 +65,7 @@ Ask the student if they agree with your judgement. Do not explicitly mention tou
 PROMPT_JUDGEMENT = """
 You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
 The following <decomp> is <sentence> decomposed using toulmin's model. Check if <decomp> has any type of logical flaws.
-Ask the student if they agree with your judgement. Do not explicitly mention toulmin's model. Limit your response in 40 words.
+Ask the student if they agree with your judgement. Start your reponse with "this sentence..". Do not explicitly mention toulmin's model. Limit your response in 40 words.
 <sentence>: {sentence}
 <decomp>: {history}
 """
@@ -116,6 +122,7 @@ Analyze the student's utterance from <chat_history>, and select one feedback fro
 4. The student is talking about topics that strays from the conversation.
 5. Student asks for clarification from the teacher.
 6. The student agrees to the teacher.
+7. The student is repeating their response from previous turns.
 
 
 <last_utterance>: {profile}
@@ -127,12 +134,23 @@ Format your answer in JSON with the following key: "Type": <index of feedback in
 #After obtaining agreements from the student with toulmin's components, ask the student if they agree with the teacher's judgement
 PROMPT_TALK_ABOUT_LF = """
 You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
-Use the provided <decomposition> to talk to the student. Analyze the logical flaw in the statement. When pointing out the logical flaw, make sure not the mention toulmin's model and use languages that a layman will understand.Limit your response to 50 words or less.
+Use the provided <decomposition> to talk to the student. Analyze the logical flaw in the statement. When pointing out the logical flaw, make sure not to mention toulmin's model and use languages that a layman will understand.Limit your response to 50 words or less.
 
 <sentence>: {sentence}
 <decomposition>: {history}
 
 """
+
+PROMPT_TALK_ABOUT_LF_CONV = """
+You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
+Talk to the student and try to convince the student there is a logical flaw. You can refer to the <decomposition> when formulating your answer, but you should also be aware of the student's questions. Make sure not to mention toulmin's model and use languages that a layman will understand.Limit your response to 50 words or less.
+
+<sentence>: {sentence}
+<decomposition>: {history}
+
+"""
+
+
 
 #summarizes the teacher's response
 PROMPT_SUMMARIZE = """
@@ -172,7 +190,7 @@ PROMPT_HANDLE_STUDENT_BEHAVIOR = """
 You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
 Based on the student's response and <status>, think about the student's reponse. What is the student's concern, and how can you address the student's concern?
 
-The <strategy> identifies what you will do considering the student's <status>. Follow the given <strategy> and talk to the student. After this step, ask the student whether the student agrees with your <judgement>, or if they still have concerns. 
+The <strategy> identifies what you will do considering the student's <status>. Follow the given <strategy> and talk to the student. After this step, ask the student whether the student agrees with your <judgement>.
 You can use toulmin's model to help explain your reasoning, but make sure not to mention toulmin's model and use languages that a layman will understand.
 Remember to focus on the topic of conversation and try not to be convinced by the student. Limit your response to less than or equal to 50 words.
 <sentence>: {sentence}

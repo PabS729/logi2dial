@@ -24,7 +24,7 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
         user_prompt = p.format(sentence=sentence, history=history)
     elif role in ["strategy", "teacher_st", "eval_s", "t_edu"]:
         user_prompt = p.format(sentence=sentence, history=history, profile=profile)
-    elif role == "exp" or role == "check":
+    elif role in ["exp", "check", "tea_strat"]:
         user_prompt = p.format(sentence=sentence, history=history, profile=profile, target_statement=target_statement)
     else:
         user_prompt = p.format(sentence=sentence, history=history)

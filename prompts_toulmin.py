@@ -1,3 +1,16 @@
+PROMPT_OPENING = """
+You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student, named [I], on discussing logical validity of <sentence>. 
+Start the conversation with the student. Briefly summarize <sentence> and mention it to the student, as well as that today you will be discussing the logical validity of the sentence using toulmin's model. Limit your response to 50 words.
+
+<sentence>: {sentence}
+"""
+
+STUDENT_RESPONDS = """Sure!"""
+
+START_UTTER = """
+Great! Let's start with breaking down the sentence into components with toulmin's model. 
+"""
+
 #Initial prompt to decompose sentence using Toulmin's model
 PROMPT_DECOMPOSE_TOULMIN = """
 Decompose this <sentence> according to the Toulmin's model.
@@ -54,8 +67,9 @@ Check the teacher's response from <chat_history>. Did the student show signs of 
 #Obtain initial agreement from the student for toulmin's components
 PROMPT_AGREE_COMP = """
 You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
-The following <decomp> is part of the sentence decomposed using toulmin's model. Check if <decomp> is a valid component of <sentence> under toulmin's model.
-Ask the student if they agree with your judgement. Do not explicitly mention toulmin's model. Limit your response in 40 words.
+The following <decomp> is part of the sentence decomposed using toulmin's model. 
+Respond with the following format: first, concisely rephrase <decomp>, then briefly explain the definition of <decomp> in toulmin's model. Finally, ask the student if they think <decomp> fits the definiton.
+Do not explicitly mention Toulmin's model.  Limit your response in 40 words.
 <sentence>: {sentence}
 <decomp>: {history}
 
@@ -64,11 +78,19 @@ Ask the student if they agree with your judgement. Do not explicitly mention tou
 #prompt for the teacher to judge the logical fallacy based on toulmin's decomposition
 PROMPT_JUDGEMENT = """
 You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
-The following <decomp> is <sentence> decomposed using toulmin's model. Check if <decomp> has any type of logical flaws.
-Ask the student if they agree with your judgement. Start your reponse with "this sentence..". Do not explicitly mention toulmin's model. Limit your response in 40 words.
+The following <decomp> is <sentence> decomposed using toulmin's model. Check if components in <decomp> has logical flaws. 
+Tell the student which part of <decomp> you think is flawed and give your reason for that. Start the sentence with "Based on the discussion above, I think... " Do not explicitly mention toulmin's model. Limit your response in 40 words.
+format your answer in json with the following keys: "1": <your_response>, "2": <name of flawed component>
 <sentence>: {sentence}
 <decomp>: {history}
 """
+
+# PROMPT_INITIATE_CONV = """
+# You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing logical validity of <sentence>. 
+# The <decomp> of <sentence> has flaws. 
+# <sentence>: {sentence}
+# <decomp>: {history}
+# """
 
 #Student's prompt for initial agreement with Toulmin's component.
 PROMPT_STUDENT_RESPOND = """
@@ -188,11 +210,9 @@ format your answer in JSON with the following component: "Q1": <answer_to_Q1>, "
 #Teacher's response prompt according to dedicated strategies
 PROMPT_HANDLE_STUDENT_BEHAVIOR = """
 You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
-Based on the student's response and <status>, think about the student's reponse. What is the student's concern, and how can you address the student's concern?
-
-The <strategy> identifies what you will do considering the student's <status>. Follow the given <strategy> and talk to the student. After this step, ask the student whether the student agrees with your <judgement>.
-You can use toulmin's model to help explain your reasoning, but make sure not to mention toulmin's model and use languages that a layman will understand.
-Remember to focus on the topic of conversation and try not to be convinced by the student. Limit your response to less than or equal to 50 words.
+Based on the student's response and <status>, think about the student's reponse. 
+The <strategy> identifies what you will do considering the student's <status>. Follow the given <strategy> and talk to the student, then ask the student whether they agree with your <judgement>.
+Make sure not to mention toulmin's model and use languages that a layman will understand. Try not to be convinced by the student and try to focus on the logical validity of <sentence>. Limit your response to less than or equal to 50 words.
 <sentence>: {sentence}
 <status>: {history}
 <strategy>: {profile}
@@ -203,11 +223,27 @@ Remember to focus on the topic of conversation and try not to be convinced by th
 #prompt for the teacher to remind the student of the repetition
 PROMPT_REMIND_FOCUSED = """
 You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. A <summary> concludes your previous talks.
-The student is talking about <agreement> that is already addressed in previous talks. Remind the student that their concern is already addressed and ask the student to propose new topics that relates to discussing the logical validity of <sentence>. Limit your response to less than or equal to 40 words.
+The student is talking about <agreement> that is already addressed in previous talks. Remind the student that their concern is already addressed and ask the student to propose new topics that relates to discussing the logical validity of <sentence>. Start your response with "Based on what I remember about previous discussions..."
+Limit your response to less than or equal to 40 words.
 
 <sentence>: {sentence}
 <summary>: {history}
 <agreement>: {profile}
+"""
+
+PROMPT_DESIGN_STRATEGY = """
+You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>.
+<status> indicates the identified status of the student from <chat_history>. As a teacher, your role is to answer the student's concerns, as well as guiding the student towards understanding the logical flaw of <sentence>.
+You can consider the following angles, as well as using <decomposition> to help explain:
+1. How can I ensure that the student's concern is addressed?
+2. Did the student make any mistakes in their reasoning?
+3. What underlying assumptions or biases might the student have?
+4. How to navigate the conversation so that the student can ask relevant questions?
+Tell me what you can do as a teacher, and limit your response in 80 words.
+<sentence>: {sentence}
+<chat_history>: {history}
+<status>: {profile}
+<decomposition>: {target_statement}
 """
 
 
@@ -220,4 +256,21 @@ Do you think that teacher's <response> is sufficient to fully address ALL points
 <response>: {history}
 <diagreement_bank>: {profile}
 
+"""
+
+PROMPT_CHECK_FIN_AGREEMENT = """
+You are a judge taking a look over a student's <response> to a student on the logical validity of <sentence>. The teacher has the following <judgement> over the sentence.
+Based on the student's response, Do you think that the student agrees with the teacher's <judgement>? Answer with "yes" or "no".
+<sentence>: {sentence}
+<response>: {history}
+<judgement>: {profile}
+
+"""
+
+PROMPT_FINISH = """
+You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence> with your <judgement> on it.
+Answer the student's question, then summarize the conversation and tell the student that all his concerns have been addressed and end the conversation. Limit your response in 50 words.
+
+<sentence>: {sentence}
+<judgement>: {history}
 """

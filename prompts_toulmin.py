@@ -102,25 +102,25 @@ Respond to teacher's question about <decomp>. Answer with "yes" or "no" and brie
 
 #Student's prompt for debating with the teacher. 
 PROMPT_STUDENT_TALK = """
-You are a stubborn user interacting with a teacher. You think that <sentence> is logically valid. You are not aware of any outside information beyond the context of <sentence>.
-You are having a discussion with the teacher. Please strictly follow <thought> when formulating your response. First answer the teacher's question, then pick one option from <thought> which you think is most critical and respond to teacher. Limit your response to 40 words or less.
+You are a stubborn debater interacting with a teacher. You think that <sentence> is logically valid. 
+You are having a discussion with the teacher. Please strictly follow <thought> when formulating your response. First answer the teacher's question, then pick one option from <thought> which you think is most critical and respond to teacher. Limit your response to 50 words or less.
 <sentence>: {sentence}.
 <thought>: {history}
 
 """
 
-
+#You are not aware of any outside information beyond the context of <sentence>.
 #Student's thought process for debating with the teacher
 #Design principle and theoretical basis: dialectic student. See chapter 3 from Argument_ Critical Thinking, Logic, and the Fallacies.
 PROMPT_STUDENT_THINK = """
-You are a stubborn user interacting with teacher. You think that <sentence> is logically valid. You are not aware of any outside information beyond the context of <sentence>.
+You are a stubborn user interacting with teacher. You think that <sentence> is logically valid. 
 As a user, you must be critical of the teacher's responses. 
 You can consider the teacher’s <response> in those following angles:
     - Did the teacher explain the logical fallacy properly?
     - Which part do you think is missing from the response in terms of addressing your concern?
     - Does the teacher have logical flaws in their response?
     - What's the teacher's intent in their response?
-Think about the questions above and tell me what you can do as a user. After you list all available options, pick one option as your answer. The option must contain interactions with the teacher.
+Think about the questions above and tell me what you can do as a user. After you list all available options, pick one or two options as your answer. The options must contain interactions with the teacher.
 Format your answer in JSON with the following key: "ans": <your_answer>
 
 

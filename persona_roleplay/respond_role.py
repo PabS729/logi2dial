@@ -34,7 +34,7 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
 
 
     #teacher and student take turns
-    if role in ["teacher_st", "teacher", "t_edu", "exp"]: 
+    if role in ["teacher_st", "teacher", "t_edu", "exp", "test"]: 
         for (t,s) in zip(teacher_res, student_res):
             msgs.append({"role": "assistant", "content": t})
             msgs.append({"role": "user", "content": s})
@@ -48,7 +48,7 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
     done = False
     while not done:
         try: 
-            if role in ["check","", "fact_bank", "find_contradiction", "strategy", "thought", "gen_strategy", "agent", "eval_t"]:
+            if role in ["check","", "fact_bank", "find_contradiction", "strategy", "thought", "gen_strategy", "agent", "eval_t", "test"]:
                 response = client.chat.completions.create(
                 model=model_name,
             messages=msgs,

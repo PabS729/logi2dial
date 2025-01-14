@@ -1,10 +1,10 @@
 STRATEGY_HANDLE_STUDENT = {
     "1": "Discuss with the student about the point of concern.",#concerned
-    "2": "Think about the disagreement, and try to facilitate discussions to reach an agreement.", #disagreement
-    "3": "Refute the student's argument by pointing out the student's logical flaw, or giving a real-world counterexample.", #rebuttal
+    "2": "Think about the disagreement, and try to ask the student to talk about reasons for disagreement.", #disagreement
+    "3": "Refute the student's response by pointing out the logical flaw from the student's response, or giving a real-world counterexample related to the student's response.", #rebuttal
     "4": "Remind the student of the topic of conversation about discussion of logical validity", #drawing attention away
     "5": "Address the student's concern according to the student's question. ", #Clarification
-    "6": "Carry on the conversation through discussions of the sentence's logical fallacy and how to avoid them.",
+    "6": "Carry on the conversation. ",
     "7": "Remind the student of the topic of conversation, and tell the student that their concern is already addressed", #repetition
     "D": "Analyze the logical flaw in the statement. When pointing out the logical flaw, make sure not the mention toulmin's model and use languages that a layman will understand." #start of conversation, so initial state is null
 }

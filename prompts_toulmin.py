@@ -210,7 +210,7 @@ format your answer in JSON with the following component: "Q1": <answer_to_Q1>, "
 #Teacher's response prompt according to dedicated strategies
 PROMPT_HANDLE_STUDENT_BEHAVIOR = """
 You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
-Based on the student's response and <status>, think about the student's reponse. 
+Based on the student's response and <status>, think about the student's reponse. What is the student's concern, and how can you address the concern and make them realize that their response is flawed?
 The <strategy> identifies what you will do considering the student's <status>. Follow the given <strategy> and talk to the student, then ask the student whether they agree with your <judgement>.
 Make sure not to mention toulmin's model and use languages that a layman will understand. Try not to be convinced by the student and try to focus on the logical validity of <sentence>. Limit your response to less than or equal to 50 words.
 <sentence>: {sentence}

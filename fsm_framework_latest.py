@@ -22,7 +22,7 @@ async def main():
     parser.add_argument("--use_banks", type=bool, default=True)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/n_0109_all_15_prod_orig_wt_ending')
+    parser.add_argument("--save_fn", type=str, default='results/n_0110_all_15_prod_ent_w')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -271,7 +271,7 @@ async def main():
                         teacher_res = await generate_res("teacher_st", model_teacher, example_sentence, summary, relevance["Q3"], None, [], conv_student[-1], PROMPT_REMIND_FOCUSED, 0)
                     elif args.use_FSM:
                         #teacher's response according to detected student behavior
-                        # teacher_res = await generate_res("tea", model_teacher, example_sentence, summary, None, None, conv_teacher, conv_student, BASE_PROMPT+ STRATEGY_HANDLE_STUDENT["5"] + STRATEGY_HANDLE_STUDENT[str(thought)]+END_PROMPT , 1)
+                        # teacher_res = await generate_res("tea", model_teacher, example_sentence, summary, None, None, conv_teacher, conv_student, BASE_PROMPT+STRATEGY_HANDLE_STUDENT[str(thought)]+END_PROMPT , 1)
                         teacher_res = await generate_res("exp", model_teacher, example_sentence, indicator[str(thought)], STRATEGY_HANDLE_STUDENT[str(thought)], summary, conv_teacher, conv_student, PROMPT_HANDLE_STUDENT_BEHAVIOR, 0)
                     elif args.use_toulmin:
                         print("cont toulmin")
@@ -324,7 +324,7 @@ async def main():
                     coll_agr.append(cp_agr)
                     print(cp_agr)
                     full_chat += chat_history
-                    if i >= 4:
+                    if i >= 5:
                         agent_res = await generate_res("eval_s", model_student, example_sentence, conv_student, disagr_bank, None, None, None, PROMPT_CHECK_FIN_AGREEMENT, 0)
                         res = agent_res.choices[0].message.content
                         print(res)

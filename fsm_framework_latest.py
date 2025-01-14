@@ -371,8 +371,8 @@ async def main():
     df_result = pd.DataFrame(data_dict)
     df_result.to_excel(args.save_fn + str(args.num_gen) + ".xlsx", index=False)
 
-    # df_chats = pd.DataFrame({"chats": chats})
-    # df_chats.to_excel("chat_history_" + args.save_fn + str(args.num_gen) + ".xlsx", index=False)
+    df_chats = pd.DataFrame({ "sentences": sentences, "chats": chats})
+    df_chats.to_excel("chat_history_" + args.save_fn + ".xlsx", index=False)
     print("done async")
 
 

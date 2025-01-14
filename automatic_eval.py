@@ -8,8 +8,9 @@ import asyncio
 import argparse
 import pandas as pd
 import time
-from respond_role import *
+from persona_roleplay.respond_role import *
 import pandas
+from prompt_eval import *
 
 async def main():
     parser = argparse.ArgumentParser()
@@ -27,70 +28,83 @@ async def main():
     args = parser.parse_args()
 
     ann = args.file_to_annotate + str(args.num_gen) + ".xlsx"
-    comm = args.components_to_read + str(args.num_gen) + ".xlsx"
+    history1 = "chat_history_" + args.file_to_annotate + ".xlsx"
+    history2 = args.components_to_read + ".xlsx"
     df_to_argue = pd.read_excel(ann)
-    df_chat_history = pd.read_excel(comm)
-    sentences = df_to_argue["modified_sample"].values.tolist()
-    sentences = [j for j in sentences if str(j) != "nan"]
-    chat_history = df_chat_history["chats"].values.tolist()
-    profiles = df_to_argue["profile"].values.tolist()
-    profiles = [j for j in profiles if str(j) != "nan"]
+    
+
+
+    dialogues_1 = pd.read_excel(history1)
+    dialogues_2 = pd.read_excel(history2)
+    sentences = dialogues_1["sentences"].values.tolist()
+    dl1 = dialogues_1["chats"].values.tolist()
+    dl2 = dialogues_2["chats"].values.tolist()
     # print(df_to_argue.loc[0])
 
     length_of_conversation = 5
 
     # model_student = "gpt-4o"
     model_agent = "gpt-4o"
-    pers = []
+
     cohs = []
     rels = []
-    clas = []
-    cres = []
-    fids = []
-    divs = []
-    hums = []
+    info = []
+    arg = []
+    help = []
+
+    r_cohs = []
+    r_rels = []
+    r_info = []
+    r_arg = []
+    r_help = []
 
     for j in range(len(sentences)):
         # print(sentences[j])
         # sentence = sentences[j].split(",")[4]
-        sentence = sentences[j].split("=")[7][:-5]
-        history = chat_history[j]
-        profile = profiles[j]
+        sentence = sentences[j]
+        dialogue1 = dl1[j]
+        dialogue2 = dl2[j]
 
         print(sentence)
-        eval_res_TEACHER = await generate_res("eval_t", model_agent, sentence, history, None, None, None, None, PROMPT_EVAL_TEACHER, 0)
-        eval_t = json.loads(eval_res_TEACHER.choices[0].message.content)
-        per = eval_t["1"]
-        coh = eval_t["2"]
-        rel = eval_t["3"]
-        cla = eval_t["4"]
-        cre = eval_t["5"]
-        eval_res_STUDENT = await generate_res("eval_s", model_agent, sentence, history, profile, None, None, None, PROMPT_EVAL_STUDENT, 0)
-        eval_s = json.loads(eval_res_STUDENT.choices[0].message.content)
-        fid = eval_s["1"]
-        div = eval_s["2"]
-        hum = eval_s["3"]
+        eval_res_COH = await generate_res("eval_t", model_agent, sentence, dialogue1, dialogue2, None, None, None, EVAL_COHERENCE, 0)
+        eval_coh = json.loads(eval_res_COH.choices[0].message.content)
+        eval_res_RELE = await generate_res("eval_s", model_agent, sentence, dialogue1, dialogue2, None, None, None, EVAL_CONSISTENCY, 0)
+        eval_rele = json.loads(eval_res_RELE.choices[0].message.content)
+        eval_res_INFO = await generate_res("eval_s", model_agent, sentence, dialogue1, dialogue2, None, None, None, EVAL_INFORMATION_DIV, 0)
+        eval_info = json.loads(eval_res_INFO.choices[0].message.content)
+        eval_res_ARG = await generate_res("eval_s", model_agent, sentence, dialogue1, dialogue2, None, None, None, EVAL_VALID_ARGUMENTS, 0)
+        eval_arg = json.loads(eval_res_ARG.choices[0].message.content)
+        eval_res_HELP = await generate_res("eval_s", model_agent, sentence, dialogue1, dialogue2, None, None, None, EVAL_HELPFULNESS, 0)
+        eval_help = json.loads(eval_res_HELP.choices[0].message.content)
 
-        pers.append(per)
-        cohs.append(coh)
-        rels.append(rel)
-        clas.append(cla)
-        cres.append(cre)
-        fids.append(fid)
-        divs.append(div)
-        hums.append(hum)
+        cohs.append(eval_coh["ans"])
+        rels.append(eval_rele['ans'])
+        info.append(eval_info['ans'])
+        arg.append(eval_arg['ans'])
+        help.append(eval_help['ans'])
+
+        r_cohs.append(eval_coh["reason"])
+        r_rels.append(eval_rele["reason"])
+        r_info.append(eval_info["reason"])
+        r_arg.append(eval_arg["reason"])
+        r_help.append(eval_help["reason"])
+
+
 
 
     data_dict = {
         "sentences": sentences,
-        "persuasiveness": pers,
         "coherence": cohs,
+        "reason for coherence": r_cohs,
         "relevance": rels,
-        "clarity": clas,
-        "credibility": cres,
-        "fidelity": fids,
-        "diversity": divs,
-        "human-likeness": hums
+        "reason for relevance": r_rels,
+        "informativeness": info,
+        "reason for informativeness": r_info,
+        "argumentativeness": arg,
+        "reason for argumentativeness": r_arg,
+        "helpfulness":help,
+        "reason for helpfulness": r_help,
+
 
 
     }

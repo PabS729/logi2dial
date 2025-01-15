@@ -23,7 +23,7 @@ async def main():
     parser.add_argument("--use_banks", type=bool, default=True)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/n_0110_all_15_deb_chat')
+    parser.add_argument("--save_fn", type=str, default='results/n_0110_all_15_deb_cht_ful')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -31,7 +31,7 @@ async def main():
     args = parser.parse_args()
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
-    sampled_df = df_to_argue.sample(n=1, random_state=15)
+    sampled_df = df_to_argue.sample(n=1, random_state=10)
     
     # df_lf = pd.read_csv
     # df_components = pd.read_excel(args.components_to_read)
@@ -45,8 +45,8 @@ async def main():
     model_student = "gpt-4o"
     model_teacher = "gpt-4o"
 
-    # sentences = ["Al Gore and I are committed to continuing this acquisition program, transforming the military. There's still fewer people in uniform today, but person - to - person, person - by - person, unit - by - unit, this is the most powerful and effective military, not only in the world today, but in the history of the world. And again, Al Gore and I will do whatever is necessary to keep it that way."]
-    # labels = ["Slippery Slope"]
+    sentences = ["Al Gore and I are committed to continuing this acquisition program, transforming the military. There's still fewer people in uniform today, but person - to - person, person - by - person, unit - by - unit, this is the most powerful and effective military, not only in the world today, but in the history of the world. And again, Al Gore and I will do whatever is necessary to keep it that way."]
+    labels = ["Slippery Slope"]
 
     # sentences = ["You know, nobody likes who shot John, but I think the first negative campaign run in this election was by Governor Clinton, and I'm not going to sit there and be a punching bag; I'm going to stand up and say, hey, listen, here's my side of it."]
     # labels = ["appeal to emotion"]
@@ -96,7 +96,7 @@ async def main():
             coll_agr.append([])
 
 
-        rounds = 1
+        rounds = 10
 
         
 

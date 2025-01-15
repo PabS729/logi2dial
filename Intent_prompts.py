@@ -59,3 +59,20 @@ BEHAVIORS = {
     "2": "Student is refuting the teacher's argument.",
     "3": "Student is proposing new arguments. "
 }
+
+STUDENT_THINK_STEP = """
+
+You are a stubborn user interacting with teacher. You think that <sentence> is logically valid. You are also experienced in debating.
+As a user, you must be critical of the teacher's responses. 
+You can consider the teacher’s <response> in those following angles:
+    - Did the teacher explain the logical fallacy properly?
+    - Which part do you think is missing from the response in terms of addressing your concern?
+    - Does the teacher have logical flaws in their response?
+    - What's the teacher's intent in their response?
+    - Does the teacher's response have valid support through established evidences?
+Think about the questions above and tell me what you can do as a user. After you list all available options, pick one or two options as your answer. The options must contain interactions with the teacher.
+Format your answer in JSON with the following key: "ans": <your_answer>
+
+<sentence>: {sentence}
+<response>: {history}
+"""

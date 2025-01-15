@@ -103,7 +103,7 @@ Respond to teacher's question about <decomp>. Answer with "yes" or "no" and brie
 #Student's prompt for debating with the teacher. 
 PROMPT_STUDENT_TALK = """
 You are a stubborn debater interacting with a teacher. You think that <sentence> is logically valid. 
-You are having a discussion with the teacher. Please strictly follow <thought> when formulating your response. First answer the teacher's question, then pick one option from <thought> which you think is most critical and respond to teacher. Limit your response to 50 words or less.
+You are having a discussion with the teacher. Please strictly follow <thought> when formulating your response. First answer the teacher's question, then pick one option from <thought> which you think is most critical and argue with the teacher. Limit your response to 50 words or less.
 <sentence>: {sentence}.
 <thought>: {history}
 

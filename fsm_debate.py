@@ -23,7 +23,7 @@ async def main():
     parser.add_argument("--use_banks", type=bool, default=True)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/n_0110_all_15_deb_sk')
+    parser.add_argument("--save_fn", type=str, default='results/n_0110_all_15_deb_okk')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -301,7 +301,7 @@ async def main():
                     sums.append(summary)
 
                     #Student CoT
-                    student_res_thought = await generate_res("", model_teacher, example_sentence, conv_teacher[-1] + "\n" + summary, None, None, conv_teacher, conv_student, PROMPT_STUDENT_THINK, 1)
+                    student_res_thought = await generate_res("", model_teacher, example_sentence, conv_teacher[-1] + "\n" + summary, None, None, conv_teacher, conv_student, STUDENT_THINK_STEP, 1)
                     student_res_thought = json.loads(student_res_thought.choices[0].message.content)["ans"]
                     print("student thinks:" + student_res_thought)
                     lm_thought.append(student_res_thought)

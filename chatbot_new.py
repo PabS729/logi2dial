@@ -23,7 +23,7 @@ async def main():
     parser.add_argument("--use_banks", type=bool, default=True)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/n_0110_all_15_deb_mirror')
+    parser.add_argument("--save_fn", type=str, default='results/n_0116_all_15_cht_w_check')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -96,7 +96,7 @@ async def main():
             coll_agr.append([])
 
 
-        rounds = 7
+        rounds = 10
 
         
 
@@ -106,36 +106,6 @@ async def main():
         agr_bank = []
 
         #Check if student agrees with the components. Ideally, the student should agree with all of them.
-        if args.use_toulmin:
-            ct = 0
-            for k in toulmin.keys():
-                disagr_bank = []
-                conv_teacher = []
-                conv_student =[]
-                decomp = toulmin[k]
-                teacher_res = await generate_res("t", model_teacher, example_sentence, "["+ k + ": " + decomp + "]", None, None, conv_teacher, conv_student, PROMPT_AGREE_COMP, 0)
-                conv_teacher.append(teacher_res.choices[0].message.content)
-                utterance_teacher = teacher_res.choices[0].message.content
-                if ct == 0:
-                    conversation_teacher.append(START_UTTER+utterance_teacher)
-                else: 
-                    conversation_teacher.append(utterance_teacher)
-                print(utterance_teacher)
-                student_res = await generate_res("student_bio", model_teacher, example_sentence, "["+ k + ": " + decomp + "]", None, None, conv_teacher, conv_student, PROMPT_STUDENT_RESPOND, 0)
-                conv_student.append(student_res.choices[0].message.content)
-                utterance_student = student_res.choices[0].message.content
-                print(utterance_student)
-                conversation_student.append(utterance_student)
-                anas.append("")
-                lm_thought.append("")
-                sums.append("")
-                reles.append("")
-                coll_bank.append([])
-                coll_agr.append([])
-                agr_bank.append(k + ": " + decomp)
-                if "yes" in student_res:
-                    continue
-                ct += 1
         
         # for k in toulmin.keys():
         if True:
@@ -215,28 +185,58 @@ async def main():
                             print(relevance)
                             reles.append(relevance)
 
+                            if "yes" in relevance["Q2"].lower(): 
+                                disagr_bank.append(relevance["Q2"])
+
+                                confirm_disagreement = "It seems that our current disagreement lies on this point:" + relevance["Q2"][4:].lower()+ ", do you agree? If yes, then we can focus our discussion on this part." 
+                                print(confirm_disagreement)
+                                student_res = input()
+                                # conv_teacher.append(confirm_disagreement)
+                                # conv_student.append(student_res)
+                                conversation_teacher.append(confirm_disagreement)
+                                conversation_student.append(student_res)
+                                anas.append("")
+                                lm_thought.append("")
+                                sums.append("")
+                                reles.append("")
+                                cp_agr = copy.deepcopy(agr_bank)
+                                cp_disagr = copy.deepcopy(disagr_bank)
+                                coll_bank.append(cp_disagr)
+                                coll_agr.append(cp_agr)
+                                if "yes" in student_res.lower():
+                                    a = 0
+                                else:
+                                    print("Can you tell me which point you don't agree with?")
+                                    student_utterance = input()
+                                    conv_teacher.append("Can you tell me which point you don't agree with?")
+                                    conv_student.append(student_utterance)
+                                    conversation_teacher.append("Can you tell me which point you don't agree with?")
+                                    conversation_student.append(student_utterance)
+                                    anas.append("")
+                                    lm_thought.append("")
+                                    sums.append("")
+                                    # reles.append("")                                
+                                    cp_agr = copy.deepcopy(agr_bank)
+                                    cp_disagr = copy.deepcopy(disagr_bank)
+                                    coll_bank.append(cp_disagr)
+                                    coll_agr.append(cp_agr)
+                                    continue
+
                             #if the student's response is not addressed previously, then we have a new topic. Identify the student's states to be used later
                             if "yes" in relevance["Q1"].lower() and "no" in relevance["Q3"].lower():
                                 agreement_bank.append(relevance)
                                 # disagr_bank.append(relevance)
+
                                 thought_res = await generate_res("strategy", model_teacher, example_sentence, chat_history, 
                                                                  None, None, None, None, DETECT_FLAW_TEACHER, 0)
 
                                 thought = json.loads(thought_res.choices[0].message.content)["Type"]
-
-                                # strat_teacher = await generate_res("tea_strat", model_teacher, example_sentence, chat_history, 
-                                #                                  indicator[str(thought)], toulmin, None, None, PROMPT_DESIGN_STRATEGY, 1)
-                                # strat_teacher = strat_teacher.choices[0].message.content
-                                # print(strat_teacher)
-                            #Otherwise, the student have asked about things that are previously discussed
                             elif "yes" in relevance["Q3"].lower(): 
                                 thought = 7
                             else:
                                 thought = 2
                             
                             #add to disagreement bank if new disagreement is proposed
-                            if "yes" in relevance["Q2"].lower():
-                                disagr_bank.append(relevance["Q2"])
                             cp_bank = copy.deepcopy(disagr_bank)
                             coll_bank.append(cp_bank)
                         
@@ -253,11 +253,8 @@ async def main():
                             coll_bank.append([])
                         chat_history = ""
                         
-                    
-                    # anas.append(thought)
-
-                    # print(curr_strat)
-                        
+                
+                    lm_thought.append('')
                     anas.append(thought)
                     print(disagr_bank)
 
@@ -272,7 +269,7 @@ async def main():
                         teacher_res = await generate_res("teacher_st", model_teacher, example_sentence, summary, relevance["Q3"], None, [], conv_student[-1], PROMPT_REMIND_FOCUSED, 0)
                     elif args.use_FSM:
                         #teacher's response according to detected student behavior
-                        teacher_res = await generate_res("test", model_teacher, example_sentence, BEHAVIORS[str(thought)], None, None, conv_teacher, conv_student, PROCEED_CONV_TEACHER, 1)
+                        teacher_res = await generate_res("test", model_teacher, example_sentence, BEHAVIORS[str(thought)], option, None, conv_teacher, conv_student, PROCEED_CONV_TEACHER, 1)
                         
                     elif args.use_toulmin:
                         print("cont toulmin")
@@ -287,8 +284,9 @@ async def main():
                         print(option)
                     else:
                         utterance_teacher = teacher_res.choices[0].message.content
+                        option = ""
                     chat_history += "teacher: " + utterance_teacher + "\n"
-                    print(utterance_teacher)
+                    
                     conversation_teacher.append(utterance_teacher)
                     conv_teacher.append(utterance_teacher)
                     
@@ -300,57 +298,66 @@ async def main():
                     print(summary)
                     sums.append(summary)
 
-                    student_res_thought = await generate_res("", model_teacher, example_sentence, conv_teacher[-1] + "\n" + summary, None, None, conv_teacher, conv_student, DETECT_FLAW_TEACHER, 1)
-                    student_s = json.loads(student_res_thought.choices[0].message.content)["Type"]
-                    #Student CoT
-                    # student_res_thought = await generate_res("", model_teacher, example_sentence, conv_teacher[-1] + "\n" + summary, None, None, conv_teacher, conv_student, STUDENT_THINK_STEP, 1)
-                    # student_res_thought = json.loads(student_res_thought.choices[0].message.content)["ans"]
-                    # print("student thinks:" + student_res_thought)
-                    # lm_thought.append(student_res_thought)
-                    lm_thought.append(student_s)
-                    # student_res = await generate_res("student_bio", model_student, example_sentence, student_res_thought, None, None, conv_teacher, conv_student, PROMPT_STUDENT_TALK, 1)
-                    student_res = await generate_res("stu", model_student, example_sentence, BEHAVIORS[str(student_s)], None, None, conv_teacher, conv_student, STUDENT_MIRROR, 1)
-                    utterance_student = json.loads(student_res.choices[0].message.content)["res"]
-                    # utterance_student = student_res.choices[0].message.content
-                    print(utterance_student)
+                    
+                    print("--------------------utterance--------------------")
+                    print(utterance_teacher)
+                    utterance_student = input()
+                    # print(utterance_student)
                     conversation_student.append(utterance_student)
                     conv_student.append(utterance_student)
                     
+                    print("--------------------------segmentation line------------------------------")
         
                     chat_history += "student: " + utterance_student + "\n"
 
                     #check whether the student agrees with the teacher
-                    agent_res = await generate_res("eval_s", model_student, example_sentence, chat_history, summary, None, conv_teacher, conv_student, PROMPT_AGENT_CHECK, 0)
-                    res = agent_res.choices[0].message.content
+                    agent_res = await generate_res("eval_s", model_student, example_sentence, chat_history, None, None, None, None, PROMPT_AGENT_CHECK_EVIDENCE, 0)
+                    res = json.loads(agent_res.choices[0].message.content)
                     print(res)
-                    if "no" not in res.lower():
-                        print("student agreed")
+                    if "yes" in res["1"].lower() and "yes" in res["2"].lower():
+                        print("student unable to defend their argument")
                         if args.use_banks:
                             if len(disagr_bank) != 0:
-                                agr_bank.append(disagr_bank[int(res) - 1])
-                                del disagr_bank[int(res) - 1]
+                                agr_bank.append(disagr_bank[- 1])
+                                del disagr_bank[ - 1]
+                        confirm_disagreement = "If you cannot provide evidence, then I would suggest looking for them if you have time later. Do you still have any other concerns regarding the sentence's logical validity?" 
+                        print(confirm_disagreement)
+                        student_utterance = input()
+                        conv_teacher.append(confirm_disagreement)
+                        conv_student.append(student_utterance)
+                        conversation_teacher.append(confirm_disagreement)
+                        conversation_student.append(student_utterance)
+                        anas.append("")
+                        lm_thought.append("")
+                        sums.append("")
+                        reles.append("")
+                        cp_agr = copy.deepcopy(agr_bank)
+                        cp_disagr = copy.deepcopy(disagr_bank)
+                        coll_bank.append(cp_disagr)
+                        coll_agr.append(cp_agr)
+
                             
                     cp_agr = copy.deepcopy(agr_bank)
                     coll_agr.append(cp_agr)
                     print(cp_agr)
                     full_chat += chat_history
-                    if i >= 5:
-                        agent_res = await generate_res("eval_s", model_student, example_sentence, conv_student, disagr_bank, None, None, None, PROMPT_CHECK_FIN_AGREEMENT, 0)
-                        res = agent_res.choices[0].message.content
-                        print(res)
-                        if "yes" in res.lower():
-                            teacher_res = await generate_res("exp", model_teacher, example_sentence, summary, None, None, conv_teacher, conv_student, PROMPT_FINISH, 0)
-                            conversation_teacher.append(teacher_res.choices[0].message.content)
-                            conversation_student.append("Ok. I think I have learned everything necessary about the logical validity of the sentence. Thanks a lot for helping me!")
-                            cp_agr = copy.deepcopy(agr_bank)
-                            coll_agr.append(cp_agr)
-                            cp_bank = copy.deepcopy(disagr_bank)
-                            coll_bank.append(cp_bank)
-                            sums.append("")
-                            reles.append("")
-                            anas.append("")
-                            lm_thought.append("")
-                            break
+                    # if i >= 5:
+                    #     agent_res = await generate_res("eval_s", model_student, example_sentence, conv_student, disagr_bank, None, None, None, PROMPT_CHECK_FIN_AGREEMENT, 0)
+                    #     res = agent_res.choices[0].message.content
+                    #     print(res)
+                    #     if "yes" in res.lower():
+                    #         teacher_res = await generate_res("exp", model_teacher, example_sentence, summary, None, None, conv_teacher, conv_student, PROMPT_FINISH, 0)
+                    #         conversation_teacher.append(teacher_res.choices[0].message.content)
+                    #         conversation_student.append("Ok. I think I have learned everything necessary about the logical validity of the sentence. Thanks a lot for helping me!")
+                    #         cp_agr = copy.deepcopy(agr_bank)
+                    #         coll_agr.append(cp_agr)
+                    #         cp_bank = copy.deepcopy(disagr_bank)
+                    #         coll_bank.append(cp_bank)
+                    #         sums.append("")
+                    #         reles.append("")
+                    #         anas.append("")
+                    #         lm_thought.append("")
+                    #         break
     
                     #after 7 rounds, check if all comments are fully addressed by the teacher. 
                     # if i >= 7:
@@ -366,10 +373,10 @@ async def main():
         chats.append(full_chat)
 
 
-    print(len(lm_thought), len(anas), len(conversation_teacher), len(conversation_student), len(lm_thought), len(sums), len(reles), len(coll_agr), len(coll_bank))
+    print(len(lm_thought), len(anas), len(conversation_teacher), len(conversation_student), len(sums), len(reles), len(coll_agr), len(coll_bank))
     data_dict = {
                  'teacher_analysis': anas,
-                 'layman_thought': lm_thought, 
+                #  'layman_thought': lm_thought, 
                  'teacher_response': conversation_teacher, 
                  'layman_response': conversation_student, 
                 #  'tracker': agr,

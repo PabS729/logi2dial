@@ -79,7 +79,7 @@ Do not explicitly mention Toulmin's model.  Limit your response in 40 words.
 PROMPT_JUDGEMENT = """
 You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
 The following <decomp> is <sentence> decomposed using toulmin's model. Check if components in <decomp> has logical flaws. 
-Tell the student which part of <decomp> you think is flawed and give your reason for that. Start the sentence with "Based on the discussion above, I think... " Do not explicitly mention toulmin's model. Limit your response in 40 words.
+Tell the student which part of <decomp> you think is flawed and give your reason for that. Do not explicitly mention toulmin's model. Limit your response in 40 words.
 format your answer in json with the following keys: "1": <your_response>, "2": <name of flawed component>
 <sentence>: {sentence}
 <decomp>: {history}

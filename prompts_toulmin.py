@@ -196,8 +196,8 @@ Check if the student's <response> is relevant to the points mentioned in <tracke
 #Check if the the student's response is relevant, as well as whether student proposes new disagreements
 PROMPT_CHECK_DISAGREEMENT = """
 The student and teacher are discussing about the logical validity of <sentence>. Please answer the following questions.
-Q1. Check if the student's <response> revolves around the logical validity of <sentence>. If yes, answer with yes and a summary of the student's topic in 15 words or less. If no, answer with no and give your reason in 15 words or less.
-Q2. Check if the student's <response> mentions new disagreements that are not included in <history>. If yes, answer with yes and a summary of the student's disagreements in 15 words or less. If no, answe with no and give your reason in 15 words or less.
+Q1. Check if the student's <response> revolves around the logical validity of <sentence>. If yes, answer with yes and a summary of student's response in 20 words or less. If no, answer with no and give your reason in 15 words or less.
+Q2. Check if the student's <response> mentions new disagreements that are not included in <history>. If yes, answer with yes and a summary of student's response in 20 words or less. If no, answer with no and give your reason in 15 words or less.
 Q3. Check if the QUESTION in student's <response> is already included in <agreements>. If yes, answer with yes and give your reason in 15 words or less. If no, ONLY answer with "no".
 <sentence>: {sentence}
 <history>: {history}

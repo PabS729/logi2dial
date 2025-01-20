@@ -17,7 +17,7 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
     msgs = []
     if role == "agent" : 
         user_prompt = p.format(sentence=sentence, history=history)
-    elif role in ["fact_bank", "gen_strategy", "student", "conv"]:
+    elif role in ["fact_bank", "gen_strategy", "student", "conv", "stu"]:
         user_prompt = p.format(sentence=sentence)
         # user_prompt = p.format(sentence=sentence, NAME = profile["NAME"], AGE = profile["AGE"], BELIEF = profile["BELIEF"], BIAS = profile["BIAS"], PERSONALITY = profile["PERSONALITY"], EDU_LEVEL = profile["EDU_LEVEL"])
     elif role == "teacher" or role == "thought":
@@ -34,7 +34,7 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
 
 
     #teacher and student take turns
-    if role in ["teacher_st", "teacher", "t_edu", "exp", "test"]: 
+    if role in ["teacher_st", "teacher", "t_edu", "exp", "test", "old"]: 
         for (t,s) in zip(teacher_res, student_res):
             msgs.append({"role": "assistant", "content": t})
             msgs.append({"role": "user", "content": s})
@@ -48,7 +48,7 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
     done = False
     while not done:
         try: 
-            if role in ["check","", "fact_bank", "find_contradiction", "strategy", "thought", "gen_strategy", "agent", "eval_t", "test", "stu", 'eval_s']:
+            if role in ["old","check","", "fact_bank", "find_contradiction", "strategy", "thought", "gen_strategy", "agent", "eval_t", "test", "stu", 'eval_s']:
                 response = client.chat.completions.create(
                 model=model_name,
             messages=msgs,

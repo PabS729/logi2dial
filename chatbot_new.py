@@ -23,7 +23,7 @@ async def main():
     parser.add_argument("--use_banks", type=bool, default=True)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/n_0116_all_15_cht_w_check')
+    parser.add_argument("--save_fn", type=str, default='results/n_0117_all_28_cht_w_t')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -31,7 +31,7 @@ async def main():
     args = parser.parse_args()
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
-    sampled_df = df_to_argue.sample(n=1, random_state=15)
+    sampled_df = df_to_argue.sample(n=1, random_state=28)
     
     # df_lf = pd.read_csv
     # df_components = pd.read_excel(args.components_to_read)
@@ -96,7 +96,7 @@ async def main():
             coll_agr.append([])
 
 
-        rounds = 10
+        rounds = 15
 
         
 
@@ -262,15 +262,15 @@ async def main():
                         #teacher's initial analysis and judgement of the sentence
                         teacher_res = await generate_res("tea", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_TALK_ABOUT_LF, 0)
                         summary = ""
-                    elif args.use_FSM and (thought == 4 or thought == 7):
+                    elif args.use_FSM and (thought == 7):
                         print("taken")
 
                         #teacher's response when the student is repeating topics that has been previously discussed
                         teacher_res = await generate_res("teacher_st", model_teacher, example_sentence, summary, relevance["Q3"], None, [], conv_student[-1], PROMPT_REMIND_FOCUSED, 0)
                     elif args.use_FSM:
                         #teacher's response according to detected student behavior
-                        teacher_res = await generate_res("test", model_teacher, example_sentence, BEHAVIORS[str(thought)], option, None, conv_teacher, conv_student, PROCEED_CONV_TEACHER, 1)
-                        
+                        # teacher_res = await generate_res("test", model_teacher, example_sentence, BEHAVIORS[str(thought)], option, None, conv_teacher, conv_student, PROCEED_CONV_TEACHER, 1)
+                        teacher_res = await generate_res("old", model_teacher, example_sentence, BEHAVIORS[str(thought)], None, None, conv_teacher, conv_student, PROCEED_CONV_TEACHER, 1)
                     elif args.use_toulmin:
                         print("cont toulmin")
                         teacher_res = await generate_res("tea", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_TALK_ABOUT_LF_CONV, 0)
@@ -310,6 +310,15 @@ async def main():
         
                     chat_history += "student: " + utterance_student + "\n"
 
+
+                    agree_res = await generate_res("eval_s", model_student, example_sentence, chat_history, None, None, None, None, PROMPT_AGENT_CHECK_AGREEMENT, 0)
+                    agr = json.loads(agree_res.choices[0].message.content)
+                    if "yes" in agr["1"].lower():
+                        if len(disagr_bank) != 0:
+                            agr_bank.append(disagr_bank[- 1])
+                            del disagr_bank[ - 1]
+                        if "yes" in agr["2"].lower():
+                            break
                     #check whether the student agrees with the teacher
                     agent_res = await generate_res("eval_s", model_student, example_sentence, chat_history, None, None, None, None, PROMPT_AGENT_CHECK_EVIDENCE, 0)
                     res = json.loads(agent_res.choices[0].message.content)

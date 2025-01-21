@@ -52,10 +52,21 @@ async def main():
     chats = []
     reles = []
     coll_agr = []
-        
     coll_bank = []
-
     lm_thought = []
+
+    def appends(a, b, c, d, e, f, g, h):
+        conversation_teacher.append(a)
+        conversation_student.append(b)
+        anas.append(c)
+        lm_thought.append(d)
+        sums.append(e)
+        reles.append(f)
+        cp_agr = copy.deepcopy(g)
+        cp_disagr = copy.deepcopy(h)
+        coll_bank.append(cp_disagr)
+        coll_agr.append(cp_agr)
+
     for j in range(len(sentences)):
         example_sentence = sentences[j]
         example_label = labels[j]
@@ -71,21 +82,9 @@ async def main():
 
             opening_res = await generate_res("conv", model_teacher, example_sentence, 
                                                     None, None, None, None, None, PROMPT_OPENING, 0)
-            conversation_teacher.append(opening_res.choices[0].message.content)
-            conversation_student.append(STUDENT_RESPONDS)
-
-            anas.append('')
-            lm_thought.append('') 
-            sums.append('')
-            reles.append('')
-            coll_bank.append([])
-            coll_agr.append([])
-
+            appends(opening_res.choices[0].message.content, STUDENT_RESPONDS, "", "", "", "", [], [])
 
         rounds = 10
-
-        
-
         chat_history = ""
         full_chat = ""
         summary = ""
@@ -147,6 +146,8 @@ async def main():
                 tmp = conv_teacher[-1]
                 disagr_bank = []
                 #if the student disagrees, enter discussion
+                curr_state = 0
+                FSM_STATES = []
                 for i in range(0, rounds):
                     # print(i)
                     if i == 0:
@@ -183,16 +184,7 @@ async def main():
                                 
                                 # conv_teacher.append(confirm_disagreement)
                                 # conv_student.append(student_res)
-                                conversation_teacher.append(confirm_disagreement)
-                                conversation_student.append(student_res)
-                                anas.append("")
-                                lm_thought.append("")
-                                sums.append("")
-                                reles.append("")
-                                cp_agr = copy.deepcopy(agr_bank)
-                                cp_disagr = copy.deepcopy(disagr_bank)
-                                coll_bank.append(cp_disagr)
-                                coll_agr.append(cp_agr)
+                                appends(confirm_disagreement, student_res, "", "", "", "", agr_bank, disagr_bank)
                                 if "yes" in student_res.lower():
                                     a = 0
                                 else:
@@ -265,11 +257,11 @@ async def main():
                         #teacher's response according to detected student behavior
                         # teacher_res = await generate_res("test", model_teacher, example_sentence, BEHAVIORS[str(thought)], option, None, conv_teacher, conv_student, PROCEED_CONV_TEACHER, 1)
                         teacher_res = await generate_res("old", model_teacher, example_sentence, BEHAVIORS[str(thought)], None, None, conv_teacher, conv_student, PROCEED_CONV_TEACHER, 1)
-                    elif args.use_toulmin:
-                        print("cont toulmin")
-                        teacher_res = await generate_res("tea", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_TALK_ABOUT_LF_CONV, 0)
-                    else:
-                        teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_No_CoT, 0)
+                    # elif args.use_toulmin:
+                    #     print("cont toulmin")
+                    #     teacher_res = await generate_res("tea", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_TALK_ABOUT_LF_CONV, 0)
+                    # else:
+                    #     teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_No_CoT, 0)
 
                     if args.use_FSM and i != 0 and thought != 7:
                         rs = json.loads(teacher_res.choices[0].message.content)
@@ -338,19 +330,7 @@ async def main():
                         student_utterance = input()
                         conv_teacher.append(confirm_disagreement)
                         conv_student.append(student_utterance)
-                        conversation_teacher.append(confirm_disagreement)
-                        conversation_student.append(student_utterance)
-                        anas.append("")
-                        lm_thought.append("")
-                        sums.append("")
-                        reles.append("")
-                        cp_agr = copy.deepcopy(agr_bank)
-                        cp_disagr = copy.deepcopy(disagr_bank)
-                        coll_bank.append(cp_disagr)
-                        coll_agr.append(cp_agr)
-                    
-
-                    
+                        appends(confirm_disagreement, student_utterance, "", "", "", "", agr_bank, disagr_bank)
 
         chats.append(full_chat)
 

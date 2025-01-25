@@ -29,7 +29,7 @@ Format your answer in json with the following key: "ans": <your_answer>, "reason
 EVAL_INFORMATION_DIV = """
 You are given two dialogues, <dialogue 1> and <dialogue 2> to compare with each other. In both dialogues, two people discuss the logical validity of the given <sentence>. 
 Consider the following criteria named Informativeness. 
-Definition of Informativeness: Measures how much useful information are introduced by the teacher. Look for responses with examples derived from the original statement. These examples must facilitate further discussion of the sentence, or clearly support or counter any kind of arguments.
+Definition of Informativeness: Measures how much useful information are introduced by both parties. Look for responses with commonsense or real-world examples that may help illustrate the logical validity of the sentence, as well as supporting or refuting arguments. These examples must facilitate further discussion of the sentence, or clearly support or counter any kind of arguments.
 Read each dialogue carefully. After reading both dialogues, choose which dialogue you think is more informative. 
 Answer with "1" if you think dialogue 1 is better, and "2" if you think dialogue 2 is better. If you think the dialogues are equally competent in this criteria, then answer with "0". Also give your reason for your rating, limited in 50 words.
 

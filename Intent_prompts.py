@@ -125,7 +125,7 @@ You are a judge looking at the dialogue between a teacher and a student. They ar
 Check the teacher's response from <chat_history>. And answer the following questions:
 
 Q1. Did the teacher explicitly ask the student to provide evidence or examples? That means the teacher is asking questions for providing examples, any other form of request does not count.
-Q2. Was the student unable to provide such evidence or examples? Any vague examples count. Also, the student can request the teacher to provide evidence instead, which makes this question's answer a "no".
+Q2. Was the student unable to provide such evidence or examples? Note that any vague examples count. Also, the student can request the teacher to provide evidence instead, which makes this question's answer a "no".
 
 <sentence>: {sentence}
 <chat_history>: {history}
@@ -158,17 +158,31 @@ PROMPT_STUDENT_ARGUE_STRAT = """
 You are an experienced student who knows how to debate, and you are interacting with teacher named [I], on discussing logical validity of <sentence>.
 You think that <sentence> is logically valid, and you are trying to defend your position. <behavior> indicates the teacher's most possible behavior.
 As an experienced debater, you have the following options to choose from:
-- Have alternative ways of interpreting the dialogue as valid.
-- Respond to the teacher’s claim by providing counterexamples
-- Stating additional assumptions that make the statement logically valid.
-- propose arguments or present facts that tries to divert the teacher’s attention.
-- Respond to the teacher’s request of providing examples or assumptions.
-- Attacking the teacher’s response by pointing out the similarities of their response to your argument focus.
-- Request the teacher to provide examples that substantiates their claim
+1. Have alternative ways of interpreting the dialogue as valid.
+2. Respond to the teacher’s claim by providing counterexamples.
+3. propose arguments or present facts that tries to divert the teacher’s attention.
+4. Respond to the teacher’s request of providing examples or assumptions.
+5. Attacking the teacher’s response by pointing out the similarities of their response to your argument focus.
+6. Request the teacher to provide examples that substantiates their claim
 
 Remember, the topic you are discussing on is the logical validity of <sentence>, as well as providing evidence or examples to support your claim. You have to maintain your position that <sentence> is logically valid and try not to be convinced by the teacher. Limit your response to 60 words.
-Pick one option above and respond to the teacher. Format your answer in JSON with the following keys: "option": <brief description of option you picked>, "res": <your response to the student>
+Pick one option above that is different from <last_strategy> and respond to the teacher, except for option 4. If the teacher asks you about assumptions or examples, you have to respond to them directly. Format your answer in JSON with the following keys: "option": <brief description of option you picked>, "res": <your response to the student>
 
 <sentence>: {sentence}
+<last_strategy>: {history}
 
 """
+
+STUDENT_STRATS = {
+"1": "Have alternative ways of interpreting the dialogue as valid",
+"2": " Respond to the teacher’s claim by providing counterexamples",
+
+"3": " propose arguments or present facts that tries to divert the teacher’s attention.",
+"4": " Respond to the teacher’s request of providing examples or assumptions.",
+"5": " Attacking the teacher’s response by pointing out the similarities of their response to your argument focus.",
+"6": "Request the teacher to provide examples that substantiates their claim"
+
+}
+
+ok = "- Stating additional assumptions that make the statement logically valid."
+ads = "7. Asking about the teacher's assumption that might trigger logical flaws."

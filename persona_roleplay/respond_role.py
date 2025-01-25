@@ -17,12 +17,12 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
     msgs = []
     if role == "agent" : 
         user_prompt = p.format(sentence=sentence, history=history)
-    elif role in ["fact_bank", "gen_strategy", "student", "conv", "stu"]:
+    elif role in ["fact_bank", "gen_strategy", "student", "conv"]:
         user_prompt = p.format(sentence=sentence)
         # user_prompt = p.format(sentence=sentence, NAME = profile["NAME"], AGE = profile["AGE"], BELIEF = profile["BELIEF"], BIAS = profile["BIAS"], PERSONALITY = profile["PERSONALITY"], EDU_LEVEL = profile["EDU_LEVEL"])
     elif role == "teacher" or role == "thought":
         user_prompt = p.format(sentence=sentence, history=history)
-    elif role in ["strategy", "teacher_st", "eval_s", "t_edu", "test"]:
+    elif role in ["strategy", "teacher_st", "eval_s", "t_edu", "test", "evl"]:
         user_prompt = p.format(sentence=sentence, history=history, profile=profile)
     elif role in ["exp", "check", "tea_strat"]:
         user_prompt = p.format(sentence=sentence, history=history, profile=profile, target_statement=target_statement)

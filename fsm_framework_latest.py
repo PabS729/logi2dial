@@ -19,10 +19,10 @@ async def main():
     parser.add_argument("--file_to_annotate", type=str, default='pos_train_set.csv')
     parser.add_argument("--components_to_read", type=str, default='decomposed_sentences_toulmin.xlsx')
     parser.add_argument("--definition", type=str, default='proposed')
-    parser.add_argument("--use_banks", type=bool, default=True)
-    parser.add_argument("--use_toulmin", type=bool, default=True)
-    parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/n_0110_all_15_prod_ent_w')
+    parser.add_argument("--use_banks", type=bool, default=False)
+    parser.add_argument("--use_toulmin", type=bool, default=False)
+    parser.add_argument("--use_FSM", type=bool, default=False)
+    parser.add_argument("--save_fn", type=str, default='results/n_0121_all_28_prod_base')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -30,7 +30,7 @@ async def main():
     args = parser.parse_args()
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
-    sampled_df = df_to_argue.sample(n=1, random_state=15)
+    sampled_df = df_to_argue.sample(n=1, random_state=28)
     
     # df_lf = pd.read_csv
     # df_components = pd.read_excel(args.components_to_read)
@@ -310,7 +310,7 @@ async def main():
                     chat_history += "student: " + utterance_student + "\n"
 
                     #check whether the student agrees with the teacher
-                    agent_res = await generate_res("eval_s", model_student, example_sentence, chat_history, summary, None, conv_teacher, conv_student, PROMPT_AGENT_CHECK, 0)
+                    agent_res = await generate_res("evl", model_student, example_sentence, chat_history, summary, None, conv_teacher, conv_student, PROMPT_AGENT_CHECK, 0)
                     res = agent_res.choices[0].message.content
                     print(res)
                     if "no" not in res.lower():
@@ -325,11 +325,11 @@ async def main():
                     print(cp_agr)
                     full_chat += chat_history
                     if i >= 5:
-                        agent_res = await generate_res("eval_s", model_student, example_sentence, conv_student, disagr_bank, None, None, None, PROMPT_CHECK_FIN_AGREEMENT, 0)
+                        agent_res = await generate_res("evl", model_student, example_sentence, conv_student, disagr_bank, None, None, None, PROMPT_CHECK_FIN_AGREEMENT, 0)
                         res = agent_res.choices[0].message.content
                         print(res)
                         if "yes" in res.lower():
-                            teacher_res = await generate_res("exp", model_teacher, example_sentence, summary, None, None, conv_teacher, conv_student, PROMPT_FINISH, 0)
+                            teacher_res = await generate_res("teacher_st", model_teacher, example_sentence, summary, None, None, conv_teacher, conv_student, PROMPT_FINISH, 0)
                             conversation_teacher.append(teacher_res.choices[0].message.content)
                             conversation_student.append("Ok. I think I have learned everything necessary about the logical validity of the sentence. Thanks a lot for helping me!")
                             cp_agr = copy.deepcopy(agr_bank)

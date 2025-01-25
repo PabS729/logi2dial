@@ -9,6 +9,8 @@ from persona_roleplay.prompts_roleplay import *
 from persona_roleplay.respond_role import *
 from strategy_handle import * 
 from Intent_prompts import *
+from fsm_prompts import *
+import random
 
 
 async def main():
@@ -19,7 +21,7 @@ async def main():
     parser.add_argument("--use_banks", type=bool, default=True)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/auto_0117_all_28_cht_u2')
+    parser.add_argument("--save_fn", type=str, default='results/fsm_0122_83_prior_n_eq')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -27,7 +29,7 @@ async def main():
     args = parser.parse_args()
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
-    sampled_df = df_to_argue.sample(n=1, random_state=28)
+    sampled_df = df_to_argue.sample(n=1, random_state=83)
     
     # df_lf = pd.read_csv
     # df_components = pd.read_excel(args.components_to_read)
@@ -54,6 +56,8 @@ async def main():
     coll_agr = []
     coll_bank = []
     lm_thought = []
+    STS = ["1", "2", "3", "4"]
+    
 
     def appends(a, b, c, d, e, f, g, h):
         conversation_teacher.append(a)
@@ -96,6 +100,7 @@ async def main():
         if True:
             conv_teacher = []
             conv_student =[]
+            count_states = [0,0,0,0]
             if args.use_toulmin:
                 # decomp = toulmin[k]
                 # print(decomp)
@@ -146,8 +151,10 @@ async def main():
                 tmp = conv_teacher[-1]
                 disagr_bank = []
                 #if the student disagrees, enter discussion
-                curr_state = 0
-                FSM_STATES = []
+                #starts at state 3 since it is a neutral state
+                curr_state = "3"
+                FSM_STATES = [curr_state]
+                start_student_strategy = "None"
                 for i in range(0, rounds):
                     # print(i)
                     if i == 0:
@@ -237,7 +244,7 @@ async def main():
                         else:
                             reles.append("")
                             coll_bank.append([])
-                        chat_history = ""
+                        
                         
                 
                     lm_thought.append('')
@@ -256,21 +263,77 @@ async def main():
                     elif args.use_FSM:
                         #teacher's response according to detected student behavior
                         # teacher_res = await generate_res("test", model_teacher, example_sentence, BEHAVIORS[str(thought)], option, None, conv_teacher, conv_student, PROCEED_CONV_TEACHER, 1)
-                        teacher_res = await generate_res("old", model_teacher, example_sentence, BEHAVIORS[str(thought)], None, None, conv_teacher, conv_student, PROCEED_CONV_TEACHER, 1)
-                    # elif args.use_toulmin:
-                    #     print("cont toulmin")
-                    #     teacher_res = await generate_res("tea", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_TALK_ABOUT_LF_CONV, 0)
-                    # else:
-                    #     teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_No_CoT, 0)
+                        #transition to next state
+                        # transition_res = await generate_res("agent", model_teacher, example_sentence, chat_history, None, None, None, None, TRANSITION_STATES + TRANSITIONS[curr_state], 1)
+                        # tr_res = json.loads(transition_res.choices[0].message.content)
+                        # next_state = str(tr_res["ans"]) 
+                        # if next_state not in STS:
+                        #     next_state = STS[3]
 
-                    if args.use_FSM and i != 0 and thought != 7:
-                        rs = json.loads(teacher_res.choices[0].message.content)
-                        utterance_teacher = rs["res"]
-                        option = rs["option"]
-                        print(option)
+                        # print("before random generation: " + next_state)
+                        # print(tr_res["rs"])
+                        transition = await generate_res("agent", model_teacher, example_sentence, chat_history, None, None, None, None, CHECK_RESPONSE_TEACHER, 1)
+                        transition = json.loads(transition.choices[0].message.content)
+                        print(transition)
+                        #In terms of precedence: request >> assumption (completeness) > examples (evidence) >= logical flaw (attacking point)
+                        if "yes" in transition["3"].lower():
+                            next_state = "3"
+                            count_states[2] += 1
+                        else: 
+                            tmp = []
+                            for k in STS:
+                                if "yes" in transition[k]:
+                                    tmp.append(k)
+                            if len(tmp) != 0:
+                                rds = random.randint(1,len(tmp)) 
+                                next_state = tmp[rds - 1]
+                                count_states[rds - 1] += 1
+                            else:
+                                next_state = "2"
+                        # elif "yes" in transition["4"].lower():
+                        #     next_state = "4"
+                        #     count_states[3] += 1
+                        # elif "yes" in transition["1"].lower():
+                        #     next_state = "1"
+                        #     count_states[0] += 1
+                        # else:
+                        #     next_state = "2"
+                        #     count_states[1] += 1
+                        print(count_states)
+                        print("before random generation: " + next_state)
+
+                        if len(FSM_STATES) >= 3 and FSM_STATES[-2] == FSM_STATES[-1] and FSM_STATES[-1] == next_state and next_state != "3":
+                            new_sts = [i for i in STS if(i != next_state or i != "3") ]
+                            # print("new states: " + new_sts)
+                            rds = random.randint(0,1)   
+                            next_state = new_sts[rds]
+
+                        # if "yes" in transition["1"].lower() and count_states[3] > count_states[0] * 3:
+                        #     next_state = "1"
+                        #     count_states[0] += 1
+                        
+                        if next_state != curr_state:
+                            print("-----------------transitioning--------------------" + "from " + curr_state + " to " + next_state)
+                        print("next state is: "+ next_state)
+                        # if "yes" in transition["5"].lower():
+                        #     utterance_teacher = "It seems that you have not responded to my previous request. Would you please answer my question first, before proposing further arguments or requests?"
+                        # else:
+                        teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, TEACHER_ACT_1 + STRAT_FOR_STATES[next_state] + TEACHER_ACT_2, 1)
+                        
+                        curr_state = next_state
+                        FSM_STATES.append(curr_state)
+
+                        check_following_res = await generate_res("evl", model_teacher, example_sentence, teacher_res.choices[0].message.content, STRAT_FOR_STATES[next_state], None, None, None, CHECK_FOLLOW_FSM_AGENT, 0)
+                        print("is the teacher following the transition? " + check_following_res.choices[0].message.content)
+                    elif args.use_toulmin:
+                        print("cont toulmin")
+                        teacher_res = await generate_res("tea", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_TALK_ABOUT_LF_CONV, 0)
                     else:
-                        utterance_teacher = teacher_res.choices[0].message.content
-                        option = ""
+                        teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_No_CoT, 0)
+
+                    chat_history = ""
+
+                    utterance_teacher = teacher_res.choices[0].message.content
                     chat_history += "teacher: " + utterance_teacher + "\n"
                     
                     conversation_teacher.append(utterance_teacher)
@@ -287,11 +350,12 @@ async def main():
                     
                     print("--------------------utterance--------------------")
                     print(utterance_teacher)
-                    utterance_student = await generate_res("stu", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_STRAT, 0)
+                    utterance_student = await generate_res("stu", model_teacher, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_STRAT, 0)
                     student_u = json.loads(utterance_student.choices[0].message.content)
                     utterance_student = student_u["res"]
-                    print(student_u["option"])
+                    print("student strategy:"+student_u["option"])
                     print(utterance_student)
+                    start_student_strategy = student_u["option"]
 
                     # print(utterance_student)
                     conversation_student.append(utterance_student)
@@ -302,14 +366,15 @@ async def main():
                     chat_history += "student: " + utterance_student + "\n"
 
 
-                    agree_res = await generate_res("eval_s", model_student, example_sentence, chat_history, None, None, None, None, PROMPT_AGENT_CHECK_AGREEMENT, 0)
-                    agr = json.loads(agree_res.choices[0].message.content)
-                    if "yes" in agr["1"].lower():
-                        if len(disagr_bank) != 0:
-                            agr_bank.append(disagr_bank[- 1])
-                            del disagr_bank[ - 1]
-                        if "yes" in agr["2"].lower():
-                            break
+                    # agree_res = await generate_res("eval_s", model_student, example_sentence, chat_history, None, None, None, None, PROMPT_AGENT_CHECK_AGREEMENT, 0)
+                    # agr = json.loads(agree_res.choices[0].message.content)
+                    # print(agr)
+                    # if "yes" in agr["1"].lower():
+                    #     if len(disagr_bank) != 0:
+                    #         agr_bank.append(disagr_bank[- 1])
+                    #         del disagr_bank[ - 1]
+                    #     if "yes" in agr["2"].lower():
+                    #         break
                     #check whether the student agrees with the teacher
                     agent_res = await generate_res("eval_s", model_student, example_sentence, chat_history, None, None, None, None, PROMPT_AGENT_CHECK_EVIDENCE, 0)
                     res = json.loads(agent_res.choices[0].message.content)
@@ -325,17 +390,23 @@ async def main():
                             if len(disagr_bank) != 0:
                                 agr_bank.append(disagr_bank[- 1])
                                 del disagr_bank[ - 1]
-                        confirm_disagreement = "If you cannot provide evidence, then I would suggest looking for them if you have time later. Do you still have any other concerns regarding the sentence's logical validity?" 
+                        confirm_disagreement = "If you cannot provide any evidence at all, then I would suggest looking for them if you have time later. Do you still have any other concerns regarding the sentence's logical validity?" 
                         print(confirm_disagreement)
-                        student_utterance = input()
                         conv_teacher.append(confirm_disagreement)
-                        conv_student.append(student_utterance)
-                        appends(confirm_disagreement, student_utterance, "", "", "", "", agr_bank, disagr_bank)
+                        student_utterance = await generate_res("stu", model_teacher, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_STRAT, 0)
+                        student_u = json.loads(student_utterance.choices[0].message.content)
+                        utterance_student = student_u["res"]
+                        print("student strategy:"+student_u["option"])
+                        print(utterance_student)
+                        start_student_strategy = student_u["option"]
+                        conv_student.append(utterance_student)
+                        appends(confirm_disagreement, utterance_student, "", "", "", "", agr_bank, disagr_bank)
 
         chats.append(full_chat)
 
 
     print(len(lm_thought), len(anas), len(conversation_teacher), len(conversation_student), len(sums), len(reles), len(coll_agr), len(coll_bank))
+    print(FSM_STATES)
     data_dict = {
                  'teacher_analysis': anas,
                 #  'layman_thought': lm_thought, 

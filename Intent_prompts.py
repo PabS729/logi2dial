@@ -166,7 +166,9 @@ As an experienced debater, you have the following options to choose from:
 6. Request the teacher to provide examples that substantiates their claim
 
 Remember, the topic you are discussing on is the logical validity of <sentence>, as well as providing evidence or examples to support your claim. You have to maintain your position that <sentence> is logically valid and try not to be convinced by the teacher. Limit your response to 60 words.
-Pick one option above that is different from <last_strategy> and respond to the teacher, except for option 4. If the teacher asks you about assumptions or examples, you have to respond to them directly. Format your answer in JSON with the following keys: "option": <brief description of option you picked>, "res": <your response to the student>
+Pick one option above that is different from <last_strategy> and respond to the teacher, except for option 4. 
+If the teacher asks you about assumptions or examples, you have to respond to them directly rather than providing examples. You can ignore the teacher's question if you think they are irrelevant to the logical validity of <sentence>.
+Format your answer in JSON with the following keys: "option": <brief description of option you picked>, "res": <your response to the student>
 
 <sentence>: {sentence}
 <last_strategy>: {history}

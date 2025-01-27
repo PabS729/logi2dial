@@ -79,15 +79,15 @@ Use the option above to respond to the student. Please follow strictly to the op
 STRAT_FOR_STATES = {
     "1": "Request the student to provide evidence that supports his claim.",
     "2": """
-    Refute the student's argument, based on four ways. 
+    Refute the student's argument, based on four ways. You can select any possible way.
     a. Showing that the argument's conclusion or premise is wrong.
     b. Proposing counterargument with similar premises but different conclusions.
     c. Showing that the argument's conclusion does not follow from the premise.
     d. Showing that the student's argument is irrelevant to the topic of discussion. Even if the evidence provided is valid, it may be irrelevant to the logical validity of <sentence>, and thus can be dismissed.""",
 
     "3": "Respond to the student's request on providing evidence or clarifications.",
-    "4": "Ask about the student's assumptions based on their response.",
-    "5": "Remind the student that their response is not related to the topic of discussion"
+    "4": "Ask about the student's assumptions in their arguments based on their response, be sure that your question can relate to the logical validity of the sentence",
+    "5": "Remind the student that previous round's response from you is not related to the topic of discussion, and continue the conversation from two rounds before by refuting the student's argument"
 }
 
 TRANSITIONS = {
@@ -100,8 +100,13 @@ TRANSITIONS = {
 
 CHECK_FOLLOW_FSM_AGENT = """
 You are a judge overlooking the dialogue between a teacher and a student, they are having a debate over the logical validity of <sentence>.
-Based on the teacher's <response>, check if the teacher has followed <strategy> in formulating their response. Answer with "yes" or "no" only.
+Based on the teacher's <response>, answer the following questions.
+Q1. Check if the teacher has followed <strategy> in formulating their response. The teacher is following <strategy> as long as any sentence in their response contain such strategy.
+Q2. If the teacher asks the student a question, is the question still helpful for determining the logical validity of <sentence>? Also Answer "yes" if there is no question provided.
+For each question, first answer with "yes" or "no", then give your reason in 14 words or less. Format your answer in JSON with the following key: "1": <answer to Q1>, "2": <answer to Q2>
 <sentence>: {sentence}
 <response>: {history}
 <strategy>: {profile}
 """
+
+d = """"""

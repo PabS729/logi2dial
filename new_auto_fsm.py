@@ -21,7 +21,7 @@ async def main():
     parser.add_argument("--use_banks", type=bool, default=True)
     parser.add_argument("--use_toulmin", type=bool, default=False)
     parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/fsm_0126_12_tet')
+    parser.add_argument("--save_fn", type=str, default='results/fsm_0127_12_fx_2all')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -29,7 +29,7 @@ async def main():
     args = parser.parse_args()
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
-    sampled_df = df_to_argue.sample(n=1, random_state=12)
+    sampled_df = df_to_argue.groupby('Label').sample(n=2, random_state=12)
     
     # df_lf = pd.read_csv
     # df_components = pd.read_excel(args.components_to_read)
@@ -59,9 +59,10 @@ async def main():
     STS = ["1", "2", "3", "4"]
     following = []
     all_states = []
+    rs = []
     
 
-    def appends(a, b, c, d, e, f, g, h, i, j):
+    def appends(a, b, c, d, e, f, g, h, i, j, k):
         conversation_teacher.append(a)
         conversation_student.append(b)
         anas.append(c)
@@ -74,6 +75,7 @@ async def main():
         coll_agr.append(cp_agr)
         following.append(i)
         all_states.append(j)
+        rs.append(k)
 
     for j in range(len(sentences)):
         example_sentence = sentences[j]
@@ -90,7 +92,7 @@ async def main():
 
             opening_res = await generate_res("conv", model_teacher, example_sentence, 
                                                     None, None, None, None, None, PROMPT_OPENING, 0)
-            appends(opening_res.choices[0].message.content, STUDENT_RESPONDS, "", "", "", "", [], [], '0', '0')
+            appends(opening_res.choices[0].message.content, STUDENT_RESPONDS, "", "", "", "", [], [], '0', '0', '0')
 
         rounds = 10
         chat_history = ""
@@ -104,7 +106,7 @@ async def main():
         if True:
             conv_teacher = []
             conv_student =[]
-            count_states = [0,0,0,0,0]
+            count_states = {"1":0,"2":0,"3":0,"4":0,"5":0}
             if args.use_toulmin:
                 # decomp = toulmin[k]
                 # print(decomp)
@@ -143,6 +145,7 @@ async def main():
             coll_agr.append(cp_agr)
             following.append('0')
             all_states.append('0')
+            rs.append('0')
             # agr_bank.append()
 
             #If yes, end conversation
@@ -198,7 +201,7 @@ async def main():
                                 
                                 # conv_teacher.append(confirm_disagreement)
                                 # conv_student.append(student_res)
-                                appends(confirm_disagreement, student_res, "", "", "", "", agr_bank, disagr_bank, '0', '0')
+                                appends(confirm_disagreement, student_res, "", "", "", "", agr_bank, disagr_bank, '0', '0', '0')
                                 if "yes" in student_res.lower():
                                     a = 0
                                 else:
@@ -222,6 +225,7 @@ async def main():
                                     coll_agr.append(cp_agr)
                                     following.append('0')
                                     all_states.append('0')
+                                    rs.append('0')
                                     continue
 
                             #if the student's response is not addressed previously, then we have a new topic. Identify the student's states to be used later
@@ -287,30 +291,29 @@ async def main():
                         #In terms of precedence: request >> assumption (completeness) > examples (evidence) >= logical flaw (attacking point)
                         if "yes" in transition["3"].lower():
                             next_state = "3"
-                            count_states[2] += 1
-                        elif 'no' in cs['2'].lower() and i != 0:
+                        elif 'yes' not in cs['2'].lower() and i != 0:
                             next_state = '5'
-                            count_states[4] += 1
-                        else: 
-                            tmp = []
-                            for k in STS:
-                                if "yes" in transition[k]:
-                                    tmp.append(k)
-                            if len(tmp) != 0:
-                                rds = random.randint(1,len(tmp)) 
-                                next_state = tmp[rds - 1]
-                                count_states[rds - 1] += 1
-                            else:
-                                next_state = "2"
-                        # elif "yes" in transition["4"].lower():
-                        #     next_state = "4"
-                        #     count_states[3] += 1
-                        # elif "yes" in transition["1"].lower():
-                        #     next_state = "1"
-                        #     count_states[0] += 1
-                        # else:
-                        #     next_state = "2"
-                        #     count_states[1] += 1
+                        # else: 
+                        #     tmp = []
+                        #     for k in STS:
+                        #         if "yes" in transition[k]:
+                        #             tmp.append(k)
+                        #     if len(tmp) != 0:
+                        #         rds = random.randint(1,len(tmp)) 
+                        #         next_state = tmp[rds - 1]
+                        #     else:
+                        #         next_state = "2"
+                        elif "yes" in transition["1"].lower():
+                            next_state = "1"
+
+                        elif "yes" in transition["4"].lower():
+                            next_state = "4"
+
+                        else:
+                            next_state = "2"
+
+                        count_states[next_state] += 1
+                        tmp_s = next_state
                         print(count_states)
                         print("before random generation: " + next_state)
 
@@ -319,14 +322,17 @@ async def main():
                             # print("new states: " + new_sts)
                             rds = random.randint(0,1)   
                             next_state = new_sts[rds]
+                            count_states[next_state] += 1
+                            count_states[tmp_s] -= 1
 
-                        if "yes" in transition["1"].lower() and count_states[0] > count_states[3] * 3 and count_states[3] >= 1:
+                        if "yes" in transition["1"].lower() and count_states["1"] >= count_states["4"] * 2 and count_states["4"] >= 0 and next_state != "3":
                             next_state = "4"
-                            count_states[3] += 1
-                            if count_states[0] >= count_states[1] * 3 or count_states[3] >= count_states[1] * 3:
+                            count_states[next_state] += 1
+                            count_states[tmp_s] -= 1
+                            if count_states["1"] >= count_states["2"] * 3 or count_states["4"] >= count_states["2"] * 2:
                                 next_state = "2"
-                                count_states[1] += 1
-                                count_states[3] -= 1
+                                count_states[next_state] += 1
+                                count_states['4'] -= 1
                         
                         if next_state != curr_state:
                             print("-----------------transitioning--------------------" + "from " + curr_state + " to " + next_state)
@@ -345,6 +351,7 @@ async def main():
                         print("is the teacher's question relevant? " + cs['2'])
                         following.append(cs['1'])
                         all_states.append(next_state)
+                        rs.append(cs['2'])
                     elif args.use_toulmin:
                         print("cont toulmin")
                         teacher_res = await generate_res("tea", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_TALK_ABOUT_LF_CONV, 0)
@@ -360,7 +367,7 @@ async def main():
                     conv_teacher.append(utterance_teacher)
                     
                     #summarizes the teacher's responses
-                    summary = await generate_res("sum", model_teacher, example_sentence, conv_teacher, None, None, None, None, PROMPT_SUMMARIZE, 0)
+                    summary = await generate_res("sum", model_teacher, example_sentence, conv_teacher[-4:-1], None, None, None, None, PROMPT_SUMMARIZE, 0)
                     summary = summary.choices[0].message.content
                     if i == 0:
                         agreement_bank.append(summary)
@@ -421,13 +428,13 @@ async def main():
                         print(utterance_student)
                         start_student_strategy = student_u["option"]
                         conv_student.append(utterance_student)
-                        appends(confirm_disagreement, utterance_student, "", "", "", "", agr_bank, disagr_bank,'0','0')
+                        appends(confirm_disagreement, utterance_student, "", "", "", "", agr_bank, disagr_bank,'0','0', '0')
                         
 
         chats.append(full_chat)
 
 
-    print(len(lm_thought), len(anas), len(conversation_teacher), len(conversation_student), len(sums), len(reles), len(coll_agr), len(coll_bank), len(all_states), len(following))
+    print(len(lm_thought), len(anas), len(conversation_teacher), len(conversation_student), len(sums), len(reles), len(coll_agr), len(coll_bank), len(all_states), len(following), len(rs))
     print(FSM_STATES)
     data_dict = {
                  'teacher_analysis': anas,
@@ -444,6 +451,7 @@ async def main():
     if args.use_FSM:
             data_dict['states'] = all_states
             data_dict['following'] = following
+            data_dict['relevance_teacher_res'] = rs
     df_result = pd.DataFrame(data_dict)
     df_result.to_excel(args.save_fn + str(args.num_gen) + ".xlsx", index=False)
 

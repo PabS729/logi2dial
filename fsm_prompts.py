@@ -38,10 +38,10 @@ You are an experienced teacher who knows how to debate, and you are interacting 
 Remember, the topic you are discussing on is the logical validity of <sentence>. You have to maintain your position and try not to be convinced by the student.
 Consider the student's response in <history>, and answer the following questions:
 
-Q1: Does the student make an argument without presenting enough evidence that supports it?
-Q2: Does the student's argument or example have clear logical flaws?
+Q1: Treating the student's response as a counterargument to your stance, does the student make an argument without presenting enough evidence that supports it?
+Q2: Treating the student's response as a counterargument to your stance, does the student's argument or example have clear logical flaws?
 Q3: Is the student explicitly requesting evidence or explanation?
-Q4: Does the student's argument need more assumptions to clarify?
+Q4: Treating the student's response as a counterargument to your stance, does the student's argument need more assumptions to clarify?
 
 For each question, answer with "yes" or "no". Format your answer in JSON with the following key: "1": <answer to Q1>, "2": <answer to Q2>, "3": <answer to Q3>, "4": <answer to Q4>
 <sentence>: {sentence}
@@ -64,20 +64,22 @@ Format your answer in JSON with the following key: "ans": <index selected>, "rs"
 
 TEACHER_ACT_1 = """
 You are an experienced teacher who knows how to debate, and you are interacting with student named [I], on discussing logical validity of <sentence>.
-Think about the flaws in the student's reponse. 
+Think about the flaws in the student's reponse. You don't think that <sentence> is logically valid. 
 
 
 """
 
 TEACHER_ACT_2 = """
-Remember, the topic you are discussing on is the logical validity of <sentence>. You don't think that the sentence is logically valid. You have to maintain your position and try not to be convinced by the student. Keep your tone nudging and friendly. 
-Use the option above to respond to the student. Please follow strictly to the option. Limit your response to 60 words.
+Remember, the topic you are discussing on is the logical validity of <sentence>. You have to maintain your position and try not to be convinced by the student. Keep your tone calm and do not use exclamations. 
+Use the option above to respond to the student, and DO NOT ask additional questions besides strictly following the option. Limit your response to 50 words.
 
 <sentence>: {sentence}
 """
 
+
+
 STRAT_FOR_STATES = {
-    "1": "Request the student to provide evidence that supports his claim.",
+    "1": "Treating the student's response as counterargument to your stance, request the student to provide evidence that supports his claim. e.g. Can you provide examples...",
     "2": """
     Refute the student's argument, based on four ways. You can select any possible way.
     a. Showing that the argument's conclusion or premise is wrong.
@@ -85,9 +87,9 @@ STRAT_FOR_STATES = {
     c. Showing that the argument's conclusion does not follow from the premise.
     d. Showing that the student's argument is irrelevant to the topic of discussion. Even if the evidence provided is valid, it may be irrelevant to the logical validity of <sentence>, and thus can be dismissed.""",
 
-    "3": "Respond to the student's request on providing evidence or clarifications.",
-    "4": "Ask about the student's assumptions in their arguments based on their response, be sure that your question can relate to the logical validity of the sentence",
-    "5": "Remind the student that previous round's response from you is not related to the topic of discussion, and continue the conversation from two rounds before by refuting the student's argument"
+    "3": "Respond to the student's request on providing evidence or clarifications, and give support to your stance if necessary.",
+    "4": "Treating the student's response as counterargument to your stance, ask the student about their assumptions in their arguments. e.g. 'Why do you assume...' or 'How do you know...'",
+    "5": "Remind the student that the previous round is not related to the topic of discussion"
 }
 
 TRANSITIONS = {
@@ -103,10 +105,22 @@ You are a judge overlooking the dialogue between a teacher and a student, they a
 Based on the teacher's <response>, answer the following questions.
 Q1. Check if the teacher has followed <strategy> in formulating their response. The teacher is following <strategy> as long as any sentence in their response contain such strategy.
 Q2. If the teacher asks the student a question, is the question still helpful for determining the logical validity of <sentence>? Also Answer "yes" if there is no question provided.
-For each question, first answer with "yes" or "no", then give your reason in 14 words or less. Format your answer in JSON with the following key: "1": <answer to Q1>, "2": <answer to Q2>
+For each question, answer with "yes" or "no" only. Format your answer in JSON with the following key: "1": <answer to Q1>, "2": <answer to Q2>
 <sentence>: {sentence}
 <response>: {history}
 <strategy>: {profile}
 """
 
-d = """"""
+d = """
+  """
+
+PROMPT_CTX = """
+You are an experienced teacher who knows how to debate, and you are interacting with student named [I], on discussing logical validity of <sentence>.
+Think about the flaws in the student's reponse. You don't think that <sentence> is logically valid. 
+Below is a brief summary regarding the 4 rounds of conversation before your chat stream. 
+
+"""
+
+#10 Utterances. Utterances 1 to 6. Give a prompt that summarizes ut 1 to 6. In the previous part of the talk, what happened is..
+#Start the dialogue from turn 7, with only the previous 2 or 3 turns of utterances. After each round, delete the first round that appeared and continue. 
+

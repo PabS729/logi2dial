@@ -176,7 +176,8 @@ Talk to the student and try to convince the student there is a logical flaw. You
 
 #summarizes the teacher's response
 PROMPT_SUMMARIZE = """
-You are an expert summarizer, and you are reviewing conversation from a speaker who is talking about <sentence>. Summarize the speaker's response, according to the given <chat_history>. Limit your answer to less than 30 words.
+You are an expert summarizer, and you are reviewing conversation from a teacher and a student who is talking about <sentence>. 
+Give a concise summary of the teacher's responses and the corresponding student responses, in lists. Limit your summary in 70 words.
 
 <sentence>: {sentence}
 <chat_history>: {history}

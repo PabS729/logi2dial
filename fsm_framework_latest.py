@@ -340,6 +340,7 @@ async def main():
                             reles.append("")
                             anas.append("")
                             lm_thought.append("")
+                            
                             break
     
                     #after 7 rounds, check if all comments are fully addressed by the teacher. 

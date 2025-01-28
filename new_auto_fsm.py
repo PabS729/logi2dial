@@ -18,10 +18,10 @@ async def main():
     parser.add_argument("--file_to_annotate", type=str, default='pos_train_set.csv')
     parser.add_argument("--components_to_read", type=str, default='decomposed_sentences_toulmin.xlsx')
     parser.add_argument("--definition", type=str, default='proposed')
-    parser.add_argument("--use_banks", type=bool, default=True)
+    parser.add_argument("--use_banks", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=False)
-    parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/fsm_0127_12_fx_2all')
+    parser.add_argument("--use_FSM", type=bool, default=False)
+    parser.add_argument("--save_fn", type=str, default='results/fsm_0128_75_rest')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -29,7 +29,7 @@ async def main():
     args = parser.parse_args()
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
-    sampled_df = df_to_argue.groupby('Label').sample(n=2, random_state=12)
+    sampled_df = df_to_argue.groupby('Label').sample(n=3, random_state=75)
     
     # df_lf = pd.read_csv
     # df_components = pd.read_excel(args.components_to_read)
@@ -40,6 +40,15 @@ async def main():
     labels = sampled_df["Label"].values.tolist()
     # sentences = ["In fact, it's starting to fall apart not because of lawsuits -- though they are a problem, and John Edwards and I are committed to fixing them -- but because of the larger issue that we don't cover Americans."]
     # labels =["false causality"]
+    sentences = [
+        "The reality is, when you look at the Biden plan, it reads an awful lot like what President Trump and I and our task force have been doing every step of the way. And quite frankly, when I look at their plan that talks about advancing testing, creating new PPE, developing a vaccine, umm, it looks a little bit like plagiarism, which is something Joe Biden knows a little bit about. I think the American people know that this is a president who has put the health of America first and the American people, I believe with my heart, can be proud of the sacrifices they have made.",
+        "We've made very clear from the beginning -- and not an afterthought; we said it at the time -- that we had to confront Saddam Hussein and that we had to have a coalition and a plan to be successful. And the vice president didn't say much about it in your earlier question, but Paul Bremer has now made clear that they didn't have enough troops and they didn't have a plan. And the American people are seeing the results of that every single day, in spite of the proud and courageous service of our men and women in uniform.",
+        "Well, the American people have demonstrated over the last eight months that when given the facts they’re willing to put the health of their families, and their neighbors and people they don’t even know first. President Trump and I have great confidence in the American people and their ability to take that information and put it into practice. In the height of the epidemic, when we were losing a heartbreaking number of 2,500 Americans a day, we surged resources to New Jersey, and New York, and New Orleans and Detroit.",
+        "Mr. Ford, again, under pressure from the atomic energy lobby, has insisted that this reprocessing or rather re - en- enrichment be done by private industry and not by the existing uh - government uh - plants. This kind of confusion and absence of leadership has let us drift now for two years with a constantly increasing threat of atomic weapons throughout the world. We now have five nations that have atomic bombs that we know about.",
+        "As long as there is a Democratic President in the White House, we will have a strong and viable Social Security System, free of the threat of bankruptcy. Although Governor Reagan has changed his position lately, on four different occasions, he has advocated making Social Security a voluntary system, which would, in effect, very quickly bankrupt it. I noticed also in The Wall Street Journal early this week, that a preliminary report of his task force advocates making Social Security more sound by reducing the adjustment in Social Security for the retired people to compensate for the impact of inflation.",
+        "I cannot believe I’m saying that about myself, but I guess I have been a politician. And my whole concept was to make America great again. When I watch the deals being made, when I watch what’s happening with some horrible things like Obamacare, where your health insurance and health care is going up by numbers that are astronomical, 68 percent, 59 percent, 71 percent, when I look at the Iran deal and how bad a deal it is for us, it’s a one - sided transaction where we’re giving back $150 billion to a terrorist state, really, the number one terror state, we’ve made them a strong country from really a very weak country just three years ago."
+    ]
+    labels = ["false causality","false causality","false causality","false causality","false causality","false causality"]
     model_student = "gpt-4o"
     model_teacher = "gpt-4o"
     model_agent = model_teacher

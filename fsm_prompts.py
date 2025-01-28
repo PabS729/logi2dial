@@ -39,7 +39,7 @@ Remember, the topic you are discussing on is the logical validity of <sentence>.
 Consider the student's response in <history>, and answer the following questions:
 
 Q1: Treating the student's response as a counterargument to your stance, does the student make an argument without presenting enough evidence that supports it?
-Q2: Treating the student's response as a counterargument to your stance, does the student's argument or example have clear logical flaws?
+Q2: Treating the student's response or example as a counterargument to your stance, does the student present argument or example have clear logical flaws?
 Q3: Is the student explicitly requesting evidence or explanation?
 Q4: Treating the student's response as a counterargument to your stance, does the student's argument need more assumptions to clarify?
 
@@ -71,7 +71,7 @@ Think about the flaws in the student's reponse. You don't think that <sentence> 
 
 TEACHER_ACT_2 = """
 Remember, the topic you are discussing on is the logical validity of <sentence>. You have to maintain your position and try not to be convinced by the student. Keep your tone calm and do not use exclamations. 
-Use the option above to respond to the student, and DO NOT ask additional questions besides strictly following the option. Limit your response to 50 words.
+You are given a fixed option above, which you need to follow. Use the option above and respond to the student, and DO NOT ask additional questions besides strictly following the option. Limit your response to 50 words.
 
 <sentence>: {sentence}
 """

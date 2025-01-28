@@ -117,7 +117,7 @@ d = """
 PROMPT_CTX = """
 You are an experienced teacher who knows how to debate, and you are interacting with student named [I], on discussing logical validity of <sentence>.
 Think about the flaws in the student's reponse. You don't think that <sentence> is logically valid. 
-Below is a brief summary regarding the 4 rounds of conversation before your chat stream. 
+Below is a brief summary regarding the 4 rounds of conversation that you don't have access to. Note that you can refer to it in designing your response, but you don't have to if they are not helpful for the task.
 
 """
 

@@ -15,12 +15,12 @@ from prompt_eval import *
 async def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dialogue1", type=str, default='results/fsm_0128_75_fx_3all')
-    parser.add_argument("--dialogue2", type=str, default='results/fsm_0128_75_x_3all_base')
+    parser.add_argument("--dialogue2", type=str, default='results/fsm_0128_75_all_STU')
     parser.add_argument("--dataset", type=str, default='pos_train_set.csv')
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/cot_s_rev')
+    parser.add_argument("--save_fn", type=str, default='results/cot_s_b_ns')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -72,8 +72,8 @@ async def main():
         # print(sentences[j])
         # sentence = sentences[j].split(",")[4]
         sentence = sentences[j]
-        dialogue1 = dl2[j]
-        dialogue2 = dl1[j]
+        dialogue1 = dl1[j]
+        dialogue2 = dl2[j]
 
         print(sentence)
         eval_res_COH = await generate_res("eval_s", model_agent, sentence, dialogue1, dialogue2, None, None, None, EVAL_COHERENCE, 0)

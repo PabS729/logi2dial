@@ -42,8 +42,9 @@ Q1: Treating the student's response as a counterargument to your stance, does th
 Q2: Treating the student's response or example as a counterargument to your stance, does the student present argument or example have clear logical flaws?
 Q3: Is the student explicitly requesting evidence or explanation?
 Q4: Treating the student's response as a counterargument to your stance, does the student's argument need more assumptions to clarify?
+Q5: Is the student attacking your response by pointing out logical flaw or similarities to their argument?
 
-For each question, answer with "yes" or "no". Format your answer in JSON with the following key: "1": <answer to Q1>, "2": <answer to Q2>, "3": <answer to Q3>, "4": <answer to Q4>
+For each question, answer with "yes" or "no". Format your answer in JSON with the following key: "1": <answer to Q1>, "2": <answer to Q2>, "3": <answer to Q3>, "4": <answer to Q4> "5": <answer to Q5>
 <sentence>: {sentence}
 <history>: {history}
 """
@@ -70,7 +71,7 @@ Think about the flaws in the student's reponse. You don't think that <sentence> 
 """
 
 TEACHER_ACT_2 = """
-Remember, the topic you are discussing on is the logical validity of <sentence>. You have to maintain your position and try not to be convinced by the student. Keep your tone calm and do not use exclamations. 
+Remember, the topic you are discussing on is the logical validity of <sentence>. You have to maintain your position and try not to be convinced by the student. Keep your tone calm and do not use exclamations, and respond in a way that is similar to everyday conversation. 
 You are given a fixed option above, which you need to follow. Use the option above and respond to the student, and DO NOT ask additional questions besides strictly following the option. Limit your response to 50 words.
 
 <sentence>: {sentence}
@@ -83,13 +84,16 @@ STRAT_FOR_STATES = {
     "2": """
     Refute the student's argument, based on four ways. You can select any possible way.
     a. Showing that the argument's conclusion or premise is wrong.
-    b. Proposing counterargument with similar premises but different conclusions.
+    b. Proposing counterargument or counterexample with similar premises but different conclusions.
     c. Showing that the argument's conclusion does not follow from the premise.
     d. Showing that the student's argument is irrelevant to the topic of discussion. Even if the evidence provided is valid, it may be irrelevant to the logical validity of <sentence>, and thus can be dismissed.""",
 
     "3": "Respond to the student's request on providing evidence or clarifications, and give support to your stance if necessary.",
-    "4": "Treating the student's response as counterargument to your stance, ask the student about their assumptions in their arguments. e.g. 'Why do you assume...' or 'How do you know...'",
-    "5": "Remind the student that the previous round is not related to the topic of discussion"
+    "4": """Treating the student's response as counterargument to your stance, ask the student about their assumptions in their arguments. e.g. 'Why do you assume...' or 'How do you know...'. 
+    """,
+    
+    "5": "Remind the student that the previous round is not related to the topic of discussion",
+    # "6": "Respond to the student's attack by defending the validity of your stance."
 }
 
 TRANSITIONS = {

@@ -155,20 +155,27 @@ Based on what you said in <chat_history>, does the teacher's <summarization> of 
 """
 
 PROMPT_STUDENT_ARGUE_STRAT = """
-You are an experienced student who knows how to debate, and you are interacting with teacher named [I], on discussing logical validity of <sentence>.
+You are an experienced student who knows how to debate, and you are interacting with teacher named [I], on discussing logical validity of <sentence>. 
 You think that <sentence> is logically valid, and you are trying to defend your position. <behavior> indicates the teacher's most possible behavior.
 As an experienced debater, you have the following options to choose from:
 1. Have alternative ways of interpreting the dialogue as valid.
 2. Respond to the teacher’s claim by providing counterexamples.
 3. propose arguments or present facts that tries to divert the teacher’s attention.
-4. Respond to the teacher’s request of providing examples or assumptions.
-5. Attacking the teacher’s response by pointing out the similarities of their response to your argument focus.
-6. Request the teacher to provide examples that substantiates their claim
+4. Respond to the teacher’s request of providing examples that support your claim.
+5. Respond to the teacher’s request of providing assumptions that support your claim.
+6. Attacking the teacher’s response by pointing out the similarities of their response to your argument focus.
+7. Attacking the teacher's response by pointing out the teacher's logical flaw.
+"""
+PT_S = """
+8. Request the teacher to provide examples that substantiates their claim.
+"""
 
+
+PT_2 = """
 Remember, the topic you are discussing on is the logical validity of <sentence>, as well as providing evidence or examples to support your claim. You have to maintain your position that <sentence> is logically valid and try not to be convinced by the teacher. Limit your response to 60 words.
 
 Pick one option above that is different from <last_strategy> and respond to the teacher, except for option 4. 
-If the teacher asks you to provide assumptions or examples, you have to respond to them directly by providing assumptions or examples instead of picking other options. You can ignore the teacher's question if you think they are irrelevant to the logical validity of <sentence>.
+If the teacher asks you to provide assumptions or examples, you have to respond to them directly by providing assumptions or examples instead of picking other options. You can ignore the teacher's question if you think they are irrelevant to the logical validity of <sentence>. 
 Format your answer in JSON with the following keys: "option": <brief description of option you picked>, "res": <your response to the student>
 
 <sentence>: {sentence}

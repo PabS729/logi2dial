@@ -18,10 +18,10 @@ async def main():
     parser.add_argument("--file_to_annotate", type=str, default='pos_train_set.csv')
     parser.add_argument("--components_to_read", type=str, default='decomposed_sentences_toulmin.xlsx')
     parser.add_argument("--definition", type=str, default='proposed')
-    parser.add_argument("--use_banks", type=bool, default=False)
+    parser.add_argument("--use_banks", type=bool, default=True)
     parser.add_argument("--use_toulmin", type=bool, default=False)
-    parser.add_argument("--use_FSM", type=bool, default=False)
-    parser.add_argument("--save_fn", type=str, default='results/fsm_0128_75_rest')
+    parser.add_argument("--use_FSM", type=bool, default=True)
+    parser.add_argument("--save_fn", type=str, default='results/fsm_0130_33_all')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -29,7 +29,7 @@ async def main():
     args = parser.parse_args()
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
-    sampled_df = df_to_argue.groupby('Label').sample(n=3, random_state=75)
+    sampled_df = df_to_argue.sample(n=5, random_state=33)
     
     # df_lf = pd.read_csv
     # df_components = pd.read_excel(args.components_to_read)
@@ -40,17 +40,17 @@ async def main():
     labels = sampled_df["Label"].values.tolist()
     # sentences = ["In fact, it's starting to fall apart not because of lawsuits -- though they are a problem, and John Edwards and I are committed to fixing them -- but because of the larger issue that we don't cover Americans."]
     # labels =["false causality"]
-    sentences = [
-        "The reality is, when you look at the Biden plan, it reads an awful lot like what President Trump and I and our task force have been doing every step of the way. And quite frankly, when I look at their plan that talks about advancing testing, creating new PPE, developing a vaccine, umm, it looks a little bit like plagiarism, which is something Joe Biden knows a little bit about. I think the American people know that this is a president who has put the health of America first and the American people, I believe with my heart, can be proud of the sacrifices they have made.",
-        "We've made very clear from the beginning -- and not an afterthought; we said it at the time -- that we had to confront Saddam Hussein and that we had to have a coalition and a plan to be successful. And the vice president didn't say much about it in your earlier question, but Paul Bremer has now made clear that they didn't have enough troops and they didn't have a plan. And the American people are seeing the results of that every single day, in spite of the proud and courageous service of our men and women in uniform.",
-        "Well, the American people have demonstrated over the last eight months that when given the facts they’re willing to put the health of their families, and their neighbors and people they don’t even know first. President Trump and I have great confidence in the American people and their ability to take that information and put it into practice. In the height of the epidemic, when we were losing a heartbreaking number of 2,500 Americans a day, we surged resources to New Jersey, and New York, and New Orleans and Detroit.",
-        "Mr. Ford, again, under pressure from the atomic energy lobby, has insisted that this reprocessing or rather re - en- enrichment be done by private industry and not by the existing uh - government uh - plants. This kind of confusion and absence of leadership has let us drift now for two years with a constantly increasing threat of atomic weapons throughout the world. We now have five nations that have atomic bombs that we know about.",
-        "As long as there is a Democratic President in the White House, we will have a strong and viable Social Security System, free of the threat of bankruptcy. Although Governor Reagan has changed his position lately, on four different occasions, he has advocated making Social Security a voluntary system, which would, in effect, very quickly bankrupt it. I noticed also in The Wall Street Journal early this week, that a preliminary report of his task force advocates making Social Security more sound by reducing the adjustment in Social Security for the retired people to compensate for the impact of inflation.",
-        "I cannot believe I’m saying that about myself, but I guess I have been a politician. And my whole concept was to make America great again. When I watch the deals being made, when I watch what’s happening with some horrible things like Obamacare, where your health insurance and health care is going up by numbers that are astronomical, 68 percent, 59 percent, 71 percent, when I look at the Iran deal and how bad a deal it is for us, it’s a one - sided transaction where we’re giving back $150 billion to a terrorist state, really, the number one terror state, we’ve made them a strong country from really a very weak country just three years ago."
-    ]
-    labels = ["false causality","false causality","false causality","false causality","false causality","false causality"]
+    # sentences = [
+    #     "The reality is, when you look at the Biden plan, it reads an awful lot like what President Trump and I and our task force have been doing every step of the way. And quite frankly, when I look at their plan that talks about advancing testing, creating new PPE, developing a vaccine, umm, it looks a little bit like plagiarism, which is something Joe Biden knows a little bit about. I think the American people know that this is a president who has put the health of America first and the American people, I believe with my heart, can be proud of the sacrifices they have made.",
+    #     "We've made very clear from the beginning -- and not an afterthought; we said it at the time -- that we had to confront Saddam Hussein and that we had to have a coalition and a plan to be successful. And the vice president didn't say much about it in your earlier question, but Paul Bremer has now made clear that they didn't have enough troops and they didn't have a plan. And the American people are seeing the results of that every single day, in spite of the proud and courageous service of our men and women in uniform.",
+    #     "Well, the American people have demonstrated over the last eight months that when given the facts they’re willing to put the health of their families, and their neighbors and people they don’t even know first. President Trump and I have great confidence in the American people and their ability to take that information and put it into practice. In the height of the epidemic, when we were losing a heartbreaking number of 2,500 Americans a day, we surged resources to New Jersey, and New York, and New Orleans and Detroit.",
+    #     "Mr. Ford, again, under pressure from the atomic energy lobby, has insisted that this reprocessing or rather re - en- enrichment be done by private industry and not by the existing uh - government uh - plants. This kind of confusion and absence of leadership has let us drift now for two years with a constantly increasing threat of atomic weapons throughout the world. We now have five nations that have atomic bombs that we know about.",
+    #     "As long as there is a Democratic President in the White House, we will have a strong and viable Social Security System, free of the threat of bankruptcy. Although Governor Reagan has changed his position lately, on four different occasions, he has advocated making Social Security a voluntary system, which would, in effect, very quickly bankrupt it. I noticed also in The Wall Street Journal early this week, that a preliminary report of his task force advocates making Social Security more sound by reducing the adjustment in Social Security for the retired people to compensate for the impact of inflation.",
+    #     "I cannot believe I’m saying that about myself, but I guess I have been a politician. And my whole concept was to make America great again. When I watch the deals being made, when I watch what’s happening with some horrible things like Obamacare, where your health insurance and health care is going up by numbers that are astronomical, 68 percent, 59 percent, 71 percent, when I look at the Iran deal and how bad a deal it is for us, it’s a one - sided transaction where we’re giving back $150 billion to a terrorist state, really, the number one terror state, we’ve made them a strong country from really a very weak country just three years ago."
+    # ]
+    # labels = ["false causality","false causality","false causality","false causality","false causality","false causality"]
     model_student = "gpt-4o"
-    model_teacher = "gpt-4o"
+    model_teacher = "gpt-3.5-turbo"
     model_agent = model_teacher
     sampled_sentence = []
     sampled_labels = []
@@ -94,12 +94,12 @@ async def main():
 
         #Generates toulmin Decomposition of sentence.
         if args.use_toulmin:
-            toulmin_res = await generate_res("gen_strategy", model_student, example_sentence, 
+            toulmin_res = await generate_res("gen_strategy", model_teacher, example_sentence, 
                                                     None, None, None, None, None, PROMPT_DECOMPOSE_TOULMIN, 0)
             toulmin = json.loads(toulmin_res.choices[0].message.content)
             print(toulmin)
 
-            opening_res = await generate_res("conv", model_teacher, example_sentence, 
+            opening_res = await generate_res("conv", model_student, example_sentence, 
                                                     None, None, None, None, None, PROMPT_OPENING, 0)
             appends(opening_res.choices[0].message.content, STUDENT_RESPONDS, "", "", "", "", [], [], '0', '0', '0')
 
@@ -136,9 +136,9 @@ async def main():
             
             #student responds. 
             if args.use_toulmin:
-                student_res = await generate_res("student_bio", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_STUDENT_RESPOND, 0)
+                student_res = await generate_res("student_bio", model_student, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_STUDENT_RESPOND, 0)
             else:
-                student_res = await generate_res("student", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_STUDENT_STUBBORN, 0)
+                student_res = await generate_res("student", model_student, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_STUDENT_STUBBORN, 0)
             utterance_student = student_res.choices[0].message.content
             conv_student.append(utterance_student)
             
@@ -192,7 +192,7 @@ async def main():
                         #checks the relevance and potential repetition of the student's response
                         thought = 0
                         if args.use_banks:
-                            relevance_res = await generate_res("check", model_teacher, example_sentence, disagr_bank, 
+                            relevance_res = await generate_res("check", model_student, example_sentence, disagr_bank, 
                                                                utterance_student, agr_bank, conv_teacher, conv_student, PROMPT_CHECK_DISAGREEMENT, 0)
                             relevance = json.loads(relevance_res.choices[0].message.content)
                             print(relevance)
@@ -203,7 +203,7 @@ async def main():
 
                                 confirm_disagreement = "It seems that our current disagreement lies on this point:" + relevance["Q2"][4:].lower()+ ", do you agree? If yes, then we can focus our discussion on this part." 
                                 print(confirm_disagreement)
-                                student_res = await generate_res("ag", model_teacher, relevance["Q2"][4:].lower(), chat_history, None, None, conv_teacher, conv_student, PROMPT_STUDENT_CONFIRM, 0)
+                                student_res = await generate_res("ag", model_student, relevance["Q2"][4:].lower(), chat_history, None, None, conv_teacher, conv_student, PROMPT_STUDENT_CONFIRM, 0)
                                 student_res = student_res.choices[0].message.content
                                 
                                 print(student_res)
@@ -215,7 +215,7 @@ async def main():
                                     a = 0
                                 else:
                                     print("Can you tell me which point you don't agree with?")
-                                    student_utterance = await generate_res("stu", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_STRAT, 0)
+                                    student_utterance = await generate_res("stu", model_student, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_STRAT + PT_2, 0)
                                     student_u = json.loads(student_utterance.choices[0].message.content)
                                     student_utterance = student_u["res"]
                                     print(student_u["option"])
@@ -354,7 +354,7 @@ async def main():
                         curr_state = next_state
                         FSM_STATES.append(curr_state)
 
-                        check_following_res = await generate_res("eval_s", model_teacher, example_sentence, teacher_res.choices[0].message.content, STRAT_FOR_STATES[next_state], None, None, None, CHECK_FOLLOW_FSM_AGENT, 0)
+                        check_following_res = await generate_res("eval_s", model_student, example_sentence, teacher_res.choices[0].message.content, STRAT_FOR_STATES[next_state], None, None, None, CHECK_FOLLOW_FSM_AGENT, 0)
                         cs = json.loads(check_following_res.choices[0].message.content)
                         print("is the teacher following the transition? " + cs['1'])
                         print("is the teacher's question relevant? " + cs['2'])
@@ -376,17 +376,22 @@ async def main():
                     conv_teacher.append(utterance_teacher)
                     
                     #summarizes the teacher's responses
-                    summary = await generate_res("sum", model_teacher, example_sentence, conv_teacher[-4:-1], None, None, None, None, PROMPT_SUMMARIZE, 0)
+                    summary = await generate_res("sum", model_student, example_sentence, conv_teacher[-4:-1], None, None, None, None, PROMPT_SUMMARIZE, 0)
                     summary = summary.choices[0].message.content
                     if i == 0:
                         agreement_bank.append(summary)
                     print(summary)
                     sums.append(summary)
 
+                    if i != 0 and next_state in ["1", "4"]:
+                        STU_PROMPT = PROMPT_STUDENT_ARGUE_STRAT + PT_2
+                    else:
+                        STU_PROMPT = PROMPT_STUDENT_ARGUE_STRAT + PT_S + PT_2
+
                     
                     print("--------------------utterance--------------------")
                     print(utterance_teacher)
-                    utterance_student = await generate_res("stu", model_teacher, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_STRAT, 0)
+                    utterance_student = await generate_res("stu", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, STU_PROMPT, 0)
                     student_u = json.loads(utterance_student.choices[0].message.content)
                     utterance_student = student_u["res"]
                     print("student strategy:"+student_u["option"])
@@ -430,7 +435,7 @@ async def main():
                         confirm_disagreement = "If you cannot provide any evidence at all, then I would suggest looking for them if you have time later. Do you still have any other concerns regarding the sentence's logical validity?" 
                         print(confirm_disagreement)
                         conv_teacher.append(confirm_disagreement)
-                        student_utterance = await generate_res("stu", model_teacher, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_STRAT, 0)
+                        student_utterance = await generate_res("stu", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_STRAT + PT_2, 0)
                         student_u = json.loads(student_utterance.choices[0].message.content)
                         utterance_student = student_u["res"]
                         print("student strategy:"+student_u["option"])
@@ -464,6 +469,7 @@ async def main():
     df_result = pd.DataFrame(data_dict)
     df_result.to_excel(args.save_fn + str(args.num_gen) + ".xlsx", index=False)
 
+    print(len(sentences), len(full_chat))
     df_chats = pd.DataFrame({ "sentences": sentences, "chats": chats})
     df_chats.to_excel("chat_history_" + args.save_fn + ".xlsx", index=False)
     print("done async")

@@ -13,19 +13,19 @@ For each response, make sure to limit your answer to 40 words or less.
 
 """
 
-# EVAL_CONSISTENCY = """
-# You are a user who is interested in checking the validity of the claims in <sentence>, and you would need help from the dialogues to do so.
-# You are given two dialogues, <dialogue 1> and <dialogue 2> to compare with each other. In both dialogues, two people discuss the logical validity of the given <sentence>. 
-# Consider the following criteria named Relevance.
-# Definition of Relevance: The speaker's responses should always stay on topic regarding the sentence of interest. There should not be anything unrelated to the discussion of logical validity of sentence. 
-# Read each dialogue carefully. After reading both dialogues, first evaluate whether each dialogue fits the criteria well, then give a comparison in terms of the criteria here. 
-# Format your answer in JSON in the following keys: "ans_1": <evaluation of dialogue 1>, "ans_2": <evaluation of dialogue 2>, "reason": <comparison of both dialogues using the criteria>
+EVAL_CONSISTENCY = """
+You are a user who is interested in checking the validity of the claims in <sentence>, and you would need help from the dialogues to do so.
+You are given two dialogues, <dialogue 1> and <dialogue 2> to compare with each other. In both dialogues, two people discuss the logical validity of the given <sentence>. 
+Consider the following criteria named Relevance.
+Definition of Relevance: The speaker's responses should always stay on topic regarding the sentence of interest. There should not be anything unrelated to the discussion of logical validity of sentence. 
+Read each dialogue carefully. After reading both dialogues, first evaluate whether each dialogue fits the criteria well, then give a comparison in terms of the criteria here. 
+Format your answer in JSON in the following keys: "ans_1": <evaluation of dialogue 1>, "ans_2": <evaluation of dialogue 2>, "reason": <comparison of both dialogues using the criteria>
 
-# <sentence>: {sentence}
-# <dialogue 1>: {history}
-# <dialogue 2>: {profile}
+<sentence>: {sentence}
+<dialogue 1>: {history}
+<dialogue 2>: {profile}
 
-# """
+"""
 
 EVAL_INFORMATION_DIV = """
 You are a user who is interested in checking the validity of the claims in <sentence>, and you would need help from the dialogues to do so.
@@ -76,7 +76,7 @@ EVAL_STANCE_MAINTENANCE = """
 You are a user who is interested in checking the validity of the claims in <sentence>, and you would need help from the dialogues to do so.
 You are given two dialogues, <dialogue 1> and <dialogue 2> to compare with each other. In both dialogues, two people discuss the logical validity of the given <sentence>. 
 Consider the following criteria named Endurance Failure.
-Definition of Endurance Failure: Whenever the teacher agrees to the student, without proposing new arguments or maintaining the teacher's original stance that the statement is invalid.
+Definition of Endurance Failure: Count the number of turns where the teacher explicitly shows agreement to the student's words, e.g. "I agree...", or "You are right.."
 Read each dialogue carefully. After reading both dialogues, first evaluate whether each dialogue fits the criteria well, then give a comparison in terms of the criteria here. 
 Format your answer in JSON in the following keys: "ans_1": <evaluation of dialogue 1>, "ans_2": <evaluation of dialogue 2>, "reason": <comparison of both dialogues using the criteria>
 For each response, make sure to limit your answer to 40 words or less.
@@ -85,5 +85,38 @@ For each response, make sure to limit your answer to 40 words or less.
 <dialogue 1>: {history}
 <dialogue 2>: {profile}
 
+"""
+
+#Useful for active learning, since we want to trigger critical thinking instead of passively responding to the student as an assitant
+EVAL_TEACHER_ACTIVE = """
+You are a user who is interested in checking the validity of the claims in <sentence>, and you would need help from the dialogues to do so.
+You are given two dialogues, <dialogue 1> and <dialogue 2> to compare with each other. In both dialogues, two people discuss the logical validity of the given <sentence>. 
+Consider the following criteria named Endurance Failure.
+Definition of Activeness: The teacher is actively directing the flow of the conversation, instead of passively responding to the student. Count the times where the teacher explicitly asks the student about examples or assumptions.
+Read each dialogue carefully. After reading both dialogues, first evaluate whether each dialogue fits the criteria well, then give a comparison in terms of the criteria here. 
+Format your answer in JSON in the following keys: "ans_1": <evaluation of dialogue 1>, "ans_2": <evaluation of dialogue 2>, "reason": <comparison of both dialogues using the criteria>
+For each response, make sure to limit your answer to 40 words or less.
+
+<sentence>: {sentence}
+<dialogue 1>: {history}
+<dialogue 2>: {profile}
 
 """
+
+EVAL_TEACHER_TERM = """
+You are a user who is interested in checking the validity of the claims in <sentence>, and you would need help from the dialogues to do so.
+You are given two dialogues, <dialogue 1> and <dialogue 2> to compare with each other. In both dialogues, two people discuss the logical validity of the given <sentence>. 
+Consider the following criteria named Endurance Failure.
+Definition of Ease of Understanding: The teacher uses terms that are understandable by layman, and does not rely on textbook terms of logical fallacy.
+Read each dialogue carefully. After reading both dialogues, first evaluate whether each dialogue fits the criteria well, then give a comparison in terms of the criteria here. 
+Format your answer in JSON in the following keys: "ans_1": <evaluation of dialogue 1>, "ans_2": <evaluation of dialogue 2>, "reason": <comparison of both dialogues using the criteria>
+For each response, make sure to limit your answer to 40 words or less.
+
+<sentence>: {sentence}
+<dialogue 1>: {history}
+<dialogue 2>: {profile}
+
+"""
+
+
+

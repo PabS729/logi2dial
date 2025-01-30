@@ -306,10 +306,11 @@ async def main():
                         #         next_state = "2"
                         elif "yes" in transition["1"].lower():
                             next_state = "1"
-
+                        elif "yes" in transition["5"].lower():
+                            next_state = "2"
                         elif "yes" in transition["4"].lower():
                             next_state = "4"
-
+                        
                         else:
                             next_state = "2"
 

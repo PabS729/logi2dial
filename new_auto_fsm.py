@@ -18,10 +18,10 @@ async def main():
     parser.add_argument("--file_to_annotate", type=str, default='pos_train_set.csv')
     parser.add_argument("--components_to_read", type=str, default='decomposed_sentences_toulmin.xlsx')
     parser.add_argument("--definition", type=str, default='proposed')
-    parser.add_argument("--use_banks", type=bool, default=True)
+    parser.add_argument("--use_banks", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=False)
-    parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/fsm_0130_33_all')
+    parser.add_argument("--use_FSM", type=bool, default=False)
+    parser.add_argument("--save_fn", type=str, default='results/fsm_0130_33_all_base_4o')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -29,7 +29,7 @@ async def main():
     args = parser.parse_args()
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
-    sampled_df = df_to_argue.sample(n=5, random_state=33)
+    sampled_df = df_to_argue.groupby("Label").sample(n=5, random_state=33)
     
     # df_lf = pd.read_csv
     # df_components = pd.read_excel(args.components_to_read)
@@ -50,7 +50,7 @@ async def main():
     # ]
     # labels = ["false causality","false causality","false causality","false causality","false causality","false causality"]
     model_student = "gpt-4o"
-    model_teacher = "gpt-3.5-turbo"
+    model_teacher = "gpt-4o"
     model_agent = model_teacher
     sampled_sentence = []
     sampled_labels = []
@@ -301,7 +301,7 @@ async def main():
                         if "yes" in transition["3"].lower():
                             next_state = "3"
                         elif 'yes' not in cs['2'].lower() and i != 0:
-                            next_state = '5'
+                            next_state = '2'
                         # else: 
                         #     tmp = []
                         #     for k in STS:
@@ -383,7 +383,7 @@ async def main():
                     print(summary)
                     sums.append(summary)
 
-                    if i != 0 and next_state in ["1", "4"]:
+                    if i != 0 and args.use_FSM and next_state in ["1", "4"]:
                         STU_PROMPT = PROMPT_STUDENT_ARGUE_STRAT + PT_2
                     else:
                         STU_PROMPT = PROMPT_STUDENT_ARGUE_STRAT + PT_S + PT_2

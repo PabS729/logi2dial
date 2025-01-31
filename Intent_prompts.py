@@ -167,6 +167,8 @@ As an experienced debater, you have the following options to choose from:
 7. Attacking the teacher's response by pointing out their weaknesses in logic.
 """
 
+OS = """7. Attacking the teacher's response by pointing out their weaknesses in logic."""
+
 PT2 = """
 
 Remember, the topic you are discussing on is the logical validity of <sentence>, as well as providing evidence or examples to support your claim. You have to maintain your position that <sentence> is logically valid and try not to be convinced by the teacher. Limit your response to 60 words.

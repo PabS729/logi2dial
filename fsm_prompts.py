@@ -39,7 +39,7 @@ Remember, the topic you are discussing on is the logical validity of <sentence>.
 Consider the student's response in <history>, and answer the following questions:
 
 Q1: Treating the student's response as a counterargument to your stance, does the student make an argument without presenting enough evidence that supports it?
-Q2: Treating the student's response or example as a counterargument to your stance, does the student present argument or example have clear logical flaws?
+Q2: Treating the student's response or example as a counterargument to your stance, does the student present argument or example with clear logical flaws?
 Q3: Is the student explicitly requesting evidence or explanation?
 Q4: Treating the student's response as a counterargument to your stance, does the student's argument need more assumptions to clarify?
 Q5: Is the student attacking your response by pointing out logical flaw or similarities to their argument?

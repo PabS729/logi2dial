@@ -1,6 +1,6 @@
 import pandas as pd
 
-doc = pd.read_excel("results/fsm_0128_75_all_STU_a0.xlsx")
+doc = pd.read_excel("results/fsm_0130_33_all_FSM0.xlsx")
 
 doc = doc[doc["following"] != '0']
 T = doc['teacher_response'].values.tolist()
@@ -25,5 +25,5 @@ while i < len(T):
 data_dic = {"chats": all_his} 
 df = pd.DataFrame(data_dic)
 
-df.to_excel("fsm_0128_75_S.xlsx")
+df.to_excel("fsm_0130_33.xlsx")
 

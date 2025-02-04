@@ -21,7 +21,7 @@ async def main():
     parser.add_argument("--use_banks", type=bool, default=True)
     parser.add_argument("--use_toulmin", type=bool, default=False)
     parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/fsm_0204_bk')
+    parser.add_argument("--save_fn", type=str, default='results/fsm_0204_bAk7')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -262,14 +262,22 @@ async def main():
                         #teacher's initial analysis and judgement of the sentence
                         teacher_res = await generate_res("tea", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_TALK_ABOUT_LF, 0)
                         summary = ""
-                    elif i != 0 and args.use_FSM and (thought == 7):
+                    elif i != 0 and args.use_banks and (thought == 7):
                         print("taken")
 
                         #teacher's response when the student is repeating topics that has been previously discussed
                         teacher_res = await generate_res("cov", model_teacher, example_sentence, relevance["Q3"], None, None, [], None, PROMPT_REMIND_FOCUSED, 0)
+                        if args.use_FSM:
+                            following.append('0')
+                            all_states.append('0')
+                            rs.append('0')
                     elif i != 0 and thought == 6 and args.use_banks:
                         print("student response is irrelevant ------------ ")
                         teacher_res = await generate_res("cov", model_teacher, example_sentence, relevance["Q1"], None, None, [], None, PROMPT_REMIND_RELEVANCE, 0)
+                        if args.use_FSM:
+                            following.append('0')
+                            all_states.append('0')
+                            rs.append('0')
                     elif args.use_FSM:
                         #teacher's response according to detected student behavior
                         # teacher_res = await generate_res("test", model_teacher, example_sentence, BEHAVIORS[str(thought)], option, None, conv_teacher, conv_student, PROCEED_CONV_TEACHER, 1)

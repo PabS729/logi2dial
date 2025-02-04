@@ -14,13 +14,13 @@ from prompt_eval import *
 
 async def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dialogue1", type=str, default='results/fsm_0129_75_3_')
-    parser.add_argument("--dialogue2", type=str, default='results/fsm_0128_75_x_3all_base')
+    parser.add_argument("--dialogue1", type=str, default='results/fsm_0130_33_cd_bal')
+    parser.add_argument("--dialogue2", type=str, default='results/fsm_0130_33_all_base_4o')
     parser.add_argument("--dataset", type=str, default='pos_train_set.csv')
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/cot_s_tm_rev')
+    parser.add_argument("--save_fn", type=str, default='results/eval_33_act_rev')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -36,7 +36,7 @@ async def main():
 
     dialogues_1 = pd.read_excel(history1)
     dialogues_2 = pd.read_excel(history2)
-    sentences = df_to_argue.groupby('Label').sample(n = 3, random_state=75)
+    sentences = df_to_argue.groupby('Label').sample(n = 5, random_state=33)
     sentences = sentences["Context"].values.tolist()
     dl1 = dialogues_1["chats"].values.tolist()
     dl2 = dialogues_2["chats"].values.tolist()
@@ -76,14 +76,15 @@ async def main():
     r_ded = []
 
 
-    eval_prompts = [EVAL_COHERENCE, EVAL_CONSISTENCY, EVAL_INFORMATION_DIV, EVAL_VALID_ARGUMENTS, EVAL_TEACHER_TERM, EVAL_STANCE_MAINTENANCE]
+    eval_prompts = [EVAL_COHERENCE, EVAL_CONSISTENCY, EVAL_INFORMATION_DIV, EVAL_VALID_ARGUMENTS, EVAL_TEACHER_ACTIVE, EVAL_STANCE_MAINTENANCE]
     eval_al = [False, False, False, False, True, False]
+    # eval_al = [True, True, True, True, True, True]
     for j in range(len(sentences)):
         # print(sentences[j])
         # sentence = sentences[j].split(",")[4]
         sentence = sentences[j]
-        dialogue1 = dl1[j]
-        dialogue2 = dl2[j]
+        dialogue1 = dl2[j]
+        dialogue2 = dl1[j]
 
         print(sentence)
         for k in range(0, len(eval_al)):

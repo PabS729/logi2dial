@@ -86,13 +86,13 @@ For each response, make sure to limit your answer to 40 words or less.
 <dialogue 2>: {profile}
 
 """
-
+#Can change the name to educational
 #Useful for active learning, since we want to trigger critical thinking instead of passively responding to the student as an assitant
 EVAL_TEACHER_ACTIVE = """
 You are a user who is interested in checking the validity of the claims in <sentence>, and you would need help from the dialogues to do so.
 You are given two dialogues, <dialogue 1> and <dialogue 2> to compare with each other. In both dialogues, two people discuss the logical validity of the given <sentence>. 
-Consider the following criteria named Endurance Failure.
-Definition of Activeness: The teacher is actively directing the flow of the conversation, instead of passively responding to the student. Count the times where the teacher explicitly asks the student about examples or assumptions.
+Consider the following criteria named Activeness.
+Definition of Activeness: The teacher is actively taking control of the conversation by asking student questions. Count the times where the teacher explicitly asks the student questions about providing examples or assumptions. 
 Read each dialogue carefully. After reading both dialogues, first evaluate whether each dialogue fits the criteria well, then give a comparison in terms of the criteria here. 
 Format your answer in JSON in the following keys: "ans_1": <evaluation of dialogue 1>, "ans_2": <evaluation of dialogue 2>, "reason": <comparison of both dialogues using the criteria>
 For each response, make sure to limit your answer to 40 words or less.

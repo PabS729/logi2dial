@@ -21,7 +21,7 @@ async def main():
     parser.add_argument("--use_banks", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=False)
     parser.add_argument("--use_FSM", type=bool, default=False)
-    parser.add_argument("--save_fn", type=str, default='results/fsm_0130_33_all_base_4o')
+    parser.add_argument("--save_fn", type=str, default='results/fsm_0203_33_all_base_4o_T1')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -365,7 +365,7 @@ async def main():
                         print("cont toulmin")
                         teacher_res = await generate_res("tea", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_TALK_ABOUT_LF_CONV, 0)
                     else:
-                        teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_No_CoT, 0)
+                        teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_No_CoT, 1)
 
                     chat_history = ""
 

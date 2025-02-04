@@ -236,8 +236,8 @@ Limit your response to less than or equal to 40 words.
 #prompt for the teacher to remind the student of the repetition
 PROMPT_REMIND_RELEVANCE = """
 You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>.
-The student's response contains <content> that is not related to the discussion of logical validity for <sentence>. Remind the student that they have to propose new topics that relates to discussing the logical validity of <sentence>. Start your response with "Based on my analysis... "
-Limit your response to less than or equal to 40 words.
+The student's response contains <content> that is not related to the discussion of logical validity for <sentence>. Remind the student that they have to propose new topics that relates to discussing the logical validity of <sentence>. Be sure to include a brief summary of the <sentence>. Start your response with "Based on my analysis... "
+Limit your response to less than or equal to 50 words.
 
 <sentence>: {sentence}
 <content>: {history}

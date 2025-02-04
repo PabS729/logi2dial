@@ -21,7 +21,7 @@ async def main():
     parser.add_argument("--use_banks", type=bool, default=True)
     parser.add_argument("--use_toulmin", type=bool, default=False)
     parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/fsm_0204_sp2ak')
+    parser.add_argument("--save_fn", type=str, default='results/fsm_0204_bk')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -92,7 +92,7 @@ async def main():
                                                     None, None, None, None, None, PROMPT_OPENING, 0)
             appends(opening_res.choices[0].message.content, STUDENT_RESPONDS, "", "", "", "", [], [], '0', '0', '0')
 
-        rounds = 10
+        rounds = 3
         chat_history = ""
         full_chat = ""
         summary = ""
@@ -156,6 +156,7 @@ async def main():
                 cs = {"1": "no", "2": "no"}
                 for i in range(0, rounds):
                     # print(i)
+                    
                     if i == 0:
                         sampled_sentence.append(example_sentence)
                         sampled_labels.append(example_label)
@@ -233,7 +234,7 @@ async def main():
                             elif "yes" in relevance["Q3"].lower(): 
                                 thought = 7
                             else:
-                                thought = 6
+                                thought = 2
                             
                             #add to disagreement bank if new disagreement is proposed
                             cp_bank = copy.deepcopy(disagr_bank)
@@ -261,12 +262,13 @@ async def main():
                         #teacher's initial analysis and judgement of the sentence
                         teacher_res = await generate_res("tea", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_TALK_ABOUT_LF, 0)
                         summary = ""
-                    elif args.use_FSM and (thought == 7):
+                    elif i != 0 and args.use_FSM and (thought == 7):
                         print("taken")
 
                         #teacher's response when the student is repeating topics that has been previously discussed
                         teacher_res = await generate_res("cov", model_teacher, example_sentence, relevance["Q3"], None, None, [], None, PROMPT_REMIND_FOCUSED, 0)
-                    elif thought == 6 and args.use_banks:
+                    elif i != 0 and thought == 6 and args.use_banks:
+                        print("student response is irrelevant ------------ ")
                         teacher_res = await generate_res("cov", model_teacher, example_sentence, relevance["Q1"], None, None, [], None, PROMPT_REMIND_RELEVANCE, 0)
                     elif args.use_FSM:
                         #teacher's response according to detected student behavior
@@ -448,7 +450,7 @@ async def main():
         summary = summary.choices[0].message.content
         t_res = await generate_res("agt", model_teacher, example_sentence, summary, None, None, None, None, ENDING_PROMPT, 1)
         t_res = t_res.choices[0].message.content
-        s_res = await generate_res("conv", model_student, example_sentence, None, None, None, None, None, ENDING_STUDENT, 1)
+        s_res = await generate_res("student", model_student, example_sentence, None, None, None, [t_res], [], ENDING_STUDENT, 1)
         s_res = s_res.choices[0].message.content
         full_chat += "teacher: " + t_res + "\n"
         full_chat += "student: " + s_res + "\n"

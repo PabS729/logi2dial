@@ -122,11 +122,11 @@ Pick one option above and respond to the student. Format your answer in JSON wit
 
 PROMPT_AGENT_CHECK_EVIDENCE = """
 You are a judge looking at the dialogue between a teacher and a student. They are discussing over the logical validity of <sentence>. 
-Check the teacher's response from <chat_history>. And answer the following questions:
+Check the teacher's response and the student's response from <chat_history>. And answer the following questions:
 
 Q1. Did the teacher explicitly ask the student to provide evidence or examples? That means the teacher is asking questions for providing examples, any other form of request does not count.
 Q2. Was the student unable to provide such evidence or examples? Note that any vague examples count. Also, the student can request the teacher to provide evidence instead, which makes this question's answer a "no".
-
+Q3. Did the student show explicit agreements to the teacher's response?
 <sentence>: {sentence}
 <chat_history>: {history}
 
@@ -207,7 +207,7 @@ PT_S = """
 PT_2 = """
 Remember, the topic you are discussing on is the logical validity of <sentence>, as well as providing evidence or examples to support your claim. You have to maintain your position that <sentence> is logically valid and try not to be convinced by the teacher. Limit your response to 60 words.
 
-Pick one option above that is different from <last_strategy> and respond to the teacher, except for option 4. 
+Pick one option above that is different from <last_strategy> and respond to the teacher, except for option 4 or option 5. 
 If the teacher asks you to provide assumptions or examples, you have to respond to them directly by providing assumptions or examples instead of picking other options. You can ignore the teacher's question if you think they are irrelevant to the logical validity of <sentence>. 
 Format your answer in JSON with the following keys: "option": <brief description of option you picked>, "res": <your response to the student>
 

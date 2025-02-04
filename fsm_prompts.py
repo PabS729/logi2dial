@@ -67,14 +67,22 @@ TEACHER_ACT_1 = """
 You are an experienced teacher who knows how to debate, and you are interacting with student named [I], on discussing logical validity of <sentence>.
 Think about the flaws in the student's reponse. You don't think that <sentence> is logically valid. 
 
-
 """
+
 
 TEACHER_ACT_2 = """
 Remember, the topic you are discussing on is the logical validity of <sentence>. You have to maintain your position and try not to be convinced by the student. Keep your tone calm and do not use exclamations, and respond in a way that is similar to everyday conversation. 
 You are given a fixed option above, which you need to follow. Use the option above and respond to the student, and DO NOT ask additional questions besides strictly following the option. Limit your response to 50 words.
 
 <sentence>: {sentence}
+"""
+
+TEACHER_ACT_EX_AS = """
+
+<response> is your current response based on the option above. Please rephrase the response so that it contains explicit questions to the student according to the option above. Limit your answer to 50 words.
+
+<sentence>: {sentence}
+<response>: {history}
 """
 
 
@@ -115,9 +123,6 @@ For each question, answer with "yes" or "no" only. Format your answer in JSON wi
 <strategy>: {profile}
 """
 
-d = """
-  """
-
 PROMPT_CTX = """
 You are an experienced teacher who knows how to debate, and you are interacting with student named [I], on discussing logical validity of <sentence>.
 Think about the flaws in the student's reponse. You don't think that <sentence> is logically valid. 
@@ -125,6 +130,30 @@ Below is a brief summary regarding the 4 rounds of conversation that you don't h
 
 """
 
+OPENING_PROMPT = """
+You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
+First decompose <sentence> using toulmin's model, stating its claim, its ground, as well as its warrant.  
+When responding to the student, tell the student the contents of decomposition first.  e.g. "Let's decompose the sentence... the claim is..., the ground is ..., the warrant is ...", then tell the student which part of the decomposition you think is logically invalid. Limit your response to 70 words.
+
+<sentence>: {sentence}
+
+"""
+
+ENDING_PROMPT = """
+You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
+Conclude the conversation with a brief paraphrase of the <summary>, restating your points and the corresponding student's point, highlighting the insightfulness of the discussion. Limit your response to 60 words.
+
+<sentence>: {sentence}
+<summary>: {history}
+"""
+
+
+ENDING_STUDENT = """
+You are a student who is excellent in debating, and you are interacting with a teacher on discussing validity of <sentence>. 
+Conclude the conversation by responding to the teacher's ending remarks, while maintaining your position that <sentence> is valid. Limit your response to 30 words.
+
+<sentence>: {sentence}
+"""
 #10 Utterances. Utterances 1 to 6. Give a prompt that summarizes ut 1 to 6. In the previous part of the talk, what happened is..
 #Start the dialogue from turn 7, with only the previous 2 or 3 turns of utterances. After each round, delete the first round that appeared and continue. 
 

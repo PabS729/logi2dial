@@ -21,7 +21,7 @@ async def main():
     parser.add_argument("--use_banks", type=bool, default=True)
     parser.add_argument("--use_toulmin", type=bool, default=False)
     parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/fsm_0130_33_cd_bal')
+    parser.add_argument("--save_fn", type=str, default='results/fsm_0204_sp2ak')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -29,7 +29,7 @@ async def main():
     args = parser.parse_args()
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
-    sampled_df = df_to_argue.groupby("Label").sample(n=5, random_state=33)
+    sampled_df = df_to_argue.sample(n=1, random_state=33)
     
     # df_lf = pd.read_csv
     # df_components = pd.read_excel(args.components_to_read)
@@ -97,30 +97,20 @@ async def main():
         full_chat = ""
         summary = ""
         agr_bank = []
-
+        conv_teacher = []
+        conv_student = []
+        count_states = {"1":0,"2":0,"3":0,"4":0,"5":0}
         #Check if student agrees with the components. Ideally, the student should agree with all of them.
         
         # for k in toulmin.keys():
         if True:
-            conv_teacher = []
-            conv_student =[]
-            count_states = {"1":0,"2":0,"3":0,"4":0,"5":0}
-            if args.use_toulmin:
-                # decomp = toulmin[k]
-                # print(decomp)
-            # teacher_res = await generate_res("t", model_teacher, example_sentence, "["+ k + ": " + decomp + "]", None, None, conv_teacher, conv_student, PROMPT_JUDGEMENT, 0)
-            
-            #Teacher check the logical validity of sentence, and ask the student if they agree with the judgement
-                teacher_res = await generate_res("", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_JUDGEMENT, 0)
-                teacher_r = json.loads(teacher_res.choices[0].message.content)
-                flaw_part = teacher_r["2"]
-                teacher_res = teacher_r["1"]
-            else:
-                teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_No_CoT, 0)
-                teacher_res = teacher_res.choices[0].message.content
+            teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, OPENING_PROMPT, 0)
+            teacher_res = teacher_res.choices[0].message.content
             conv_teacher.append(teacher_res)
             utterance_teacher = teacher_res
             print(utterance_teacher)
+
+            
             # student_res = await generate_res("student_bio", model_teacher, example_sentence, "["+ k + ": " + decomp + "]", None, None, conv_teacher, conv_student, PROMPT_STUDENT_RESPOND, 0)
             
             #student responds. 
@@ -130,6 +120,8 @@ async def main():
                 student_res = await generate_res("student", model_student, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_STUDENT_STUBBORN, 0)
             utterance_student = student_res.choices[0].message.content
             conv_student.append(utterance_student)
+            full_chat += "teacher: " + utterance_teacher + "\n"
+            full_chat += "student: " + utterance_student + "\n"
             
             print(utterance_student)
             anas.append("")
@@ -151,7 +143,6 @@ async def main():
                 print("initial agreement")
                 if args.use_banks:
                     agr_bank.append(conv_teacher[-1])
-                continue
 
             # if no, enter debate
             else: 
@@ -182,10 +173,13 @@ async def main():
                         thought = 0
                         if args.use_banks:
                             relevance_res = await generate_res("check", model_student, example_sentence, disagr_bank, 
-                                                               utterance_student, agr_bank, conv_teacher, conv_student, PROMPT_CHECK_DISAGREEMENT, 0)
+                                                               chat_history, agr_bank, None, None, PROMPT_CHECK_DISAGREEMENT, 0)
                             relevance = json.loads(relevance_res.choices[0].message.content)
                             print(relevance)
                             reles.append(relevance)
+
+                            if "yes" not in relevance["Q1"].lower():
+                                thought = 6
 
                             if "yes" in relevance["Q2"].lower(): 
                                 disagr_bank.append(relevance["Q2"])
@@ -228,17 +222,18 @@ async def main():
 
                             #if the student's response is not addressed previously, then we have a new topic. Identify the student's states to be used later
                             if "yes" in relevance["Q1"].lower() and "no" in relevance["Q3"].lower():
-                                agreement_bank.append(relevance)
+                                # agreement_bank.append(relevance)
                                 # disagr_bank.append(relevance)
+                                a = ""
+                                # thought_res = await generate_res("strategy", model_teacher, example_sentence, chat_history, 
+                                #                                  None, None, None, None, DETECT_FLAW_TEACHER, 0)
 
-                                thought_res = await generate_res("strategy", model_teacher, example_sentence, chat_history, 
-                                                                 None, None, None, None, DETECT_FLAW_TEACHER, 0)
-
-                                thought = json.loads(thought_res.choices[0].message.content)["Type"]
+                                # thought = json.loads(thought_res.choices[0].message.content)["Type"]
+                                thought = 0
                             elif "yes" in relevance["Q3"].lower(): 
                                 thought = 7
                             else:
-                                thought = 2
+                                thought = 6
                             
                             #add to disagreement bank if new disagreement is proposed
                             cp_bank = copy.deepcopy(disagr_bank)
@@ -246,9 +241,9 @@ async def main():
                         
                             print(thought)
                         elif args.use_FSM:
-                            thought_res = await generate_res("strategy", model_teacher, example_sentence, chat_history, 
-                                                                 None, None, None, None, PROMPT_IDENTIFY_STUDENT_STATE, 0)
-                            thought = json.loads(thought_res.choices[0].message.content)["Type"]
+                            # thought_res = await generate_res("strategy", model_teacher, example_sentence, chat_history, 
+                            #                                      None, None, None, None, PROMPT_IDENTIFY_STUDENT_STATE, 0)
+                            # thought = json.loads(thought_res.choices[0].message.content)["Type"]
                             reles.append("")
                             coll_bank.append([])
                             print(thought)
@@ -270,7 +265,9 @@ async def main():
                         print("taken")
 
                         #teacher's response when the student is repeating topics that has been previously discussed
-                        teacher_res = await generate_res("teacher_st", model_teacher, example_sentence, summary, relevance["Q3"], None, [], conv_student[-1], PROMPT_REMIND_FOCUSED, 0)
+                        teacher_res = await generate_res("cov", model_teacher, example_sentence, relevance["Q3"], None, None, [], None, PROMPT_REMIND_FOCUSED, 0)
+                    elif thought == 6 and args.use_banks:
+                        teacher_res = await generate_res("cov", model_teacher, example_sentence, relevance["Q1"], None, None, [], None, PROMPT_REMIND_RELEVANCE, 0)
                     elif args.use_FSM:
                         #teacher's response according to detected student behavior
                         # teacher_res = await generate_res("test", model_teacher, example_sentence, BEHAVIORS[str(thought)], option, None, conv_teacher, conv_student, PROCEED_CONV_TEACHER, 1)
@@ -332,10 +329,10 @@ async def main():
                                 count_states[next_state] += 1
                                 count_states['4'] -= 1
 
-                        if "no" in following[-1].lower() and "no" in following[-2].lower():
-                            next_state = "2"
-                            count_states[next_state] += 1
-                            count_states[tmp_s] -= 1
+                        # if "no" in following[-1].lower() and "no" in following[-2].lower():
+                        #     next_state = "2"
+                        #     count_states[next_state] += 1
+                        #     count_states[tmp_s] -= 1
                         
                         if next_state != curr_state:
                             print("-----------------transitioning--------------------" + "from " + curr_state + " to " + next_state)
@@ -352,14 +349,21 @@ async def main():
                         cs = json.loads(check_following_res.choices[0].message.content)
                         print("is the teacher following the transition? " + cs['1'])
                         print("is the teacher's question relevant? " + cs['2'])
+                        
+                        #rephrase the teacher's response, if we found that it is not following the expected state.
+                        rs.append(cs['2'])
+                        if "no" in cs['1'].lower() and next_state in ['1', '4']:
+                            teacher_res = await generate_res("agents", model_teacher, example_sentence, teacher_res.choices[0].message.content, None, None, None, None, TEACHER_ACT_1 + STRAT_FOR_STATES[next_state] + TEACHER_ACT_EX_AS, 1)
+                            check_following_res = await generate_res("eval_s", model_student, example_sentence, teacher_res.choices[0].message.content, STRAT_FOR_STATES[next_state], None, None, None, CHECK_FOLLOW_FSM_AGENT, 0)
+                            cs = json.loads(check_following_res.choices[0].message.content)
+                            print("is the teacher following the transition after rephrasing? " + cs['1'])
+                        
                         following.append(cs['1'])
                         all_states.append(next_state)
-                        rs.append(cs['2'])
                     elif args.use_toulmin:
                         print("cont toulmin")
                         teacher_res = await generate_res("tea", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_TALK_ABOUT_LF_CONV, 0)
                     else:
-                        teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_No_CoT, 1)
                         teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_No_CoT, 1)
 
                     chat_history = ""
@@ -371,10 +375,10 @@ async def main():
                     conv_teacher.append(utterance_teacher)
                     
                     #summarizes the teacher's responses
-                    summary = await generate_res("sum", model_student, example_sentence, conv_teacher[-4:-1], None, None, None, None, PROMPT_SUMMARIZE, 0)
-                    summary = summary.choices[0].message.content
-                    if i == 0:
-                        agreement_bank.append(summary)
+
+                    # if i == 0:
+                    #     agreement_bank.append(summary)
+                    summary = ""
                     print(summary)
                     sums.append(summary)
 
@@ -438,10 +442,18 @@ async def main():
                         start_student_strategy = student_u["option"]
                         conv_student.append(utterance_student)
                         appends(confirm_disagreement, utterance_student, "", "", "", "", agr_bank, disagr_bank,'0','0', '0')
-                        
 
-        chats.append(full_chat)
-
+        #summary of conversation and ending
+        summary = await generate_res("sum", model_student, example_sentence, full_chat, None, None, None, None, PROMPT_SUMMARIZE, 0)
+        summary = summary.choices[0].message.content
+        t_res = await generate_res("agt", model_teacher, example_sentence, summary, None, None, None, None, ENDING_PROMPT, 1)
+        t_res = t_res.choices[0].message.content
+        s_res = await generate_res("conv", model_student, example_sentence, None, None, None, None, None, ENDING_STUDENT, 1)
+        s_res = s_res.choices[0].message.content
+        full_chat += "teacher: " + t_res + "\n"
+        full_chat += "student: " + s_res + "\n"
+            
+        chats.append(full_chat) 
 
     print(len(lm_thought), len(anas), len(conversation_teacher), len(conversation_student), len(sums), len(reles), len(coll_agr), len(coll_bank), len(all_states), len(following), len(rs))
     print(FSM_STATES)

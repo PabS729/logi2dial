@@ -177,7 +177,7 @@ Talk to the student and try to convince the student there is a logical flaw. You
 #summarizes the teacher's response
 PROMPT_SUMMARIZE = """
 You are an expert summarizer, and you are reviewing conversation from a teacher and a student who is talking about <sentence>. 
-Give a concise summary of the teacher's responses and the corresponding student responses, in lists. Limit your summary in 70 words.
+Read <chat_history>, and give a concise summary of the teacher's responses and the corresponding student responses, in lists. Limit your summary in 70 words.
 
 <sentence>: {sentence}
 <chat_history>: {history}
@@ -197,9 +197,10 @@ Check if the student's <response> is relevant to the points mentioned in <tracke
 #Check if the the student's response is relevant, as well as whether student proposes new disagreements
 PROMPT_CHECK_DISAGREEMENT = """
 The student and teacher are discussing about the logical validity of <sentence>. Please answer the following questions.
-Q1. Check if the student's <response> revolves around the logical validity of <sentence>. If yes, answer with yes and a summary of student's response in 20 words or less. If no, answer with no and give your reason in 15 words or less.
-Q2. Check if the student's <response> mentions new disagreements that are not included in <history>. If yes, answer with yes and a summary of student's response in 20 words or less. If no, answer with no and give your reason in 15 words or less.
-Q3. Check if the QUESTION in student's <response> is already included in <agreements>. If yes, answer with yes and give your reason in 15 words or less. If no, ONLY answer with "no".
+Q1. Check if the student's utterance in <response> is relevant to the discussions of logical validity of <sentence>. If yes, answer with yes and a summary of student's response in 20 words or less. If no, answer with no and give your reason in 15 words or less.
+Q2. Check if the student's utterance in <response> mentions new disagreements that are not included in <history>. If yes, answer with yes and a summary of the new diagreement between the teacher and the student in 20 words or less. If no, answer with no and give your reason in 15 words or less.
+Q3. Check if the student's utterance in <response> is already included in <agreements>. If yes, answer with yes and give your reason in 15 words or less. If no, ONLY answer with "no".
+Please address the student by the second person pronoun "you".
 <sentence>: {sentence}
 <history>: {history}
 <response>: {profile}
@@ -223,13 +224,23 @@ Make sure not to mention toulmin's model and use languages that a layman will un
 
 #prompt for the teacher to remind the student of the repetition
 PROMPT_REMIND_FOCUSED = """
-You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. A <summary> concludes your previous talks.
+You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>.
 The student is talking about <agreement> that is already addressed in previous talks. Remind the student that their concern is already addressed and ask the student to propose new topics that relates to discussing the logical validity of <sentence>. Start your response with "Based on what I remember about previous discussions..."
 Limit your response to less than or equal to 40 words.
 
 <sentence>: {sentence}
-<summary>: {history}
-<agreement>: {profile}
+<agreement>: {history}
+"""
+
+
+#prompt for the teacher to remind the student of the repetition
+PROMPT_REMIND_RELEVANCE = """
+You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>.
+The student's response contains <content> that is not related to the discussion of logical validity for <sentence>. Remind the student that they have to propose new topics that relates to discussing the logical validity of <sentence>. Start your response with "Based on my analysis... "
+Limit your response to less than or equal to 40 words.
+
+<sentence>: {sentence}
+<content>: {history}
 """
 
 PROMPT_DESIGN_STRATEGY = """

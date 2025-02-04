@@ -353,15 +353,17 @@ async def main():
                         print("is the teacher's question relevant? " + cs['2'])
                         
                         #rephrase the teacher's response, if we found that it is not following the expected state.
-                        rs.append(cs['2'])
-                        if "no" in cs['1'].lower() and next_state in ['1', '4']:
+                        
+                        if ("no" in cs['1'].lower() or "no" in cs['2'].lower()) and next_state in ['1', '4']:
                             teacher_res = await generate_res("agents", model_teacher, example_sentence, teacher_res.choices[0].message.content, None, None, None, None, TEACHER_ACT_1 + STRAT_FOR_STATES[next_state] + TEACHER_ACT_EX_AS, 1)
                             check_following_res = await generate_res("eval_s", model_student, example_sentence, teacher_res.choices[0].message.content, STRAT_FOR_STATES[next_state], None, None, None, CHECK_FOLLOW_FSM_AGENT, 0)
                             cs = json.loads(check_following_res.choices[0].message.content)
                             print("is the teacher following the transition after rephrasing? " + cs['1'])
+                            print("is the teacher's question relevant after rephrasing? " + cs['2'])
                         
                         following.append(cs['1'])
                         all_states.append(next_state)
+                        rs.append(cs['2'])
                     elif args.use_toulmin:
                         print("cont toulmin")
                         teacher_res = await generate_res("tea", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_TALK_ABOUT_LF_CONV, 0)

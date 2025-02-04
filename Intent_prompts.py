@@ -122,11 +122,11 @@ Pick one option above and respond to the student. Format your answer in JSON wit
 
 PROMPT_AGENT_CHECK_EVIDENCE = """
 You are a judge looking at the dialogue between a teacher and a student. They are discussing over the logical validity of <sentence>. 
-Check the teacher's response from <chat_history>. And answer the following questions:
+Check the teacher's response and the student's response from <chat_history>. And answer the following questions:
 
 Q1. Did the teacher explicitly ask the student to provide evidence or examples? That means the teacher is asking questions for providing examples, any other form of request does not count.
 Q2. Was the student unable to provide such evidence or examples? Note that any vague examples count. Also, the student can request the teacher to provide evidence instead, which makes this question's answer a "no".
-
+Q3. Did the student show explicit agreements to the teacher's response?
 <sentence>: {sentence}
 <chat_history>: {history}
 

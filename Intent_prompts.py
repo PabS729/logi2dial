@@ -207,7 +207,7 @@ PT_S = """
 PT_2 = """
 Remember, the topic you are discussing on is the logical validity of <sentence>, as well as providing evidence or examples to support your claim. You have to maintain your position that <sentence> is logically valid and try not to be convinced by the teacher. Limit your response to 60 words.
 
-Pick one option above that is different from <last_strategy> and respond to the teacher, except for option 4. 
+Pick one option above that is different from <last_strategy> and respond to the teacher, except for option 4 or option 5. 
 If the teacher asks you to provide assumptions or examples, you have to respond to them directly by providing assumptions or examples instead of picking other options. You can ignore the teacher's question if you think they are irrelevant to the logical validity of <sentence>. 
 Format your answer in JSON with the following keys: "option": <brief description of option you picked>, "res": <your response to the student>
 

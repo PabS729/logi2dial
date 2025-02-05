@@ -1,37 +1,37 @@
 
-Transition_from_1 = """
-1. The example given by the student is not specific enough. You need to ask the student to provide more examples.
-2. The example given by the student contains logical error. 
-3. The Student Requests for examples or clarifications to illustrate your point.
-4. The student's examples might be unclear. Assumption is needed to clarify the student's examples.
-5. The example given by the student is unrelated to the topic of discussion.
-"""
+# Transition_from_1 = """
+# 1. The example given by the student is not specific enough. You need to ask the student to provide more examples.
+# 2. The example given by the student contains logical error. 
+# 3. The Student Requests for examples or clarifications to illustrate your point.
+# 4. The student's examples might be unclear. Assumption is needed to clarify the student's examples.
+# 5. The example given by the student is unrelated to the topic of discussion.
+# """
 
-Transition_from_2 = """
-1. The new argument proposed by the student lacks evidence. You need to obtain examples from the student to illustrate.
-2. The argument has clear logical flaw that can be further refuted.
-3. The Student Requests for examples to illustrate your point.
-4. The student's argument is unclear and assumption is needed to clarify the student's argument.
-5. The argument given by the student is unrelated to the topic of discussion.
-"""
+# Transition_from_2 = """
+# 1. The new argument proposed by the student lacks evidence. You need to obtain examples from the student to illustrate.
+# 2. The argument has clear logical flaw that can be further refuted.
+# 3. The Student Requests for examples to illustrate your point.
+# 4. The student's argument is unclear and assumption is needed to clarify the student's argument.
+# 5. The argument given by the student is unrelated to the topic of discussion.
+# """
 
-Transition_from_3 = """
-1. The new argument proposed by the student lacks evidence. You need to obtain examples from the student to illustrate.
-2. There is a clear logical flaw in the student's argument, or the student's argument is unrelated to the topic of discussion.
-3. The Student Requests for examples or clarifications to illustrate your point.
-4. The student's argument is unclear and assumption is needed to clarify the student's argument.
-5. The argument given by the student is unrelated to the topic of discussion.
-"""
+# Transition_from_3 = """
+# 1. The new argument proposed by the student lacks evidence. You need to obtain examples from the student to illustrate.
+# 2. There is a clear logical flaw in the student's argument, or the student's argument is unrelated to the topic of discussion.
+# 3. The Student Requests for examples or clarifications to illustrate your point.
+# 4. The student's argument is unclear and assumption is needed to clarify the student's argument.
+# 5. The argument given by the student is unrelated to the topic of discussion.
+# """
 
-Transition_from_4 = """
-1. To check the validity of student's assumptions, you need to ask the student to provide examples.
-2. The student's assumption has clear logical flaw, or is unrelated to the topic of discussion.
-3. The Student Requests for examples or clarifications to illustrate your point.
-4. The student's argument is still unclear given the assumption. You need to ask about more assumptions to clarify the student's argument.
-5. The argument given by the student is unrelated to the topic of discussion.
-"""
+# Transition_from_4 = """
+# 1. To check the validity of student's assumptions, you need to ask the student to provide examples.
+# 2. The student's assumption has clear logical flaw, or is unrelated to the topic of discussion.
+# 3. The Student Requests for examples or clarifications to illustrate your point.
+# 4. The student's argument is still unclear given the assumption. You need to ask about more assumptions to clarify the student's argument.
+# 5. The argument given by the student is unrelated to the topic of discussion.
+# """
 
-Transition_from_5 = Transition_from_3
+# Transition_from_5 = Transition_from_3
 
 CHECK_RESPONSE_TEACHER = """
 You are an experienced teacher who knows how to debate, and you are interacting with student named [I], on discussing logical validity of <sentence>.
@@ -104,13 +104,13 @@ STRAT_FOR_STATES = {
     # "6": "Respond to the student's attack by defending the validity of your stance."
 }
 
-TRANSITIONS = {
-    "1": Transition_from_1,
-    "2": Transition_from_2,
-    "3": Transition_from_3,
-    "4": Transition_from_4,
-    "5": Transition_from_5, 
-}
+# TRANSITIONS = {
+#     "1": Transition_from_1,
+#     "2": Transition_from_2,
+#     "3": Transition_from_3,
+#     "4": Transition_from_4,
+#     "5": Transition_from_5, 
+# }
 
 CHECK_FOLLOW_FSM_AGENT = """
 You are a judge overlooking the dialogue between a teacher and a student, they are having a debate over the logical validity of <sentence>.
@@ -133,7 +133,7 @@ Below is a brief summary regarding the 4 rounds of conversation that you don't h
 OPENING_PROMPT = """
 You are a teacher who knows toulmin's model and logical fallacies, and you are interacting with a student on discussing validity of <sentence>. 
 First decompose <sentence> using toulmin's model, stating its claim, its ground, as well as its warrant.  
-When responding to the student, tell the student the contents of decomposition first.  e.g. "Let's decompose the sentence... the claim is..., the ground is ..., the warrant is ...", then tell the student which part of the decomposition you think is logically invalid. Limit your response to 70 words.
+When responding to the student, tell the student the definition of each component, as well as contents of decomposition first.  e.g. "Let's decompose the sentence... the claim is..., the ground is ..., the warrant is ...", then tell the student which part of the decomposition you think is logically invalid. Limit your response to 80 words.
 
 <sentence>: {sentence}
 

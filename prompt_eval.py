@@ -17,7 +17,7 @@ EVAL_CONSISTENCY = """
 You are a user who is interested in checking the validity of the claims in <sentence>, and you would need help from the dialogues to do so.
 You are given two dialogues, <dialogue 1> and <dialogue 2> to compare with each other. In both dialogues, two people discuss the logical validity of the given <sentence>. 
 Consider the following criteria named Relevance.
-Definition of Relevance: The speaker's responses should always stay on topic regarding the sentence of interest. There should not be anything unrelated to the discussion of logical validity of sentence. 
+Definition of Relevance: The speaker's responses should always stay on topic regarding the sentence of interest. The responses are relevant as long as their discussion ultimately leads to proving whether <sentence> is logically valid.
 Read each dialogue carefully. After reading both dialogues, first evaluate whether each dialogue fits the criteria well, then give a comparison in terms of the criteria here. 
 Format your answer in JSON in the following keys: "ans_1": <evaluation of dialogue 1>, "ans_2": <evaluation of dialogue 2>, "reason": <comparison of both dialogues using the criteria>
 
@@ -46,7 +46,7 @@ EVAL_VALID_ARGUMENTS = """
 You are a user who is interested in checking the validity of the claims in <sentence>, and you would need help from the dialogues to do so.
 You are given two dialogues, <dialogue 1> and <dialogue 2> to compare with each other. In both dialogues, two people discuss the logical validity of the given <sentence>. 
 Consider the following criteria named Argumentativeness.
-Definition of Argumentativeness: Counts the number of times a student proposes counterarguments, which is openly addressed by the teacher. A valid exchange happens when the student’s counterargument in the previous round is responded by the teacher in the current round, and the teacher's stance remains unchanged.
+Definition of Argumentativeness: Count the number of times the teacher openly responds to or questions the validity of the student's argument, without agreeing to the student or changing their stance.
 Read each dialogue carefully. After reading both dialogues, first evaluate whether each dialogue fits the criteria well, then give a comparison in terms of the criteria here. 
 Format your answer in JSON in the following keys: "ans_1": <evaluation of dialogue 1>, "ans_2": <evaluation of dialogue 2>, "reason": <comparison of both dialogues using the criteria>
 For each response, make sure to limit your answer to 40 words or less.

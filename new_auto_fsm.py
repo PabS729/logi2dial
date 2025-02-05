@@ -18,10 +18,10 @@ async def main():
     parser.add_argument("--file_to_annotate", type=str, default='pos_train_set.csv')
     parser.add_argument("--components_to_read", type=str, default='decomposed_sentences_toulmin.xlsx')
     parser.add_argument("--definition", type=str, default='proposed')
-    parser.add_argument("--use_banks", type=bool, default=False)
+    parser.add_argument("--use_banks", type=bool, default=True)
     parser.add_argument("--use_toulmin", type=bool, default=False)
     parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/fsm_0204_FSM_ONLY_33')
+    parser.add_argument("--save_fn", type=str, default='results/fsm_0205_mod_33')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -232,7 +232,7 @@ async def main():
                                 # thought = json.loads(thought_res.choices[0].message.content)["Type"]
                                 thought = 0
                             elif "yes" in relevance["Q3"].lower(): 
-                                thought = 3
+                                thought = 7
                             else:
                                 thought = 2
                             
@@ -438,7 +438,7 @@ async def main():
                     coll_agr.append(cp_agr)
                     print(cp_agr)
                     full_chat += chat_history                    
-                    if args.use_banks and "yes" in res["3"]:
+                    if args.use_banks and "yes" in res["3"] and "no" in res["4"]:
                         agr_bank.append(disagr_bank[-1])
                         del disagr_bank[-1]
                         continue

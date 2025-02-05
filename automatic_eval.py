@@ -14,13 +14,13 @@ from prompt_eval import *
 
 async def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dialogue1", type=str, default='results/fsm_0204_ALL_33')
+    parser.add_argument("--dialogue1", type=str, default='results/fsm_0205_mod_33')
     parser.add_argument("--dialogue2", type=str, default='results/fsm_0204_BASE_33')
     parser.add_argument("--dataset", type=str, default='pos_train_set.csv')
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/eval_33_fin_chat')
+    parser.add_argument("--save_fn", type=str, default='results/eval_33_fin_f')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -46,7 +46,7 @@ async def main():
     length_of_conversation = 5
 
     # model_student = "gpt-4o"
-    model_agent = "gpt-3.5-turbo"
+    model_agent = "gpt-4o"
 
     cohs = []
     rels = []

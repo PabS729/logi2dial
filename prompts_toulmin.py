@@ -22,7 +22,7 @@ If there are multiple grounds to a claim, separate them with comma in the "groun
 """
 
 PROMPT_STUDENT_STUBBORN = """
-You are a stubborn user interacting with a teacher. You believe that <sentence> is logically valid and you are critical over the teacher's response.
+You are a stubborn user interacting with a teacher. You believe that <sentence> is logically valid and you are critical over the teacher's response. You MUST disagree with the teacher.
 Respond to teacher's question. Answer with "yes" or "no" and briefly give your reason for your answer. Limit your response to 40 words or less.
 <sentence>: {sentence}
 

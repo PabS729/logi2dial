@@ -14,13 +14,13 @@ from prompt_eval import *
 
 async def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dialogue1", type=str, default='results/fsm_0130_33_cd_bal')
-    parser.add_argument("--dialogue2", type=str, default='results/fsm_0130_33_all_base_4o')
+    parser.add_argument("--dialogue1", type=str, default='results/fsm_0204_ALL_33')
+    parser.add_argument("--dialogue2", type=str, default='results/fsm_0204_BASE_33')
     parser.add_argument("--dataset", type=str, default='pos_train_set.csv')
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/eval_33_act_rev')
+    parser.add_argument("--save_fn", type=str, default='results/eval_33_fin_chat')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -46,7 +46,7 @@ async def main():
     length_of_conversation = 5
 
     # model_student = "gpt-4o"
-    model_agent = "gpt-4o"
+    model_agent = "gpt-3.5-turbo"
 
     cohs = []
     rels = []
@@ -77,14 +77,14 @@ async def main():
 
 
     eval_prompts = [EVAL_COHERENCE, EVAL_CONSISTENCY, EVAL_INFORMATION_DIV, EVAL_VALID_ARGUMENTS, EVAL_TEACHER_ACTIVE, EVAL_STANCE_MAINTENANCE]
-    eval_al = [False, False, False, False, True, False]
-    # eval_al = [True, True, True, True, True, True]
+    # eval_al = [False, False, False, False, True, False]
+    eval_al = [True, True, True, True, True, True]
     for j in range(len(sentences)):
         # print(sentences[j])
         # sentence = sentences[j].split(",")[4]
         sentence = sentences[j]
-        dialogue1 = dl2[j]
-        dialogue2 = dl1[j]
+        dialogue1 = dl1[j]
+        dialogue2 = dl2[j]
 
         print(sentence)
         for k in range(0, len(eval_al)):

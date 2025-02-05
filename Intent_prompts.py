@@ -126,11 +126,11 @@ Check the teacher's response and the student's response from <chat_history>. And
 
 Q1. Did the teacher explicitly ask the student to provide evidence or examples? That means the teacher is asking questions for providing examples, any other form of request does not count.
 Q2. Was the student unable to provide such evidence or examples? Note that any vague examples count. Also, the student can request the teacher to provide evidence instead, which makes this question's answer a "no".
-Q3. Did the student show explicit agreements to the teacher's response?
+Q3. Did the student show explicit changes to their stance in their response? The student's stance is that <sentence> is logically valid. 
 <sentence>: {sentence}
 <chat_history>: {history}
 
-Answer with "yes" or "no" only. Format your answer in json with the following keys: "1": <answer to Q1> "2": <answer to Q2>
+Answer with "yes" or "no" only. Format your answer in json with the following keys: "1": <answer to Q1> "2": <answer to Q2> "3": <answer to Q3>
 """
 
 PROMPT_AGENT_CHECK_AGREEMENT = """

@@ -79,7 +79,7 @@ You are given a fixed option above, which you need to follow. Use the option abo
 
 TEACHER_ACT_EX_AS = """
 
-<response> is your current response based on the option above. Please rephrase the response so that it contains explicit questions to the student according to the option above, as well as fitting the topic of discussing logical validity over <sentence>. Limit your answer to 50 words.
+<response> is your current response based on the option above. Please rephrase the response so that it contains explicit questions to the student according to the option above, as well as making it relevant to the discussion of logical validity over <sentence>. Limit your answer to 50 words.
 
 <sentence>: {sentence}
 <response>: {history}

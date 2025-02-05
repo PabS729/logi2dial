@@ -18,10 +18,10 @@ async def main():
     parser.add_argument("--file_to_annotate", type=str, default='pos_train_set.csv')
     parser.add_argument("--components_to_read", type=str, default='decomposed_sentences_toulmin.xlsx')
     parser.add_argument("--definition", type=str, default='proposed')
-    parser.add_argument("--use_banks", type=bool, default=True)
+    parser.add_argument("--use_banks", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=False)
     parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/fsm_0204_bAk7')
+    parser.add_argument("--save_fn", type=str, default='results/fsm_0204_FSM_ONLY_33')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -29,7 +29,7 @@ async def main():
     args = parser.parse_args()
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
-    sampled_df = df_to_argue.sample(n=1, random_state=33)
+    sampled_df = df_to_argue.groupby("Label").sample(n=5, random_state=33)
     
     # df_lf = pd.read_csv
     # df_components = pd.read_excel(args.components_to_read)
@@ -92,7 +92,7 @@ async def main():
                                                     None, None, None, None, None, PROMPT_OPENING, 0)
             appends(opening_res.choices[0].message.content, STUDENT_RESPONDS, "", "", "", "", [], [], '0', '0', '0')
 
-        rounds = 3
+        rounds = 10
         chat_history = ""
         full_chat = ""
         summary = ""
@@ -232,7 +232,7 @@ async def main():
                                 # thought = json.loads(thought_res.choices[0].message.content)["Type"]
                                 thought = 0
                             elif "yes" in relevance["Q3"].lower(): 
-                                thought = 7
+                                thought = 3
                             else:
                                 thought = 2
                             
@@ -433,16 +433,21 @@ async def main():
                     res = json.loads(agent_res.choices[0].message.content)
                     print(res)
 
+
                     cp_agr = copy.deepcopy(agr_bank)
                     coll_agr.append(cp_agr)
                     print(cp_agr)
-                    full_chat += chat_history
+                    full_chat += chat_history                    
+                    if args.use_banks and "yes" in res["3"]:
+                        agr_bank.append(disagr_bank[-1])
+                        del disagr_bank[-1]
+                        continue
                     if "yes" in res["1"].lower() and "yes" in res["2"].lower():
                         print("student unable to defend their argument")
                         if args.use_banks:
                             if len(disagr_bank) != 0:
-                                agr_bank.append(disagr_bank[- 1])
-                                del disagr_bank[ - 1]
+                                agr_bank.append(disagr_bank[-1])
+                                del disagr_bank[-1]
                         confirm_disagreement = "If you cannot provide any evidence at all, then I would suggest looking for them if you have time later. Do you still have any other concerns regarding the sentence's logical validity?" 
                         print(confirm_disagreement)
                         conv_teacher.append(confirm_disagreement)

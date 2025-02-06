@@ -97,7 +97,7 @@ async def main():
     r_ded = []
 
 
-    eval_prompts = [EVAL_COHERENCE, EVAL_CONSISTENCY, EVAL_INFORMATION_DIV, EVAL_VALID_ARGUMENTS, EVAL_TEACHER_ACTIVE, EVAL_STANCE_MAINTENANCE]
+    eval_prompts = [EVAL_COHERENCE, EVAL_CONSISTENCY, EVAL_TEACHER_HELP, EVAL_VALID_ARGUMENTS, EVAL_TEACHER_ACTIVE, EVAL_STANCE_MAINTENANCE]
     # eval_al = [False, False, False, False, True, False]
     eval_al = [True, True, True, True, True, True]
     for j in range(len(sentences)):

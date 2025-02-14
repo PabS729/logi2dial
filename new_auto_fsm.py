@@ -17,11 +17,11 @@ async def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--file_to_annotate", type=str, default='pos_train_set.csv')
     parser.add_argument("--components_to_read", type=str, default='decomposed_sentences_toulmin.xlsx')
-    parser.add_argument("--definition", type=str, default='proposed')
-    parser.add_argument("--use_banks", type=bool, default=True)
+    parser.add_argument("--use_diverge", type=bool, default=True)
+    parser.add_argument("--use_banks", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=False)
-    parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/fsm_0205_mod_33')
+    parser.add_argument("--use_FSM", type=bool, default=False)
+    parser.add_argument("--save_fn", type=str, default='results/div_base_0214')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -29,8 +29,8 @@ async def main():
     args = parser.parse_args()
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
-    sampled_df = df_to_argue.groupby("Label").sample(n=5, random_state=33)
-    
+    # sampled_df = df_to_argue.groupby("Label").sample(n=5, random_state=33)
+    sampled_df = df_to_argue.groupby("Label").sample(n=1, random_state=33)
     # df_lf = pd.read_csv
     # df_components = pd.read_excel(args.components_to_read)
     # sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "ad populum"].sample(n=1, random_state=15)
@@ -230,7 +230,7 @@ async def main():
                                 #                                  None, None, None, None, DETECT_FLAW_TEACHER, 0)
 
                                 # thought = json.loads(thought_res.choices[0].message.content)["Type"]
-                                thought = 0
+                                thought = 6
                             elif "yes" in relevance["Q3"].lower(): 
                                 thought = 7
                             else:
@@ -402,12 +402,17 @@ async def main():
                     
                     print("--------------------utterance--------------------")
                     print(utterance_teacher)
-                    utterance_student = await generate_res("stu", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, STU_PROMPT, 0)
-                    student_u = json.loads(utterance_student.choices[0].message.content)
-                    utterance_student = student_u["res"]
-                    print("student strategy:"+student_u["option"])
-                    print(utterance_student)
-                    start_student_strategy = student_u["option"]
+                    if args.use_diverge:
+                        utterance_student = await generate_res("student", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_DIVERT, 1)
+                        utterance_student = utterance_student.choices[0].message.content
+                        print(utterance_student)
+                    else:
+                        utterance_student = await generate_res("stu", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, STU_PROMPT, 0)
+                        student_u = json.loads(utterance_student.choices[0].message.content)
+                        utterance_student = student_u["res"]
+                        print("student strategy:"+student_u["option"])
+                        print(utterance_student)
+                        start_student_strategy = student_u["option"]
 
                     # print(utterance_student)
                     conversation_student.append(utterance_student)

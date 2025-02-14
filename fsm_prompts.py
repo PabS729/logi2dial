@@ -33,6 +33,8 @@
 
 # Transition_from_5 = Transition_from_3
 
+
+
 CHECK_RESPONSE_TEACHER = """
 You are an experienced teacher who knows how to debate, and you are interacting with student named [I], on discussing logical validity of <sentence>.
 Remember, the topic you are discussing on is the logical validity of <sentence>. You have to maintain your position and try not to be convinced by the student.

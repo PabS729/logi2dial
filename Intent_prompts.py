@@ -229,5 +229,14 @@ STUDENT_STRATS = {
 
 }
 
+PROMPT_STUDENT_DIVERT = """
+You are a student who likes to ask irrelevant questions, and you are interacting with teacher named [I], on discussing logical validity of <sentence>. 
+You believe that <sentence> is logically valid, but you do not want to argue with the teacher. You have the following options below:
+1. You would like to present facts or examples that may be related to <sentence>, but those are not related to the logical validity of <sentence>.
+2. You would like to discuss anything that is not related to the sentence. 
+Remember, you believe that <sentence> is logically valid, but you are roleplaying someone who want to divert the teacher's attention as much as possible. 
+Respond to the teacher. Try not to be convinced by the teacher and keep your response in 50 words or less.
+"""
+
 ok = "- Stating additional assumptions that make the statement logically valid."
 ads = "7. Asking about the teacher's assumption that might trigger logical flaws."

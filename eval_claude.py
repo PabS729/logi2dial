@@ -15,13 +15,15 @@ from persona_roleplay.respond_role import *
 import pandas
 from prompt_eval import *
 import anthropic
+import dotenv
 async def eval_claude(role, model_name, sentence, history, profile, target_statement, 
                             teacher_res, student_res, prompt_gen, temperature=0):
    
     user_prompt = prompt_gen.format(sentence=sentence, history=history, profile=profile)
+    dotenv.load_dotenv(".env")
     env_key = os.environ.get("ANTHROPIC_API_KEY")
     client = anthropic.Anthropic(
-        # defaults to os.environ.get("ANTHROPIC_API_KEY")
+        
         api_key="",
     )
     message = client.messages.create(
@@ -35,13 +37,13 @@ async def eval_claude(role, model_name, sentence, history, profile, target_state
 
 async def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dialogue1", type=str, default='results/fsm_0204_ALL_33')
+    parser.add_argument("--dialogue1", type=str, default='results/fsm_0204_33')
     parser.add_argument("--dialogue2", type=str, default='results/fsm_0204_BASE_33')
     parser.add_argument("--dataset", type=str, default='pos_train_set.csv')
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/eval_33_fin_rev_cl')
+    parser.add_argument("--save_fn", type=str, default='results/eval_33_fin_cl_rev')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -98,8 +100,8 @@ async def main():
 
 
     eval_prompts = [EVAL_COHERENCE, EVAL_CONSISTENCY, EVAL_TEACHER_HELP, EVAL_VALID_ARGUMENTS, EVAL_TEACHER_ACTIVE, EVAL_STANCE_MAINTENANCE]
-    # eval_al = [False, False, False, False, True, False]
-    eval_al = [True, True, True, True, True, True]
+    eval_al = [False, False, True, False, True, False]
+    # eval_al = [True, True, True, True, True, True]
     for j in range(len(sentences)):
         # print(sentences[j])
         # sentence = sentences[j].split(",")[4]

@@ -234,8 +234,14 @@ You are a student who likes to ask irrelevant questions, and you are interacting
 You believe that <sentence> is logically valid, but you do not want to argue with the teacher. You have the following options below:
 1. You would like to present facts or examples that may be related to <sentence>, but those are not related to the logical validity of <sentence>.
 2. You would like to discuss anything that is not related to the sentence. 
+3. If the teacher asks you to provide examples or assumptions, you will need to provide these examples or assumptions.
 Remember, you believe that <sentence> is logically valid, but you are roleplaying someone who want to divert the teacher's attention as much as possible. 
 Respond to the teacher. Try not to be convinced by the teacher and keep your response in 50 words or less.
+"""
+
+PROMPT_STUDENT_LACK_UNDERSTAND = """
+You are a student who wants to learn about the logical flaw of <sentence>. However, you will not be convinced if you find any aspect of the sentence is still open to discussion.
+You will also not learn anything if the teacher does not guide you. 
 """
 
 ok = "- Stating additional assumptions that make the statement logically valid."

@@ -18,10 +18,10 @@ async def main():
     parser.add_argument("--file_to_annotate", type=str, default='pos_train_set.csv')
     parser.add_argument("--components_to_read", type=str, default='decomposed_sentences_toulmin.xlsx')
     parser.add_argument("--use_diverge", type=bool, default=True)
-    parser.add_argument("--use_banks", type=bool, default=False)
+    parser.add_argument("--use_banks", type=bool, default=True)
     parser.add_argument("--use_toulmin", type=bool, default=False)
-    parser.add_argument("--use_FSM", type=bool, default=False)
-    parser.add_argument("--save_fn", type=str, default='results/div_base_0214')
+    parser.add_argument("--use_FSM", type=bool, default=True)
+    parser.add_argument("--save_fn", type=str, default='results/div_fsm_0214_n2')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -30,7 +30,7 @@ async def main():
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
     # sampled_df = df_to_argue.groupby("Label").sample(n=5, random_state=33)
-    sampled_df = df_to_argue.groupby("Label").sample(n=1, random_state=33)
+    sampled_df = df_to_argue.sample(n=1, random_state=4)
     # df_lf = pd.read_csv
     # df_components = pd.read_excel(args.components_to_read)
     # sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "ad populum"].sample(n=1, random_state=15)

@@ -122,7 +122,7 @@ EVAL_TEACHER_HELP = """
 You are a user who is interested in checking the validity of the claims in <sentence>, and you would need help from the dialogues to do so.
 You are given two dialogues, <dialogue 1> and <dialogue 2> to compare with each other. In both dialogues, two people discuss the logical validity of the given <sentence>. 
 Consider the following criteria named Helpfulness.
-Definition of Helpfulness: Count the times where the teacher guides the student through questions or confirmations of disagreements and focusing on parts of their disagreements.
+Definition of Helpfulness: Count the times where the teacher guides the student through confirmations of disagreements or questions that focus on specifics of the statement.
 Read each dialogue carefully. After reading both dialogues, first evaluate whether each dialogue fits the criteria well, then give a comparison in terms of the criteria here. 
 Format your answer in JSON in the following keys: "ans_1": <evaluation of dialogue 1>, "ans_2": <evaluation of dialogue 2>, "reason": <comparison of both dialogues using the criteria>
 For each response, make sure to limit your answer to 40 words or less.

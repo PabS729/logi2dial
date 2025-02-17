@@ -17,24 +17,9 @@ EVAL_CONSISTENCY = """
 You are a user who is interested in checking the validity of the claims in <sentence>, and you would need help from the dialogues to do so.
 You are given two dialogues, <dialogue 1> and <dialogue 2> to compare with each other. In both dialogues, two people discuss the logical validity of the given <sentence>. 
 Consider the following criteria named Relevance.
-Definition of Relevance: The speaker's responses should always stay on topic regarding the sentence of interest. The responses are relevant as long as their discussion ultimately leads to proving whether <sentence> is logically valid.
+Definition of Relevance: The teacher's responses should always stay on topic regarding the sentence of interest. The teacher's responses are relevant as long as their discussion ultimately leads to proving whether <sentence> is logically valid.
 Read each dialogue carefully. After reading both dialogues, first evaluate whether each dialogue fits the criteria well, then give a comparison in terms of the criteria here. 
 Format your answer in JSON in the following keys: "ans_1": <evaluation of dialogue 1>, "ans_2": <evaluation of dialogue 2>, "reason": <comparison of both dialogues using the criteria>
-
-<sentence>: {sentence}
-<dialogue 1>: {history}
-<dialogue 2>: {profile}
-
-"""
-
-EVAL_INFORMATION_DIV = """
-You are a user who is interested in checking the validity of the claims in <sentence>, and you would need help from the dialogues to do so.
-You are given two dialogues, <dialogue 1> and <dialogue 2> to compare with each other. In both dialogues, two people discuss the logical validity of the given <sentence>. 
-Consider the following criteria named Informativeness. 
-Definition of Informativeness: Measures how much useful information are introduced by both parties. Look for responses with commonsense or real-world examples that may help illustrate the logical validity of the sentence, as well as supporting or refuting arguments. These examples must facilitate further discussion of the sentence, or clearly support or counter any kind of arguments.
-Read each dialogue carefully. After reading both dialogues, first evaluate whether each dialogue fits the criteria well, then give a comparison in terms of the criteria here. 
-Format your answer in JSON in the following keys: "ans_1": <evaluation of dialogue 1>, "ans_2": <evaluation of dialogue 2>, "reason": <comparison of both dialogues using the criteria>
-For each response, make sure to limit your answer to 40 words or less.
 
 <sentence>: {sentence}
 <dialogue 1>: {history}

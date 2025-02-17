@@ -3,6 +3,20 @@ import asyncio
 import time
 from mistralai.client import MistralClient
 import os
+import json
+
+def load_json(json_f):
+    success = False
+    try:
+        ret = json.loads(json_f)
+        success = True
+    except Exception as e:
+        print("load json error, retrying...")
+        print(e)
+    if success == True:
+        return ret
+    else:
+        return success
 
 async def generate_res(role, model_name, sentence, history, profile, target_statement, 
                             teacher_res, student_res, prompt_gen, temperature=0):

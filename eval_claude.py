@@ -24,7 +24,7 @@ async def eval_claude(role, model_name, sentence, history, profile, target_state
     env_key = os.environ.get("ANTHROPIC_API_KEY")
     client = anthropic.Anthropic(
         
-        api_key="",
+        api_key=str(env_key),
     )
     message = client.messages.create(
         model="claude-3-5-sonnet-20241022",
@@ -37,13 +37,13 @@ async def eval_claude(role, model_name, sentence, history, profile, target_state
 
 async def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dialogue1", type=str, default='results/fsm_0204_33')
-    parser.add_argument("--dialogue2", type=str, default='results/fsm_0204_BASE_33')
+    parser.add_argument("--dialogue1", type=str, default='results/div_fsm_0216_33_s')
+    parser.add_argument("--dialogue2", type=str, default='results/div_base_0216_33_s')
     parser.add_argument("--dataset", type=str, default='pos_train_set.csv')
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/eval_33_fin_cl_rev')
+    parser.add_argument("--save_fn", type=str, default='results/eval_33_diver_rev')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -100,7 +100,7 @@ async def main():
 
 
     eval_prompts = [EVAL_COHERENCE, EVAL_CONSISTENCY, EVAL_TEACHER_HELP, EVAL_VALID_ARGUMENTS, EVAL_TEACHER_ACTIVE, EVAL_STANCE_MAINTENANCE]
-    eval_al = [False, False, True, False, True, False]
+    eval_al = [False, True, False, False, False, False]
     # eval_al = [True, True, True, True, True, True]
     for j in range(len(sentences)):
         # print(sentences[j])
@@ -113,7 +113,10 @@ async def main():
         for k in range(0, len(eval_al)):
             if eval_al[k] == True:
                 eval_res_COH = await eval_claude("eval_s", model_agent, sentence, dialogue1, dialogue2, None, None, None, eval_prompts[k], 0)
-                eval_coh = json.loads(eval_res_COH.content[0].text)
+                eval_coh = load_json(eval_res_COH.content[0].text)
+                while eval_coh == False:
+                    eval_res_COH = await eval_claude("eval_s", model_agent, sentence, dialogue1, dialogue2, None, None, None, eval_prompts[k], 0)
+                    eval_coh = load_json(eval_res_COH.content[0].text)
                 arr1[k].append(eval_coh["ans_1"])
                 arr2[k].append(eval_coh["ans_2"])
                 arr3[k].append(eval_coh["reason"])

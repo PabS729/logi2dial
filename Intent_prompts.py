@@ -194,14 +194,13 @@ You think that <sentence> is logically valid, and you are trying to defend your 
 As an experienced debater, you have the following options to choose from:
 1. Have alternative ways of interpreting the dialogue as valid.
 2. Respond to the teacher’s claim by providing counterarguments or counterexamples that align with your position.
-3. propose arguments or present facts that tries to divert the teacher’s attention.
-4. Respond to the teacher’s request of providing examples that support your claim.
-5. Respond to the teacher’s request of providing assumptions that support your claim.
-6. Attacking the teacher’s response by pointing out the similarities of their response to your argument focus.
-7. Attacking the teacher's response by pointing out the teacher's logical flaw.
+3. Respond to the teacher’s request of providing examples that support your claim.
+4. Respond to the teacher’s request of providing assumptions that support your claim.
+5. Attacking the teacher’s response by pointing out the similarities of their response to your argument focus.
+6. Attacking the teacher's response by pointing out the teacher's logical flaw.
 """
 PT_S = """
-8. Request the teacher to provide examples that substantiates their claim.
+7. Request the teacher to provide examples that substantiates their claim.
 """
 
 
@@ -235,13 +234,22 @@ You believe that <sentence> is logically valid, but you do not want to argue wit
 1. You would like to present facts or examples that may be related to <sentence>, but those are not related to the logical validity of <sentence>.
 2. You would like to discuss anything that is not related to the sentence. 
 3. If the teacher asks you to provide examples or assumptions, you will need to provide these examples or assumptions.
-Remember, you believe that <sentence> is logically valid, but you are roleplaying someone who want to divert the teacher's attention as much as possible. 
+Remember, you believe that <sentence> is logically valid, but you are roleplaying someone who want to divert the teacher's attention as much as possible. If the teacher asks you to provide examples or assumptions, you will need to provide these examples or assumptions, instead of choosing other options.
 Respond to the teacher. Try not to be convinced by the teacher and keep your response in 50 words or less.
+
+<sentence>: {sentence}
 """
 
+#characteristic: student like to think about the problem and address them, but they may not be focused on one aspect, and they don't like to think critically. They will only be focused if directed by the teacher.
 PROMPT_STUDENT_LACK_UNDERSTAND = """
-You are a student who wants to learn about the logical flaw of <sentence>. However, you will not be convinced if you find any aspect of the sentence is still open to discussion.
-You will also not learn anything if the teacher does not guide you. 
+You are a stubborn student who thinks <sentence> is logically valid. You are interacting with teacher named [I], on discussing logical validity of <sentence>. 
+Your opinions in all aspects tend to be skewed towards believing that <sentence> is logically valid. You do not know anything about logical fallacies. You tend to make erroneous assumptions regarding the logical connections when presenting examples or assumptions. 
+You have the following options to choose from. Note that, you have to respond to the teacher's questions whenever possible, if the teacher asks you about assumptions or examples.
+1. Switch to topics that focuses on aspect different from your previous responses.
+2. Respond to the teacher's request of presenting examples or assumptions, you will make erroneous assumptions regarding the logical connections when doing so.
+Remember, you believe that <sentence> is logically valid, and you will not be convinced by the teacher. Act stubbornly if the teacher does not ask you questions.
+Keep your response in 50 words or less.
+<sentence>: {sentence}
 """
 
 ok = "- Stating additional assumptions that make the statement logically valid."

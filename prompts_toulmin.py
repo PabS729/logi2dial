@@ -13,7 +13,7 @@ Great! Let's start with breaking down the sentence into components with toulmin'
 
 #Initial prompt to decompose sentence using Toulmin's model
 PROMPT_DECOMPOSE_TOULMIN = """
-Decompose this <sentence> according to the Toulmin's model.
+Decompose this <sentence> according to the Toulmin's model. Only consider the claim, the grounds, and the warrant. 
 
 <sentence>: {sentence}
 
@@ -191,6 +191,21 @@ Check if the student's <response> is relevant to the points mentioned in <tracke
 <sentence>: {sentence}
 <tracker>: {history}
 <response>: {profile}
+
+"""
+
+PROMPT_CHECK_RELEVANCE_TOULMIN = """
+The student and teacher are discussing about the logical validity of <sentence>. Please answer the following questions.
+Q1. Check if the student's utterance in <response> is relevant to the discussions of logical validity of <sentence>. If yes, answer with yes and a summary of student's response in 20 words or less. If no, answer with no and give your reason in 15 words or less.
+Q2. Check which item in <history> is most relevant to the student's response. Answer with yes and provide the item. If the student's response is irrelevant to any of them, answer with no and give your reason in 15 words or less.
+Q3. Check if the student's utterance in <response> is already included in <agreements>. If yes, answer with yes and give your reason in 15 words or less. If no, ONLY answer with "no".
+Please address the student by the second person pronoun "you".
+<sentence>: {sentence}
+<history>: {history}
+<response>: {profile}
+<agreements>: {target_statement}
+
+format your answer in JSON with the following component: "Q1": <answer_to_Q1>, "Q2": <answer_to_Q2>, "Q3": <answer_to_Q3>
 
 """
 

@@ -18,11 +18,11 @@ async def main():
     parser.add_argument("--file_to_annotate", type=str, default='pos_train_set.csv')
     parser.add_argument("--components_to_read", type=str, default='decomposed_sentences_toulmin.xlsx')
     parser.add_argument("--use_diverge", type=bool, default=False)
-    parser.add_argument("--use_edu", type=bool, default=True)
+    parser.add_argument("--use_edu", type=bool, default=False)
     parser.add_argument("--use_banks", type=bool, default=True)
     parser.add_argument("--use_toulmin", type=bool, default=False)
     parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/div_b_0216_4_ng')
+    parser.add_argument("--save_fn", type=str, default='results/arg_nw_0217_n')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -80,18 +80,27 @@ async def main():
         example_sentence = sentences[j]
         example_label = labels[j]
         agreement_bank = []
+        disagr_bank = []
         print(example_sentence)
 
         #Generates toulmin Decomposition of sentence.
+        toulmin_res = await generate_res("gen_strategy", model_teacher, example_sentence, 
+                                                    None, None, None, None, None, PROMPT_DECOMPOSE_TOULMIN, 0)
+        toulmin = json.loads(toulmin_res.choices[0].message.content)
+        print(toulmin)
+        for k in toulmin.keys():
+            disagr_bank.append(toulmin[k])
         if args.use_toulmin:
             toulmin_res = await generate_res("gen_strategy", model_teacher, example_sentence, 
                                                     None, None, None, None, None, PROMPT_DECOMPOSE_TOULMIN, 0)
             toulmin = json.loads(toulmin_res.choices[0].message.content)
             print(toulmin)
+            for k in toulmin.keys():
+                disagr_bank.append(toulmin[k])
 
-            opening_res = await generate_res("conv", model_student, example_sentence, 
-                                                    None, None, None, None, None, PROMPT_OPENING, 0)
-            appends(opening_res.choices[0].message.content, STUDENT_RESPONDS, "", "", "", "", [], [], '0', '0', '0')
+            # opening_res = await generate_res("conv", model_student, example_sentence, 
+            #                                         None, None, None, None, None, PROMPT_OPENING, 0)
+            # appends(opening_res.choices[0].message.content, STUDENT_RESPONDS, "", "", "", "", [], [], '0', '0', '0')
 
         rounds = 10
         chat_history = ""
@@ -148,7 +157,7 @@ async def main():
             # if no, enter debate
             else: 
                 tmp = conv_teacher[-1]
-                disagr_bank = []
+                
                 #if the student disagrees, enter discussion
                 #starts at state 3 since it is a neutral state
                 curr_state = "3"
@@ -175,11 +184,11 @@ async def main():
                         thought = 0
                         if args.use_banks:
                             relevance_res = await generate_res("check", model_student, example_sentence, disagr_bank, 
-                                                               chat_history, agr_bank, None, None, PROMPT_CHECK_DISAGREEMENT, 0)
+                                                               chat_history, agr_bank, None, None, PROMPT_CHECK_RELEVANCE_TOULMIN, 0)
                             relevance = load_json(relevance_res.choices[0].message.content)
                             while relevance == False:
                                 relevance_res = await generate_res("check", model_student, example_sentence, disagr_bank, 
-                                                               chat_history, agr_bank, None, None, PROMPT_CHECK_DISAGREEMENT, 0)
+                                                               chat_history, agr_bank, None, None, PROMPT_CHECK_RELEVANCE_TOULMIN, 0)
                                 relevance = load_json(relevance_res.choices[0].message.content)
 
                             print(relevance)
@@ -188,12 +197,15 @@ async def main():
                             if "yes" in relevance["Q2"].lower(): 
                                 disagr_bank.append(relevance["Q2"])
 
-                                confirm_disagreement = "It seems that our current disagreement lies on this point:" + relevance["Q2"][4:].lower()+ ", do you agree? If yes, then we can focus our discussion on this part." 
+                                confirm_disagreement = "It seems that we have different opinions on this: " + relevance["Q2"][4:].lower()+ ", do you agree? If yes, then we can focus our discussion on this part." 
                                 print(confirm_disagreement)
-                                student_res = await generate_res("ag", model_student, relevance["Q2"][4:].lower(), chat_history, None, None, conv_teacher, conv_student, PROMPT_STUDENT_CONFIRM, 0)
+                                student_res = await generate_res("ag", model_student, relevance["Q2"][4:].lower(), chat_history, None, None, conv_teacher, conv_student, PROMPT_STUDENT_CONFIRM_TOUL, 0)
                                 student_res = student_res.choices[0].message.content
-                                # conv_teacher.append(confirm_disagreement)
-                                # conv_student.append(student_res)
+                                print(student_res)
+                                conv_teacher.append(confirm_disagreement)
+                                conv_student.append(student_res)
+                                # conversation_teacher.append(confirm_disagreement)
+                                # conversation_student.append(student_res)
                                 appends(confirm_disagreement, student_res, "", "", "", "", agr_bank, disagr_bank, '0', '0', '0')
                                 if "yes" in student_res.lower():
                                     a = 0

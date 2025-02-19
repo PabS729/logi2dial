@@ -8,6 +8,14 @@
 # You have a few options below. Pick one option that you think best suits the conversation and talk to the student.
 # """
 
+TEACHER_BASELINE_PROMPT = """
+You are an experienced teacher who would like to teach others and discuss sentences. You are interacting with a student named [I] on discussing the logical validity of <sentence>.
+Respond to the student and keep your response in 50 words or less.
+
+<sentence>: {sentence}
+
+"""
+
 
 BASE_PROMPT = """
 You are an experienced teacher who knows toulmin's model and logical fallacies, and you are interacting with a student named [I], on discussing validity of <sentence>. 
@@ -152,6 +160,14 @@ You are an experienced student who knows how to debate, and you are interacting 
 Based on what you said in <chat_history>, does the teacher's <summarization> of your argument fits your response in <chat_history>? Respond with "yes" or "no" only.
 
 <summarization>: {sentence}
+<history>: {history}
+"""
+
+PROMPT_STUDENT_CONFIRM_TOUL = """
+You are an experienced student who knows how to debate, and you are interacting with teacher named [I].
+Based on what you said in <chat_history>, do you think your response fits the scope of discussing <component>? Respond with "yes" or "no" only.
+
+<component>: {sentence}
 <history>: {history}
 """
 

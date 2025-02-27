@@ -19,10 +19,11 @@ async def main():
     parser.add_argument("--components_to_read", type=str, default='decomposed_sentences_toulmin.xlsx')
     parser.add_argument("--use_diverge", type=bool, default=False)
     parser.add_argument("--use_edu", type=bool, default=False)
-    parser.add_argument("--use_banks", type=bool, default=True)
+    parser.add_argument("--use_nm_debate", type=bool, default=True)
+    parser.add_argument("--use_banks", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=False)
-    parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/arg_nw_0217_n')
+    parser.add_argument("--use_FSM", type=bool, default=False)
+    parser.add_argument("--save_fn", type=str, default='results/bsc_0227_ds')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -30,8 +31,10 @@ async def main():
     args = parser.parse_args()
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
-    # sampled_df = df_to_argue.groupby("Label").sample(n=5, random_state=33)
-    sampled_df = df_to_argue.sample(n=1, random_state=4)
+    sampled_df = df_to_argue.groupby("Label").sample(n=1, random_state=33)
+    # sampled_df = df_to_argue.sample(n=100, random_state=4)
+    # sampled_df = df_to_argue["Context"].values.tolist()
+    # labels = df_to_argue["Label"].values.tolist()
     # df_lf = pd.read_csv
     # df_components = pd.read_excel(args.components_to_read)
     # sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "ad populum"].sample(n=1, random_state=15)
@@ -39,9 +42,15 @@ async def main():
     # strategy = emo_alt
     sentences = sampled_df["Context"].values.tolist()
     labels = sampled_df["Label"].values.tolist()
+    # sentences = sampled_df[1000:1300]
+    # sentences = set(sentences)
+    # sentences = list(sentences)[150:172]
+    # labels = labels[1000:1300]
+    
     model_student = "gpt-4o"
-    model_teacher = "gpt-4o"
-    model_agent = model_teacher
+    model_teacher = "deepseek-reasoner"
+    # model_teacher = "deepseek-r1"
+    model_agent = model_student
     sampled_sentence = []
     sampled_labels = []
 
@@ -78,18 +87,18 @@ async def main():
 
     for j in range(len(sentences)):
         example_sentence = sentences[j]
-        example_label = labels[j]
+        # example_label = labels[j]
         agreement_bank = []
         disagr_bank = []
         print(example_sentence)
 
         #Generates toulmin Decomposition of sentence.
-        toulmin_res = await generate_res("gen_strategy", model_teacher, example_sentence, 
-                                                    None, None, None, None, None, PROMPT_DECOMPOSE_TOULMIN, 0)
-        toulmin = json.loads(toulmin_res.choices[0].message.content)
-        print(toulmin)
-        for k in toulmin.keys():
-            disagr_bank.append(toulmin[k])
+        # toulmin_res = await generate_res("gen_strategy", model_teacher, example_sentence, 
+        #                                             None, None, None, None, None, PROMPT_DECOMPOSE_TOULMIN, 0)
+        # toulmin = json.loads(toulmin_res.choices[0].message.content)
+        # print(toulmin)
+        # for k in toulmin.keys():
+        #     disagr_bank.append(toulmin[k])
         if args.use_toulmin:
             toulmin_res = await generate_res("gen_strategy", model_teacher, example_sentence, 
                                                     None, None, None, None, None, PROMPT_DECOMPOSE_TOULMIN, 0)
@@ -114,7 +123,7 @@ async def main():
         
         # for k in toulmin.keys():
         if True:
-            teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, OPENING_PROMPT, 0)
+            teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_BASELINE, 0)
             teacher_res = teacher_res.choices[0].message.content
             conv_teacher.append(teacher_res)
             utterance_teacher = teacher_res
@@ -169,7 +178,7 @@ async def main():
                     
                     if i == 0:
                         sampled_sentence.append(example_sentence)
-                        sampled_labels.append(example_label)
+                        # sampled_labels.append(example_label)
 
                         thought = "D"
                         reles.append("")
@@ -178,17 +187,17 @@ async def main():
                     else: 
                         
                         sampled_sentence.append("")
-                        sampled_labels.append("")
+                        # sampled_labels.append("")
 
                         #checks the relevance and potential repetition of the student's response
                         thought = 0
                         if args.use_banks:
                             relevance_res = await generate_res("check", model_student, example_sentence, disagr_bank, 
-                                                               chat_history, agr_bank, None, None, PROMPT_CHECK_RELEVANCE_TOULMIN, 0)
+                                                               chat_history, agr_bank, None, None, PROMPT_CHECK_DISAGREEMENT, 0)
                             relevance = load_json(relevance_res.choices[0].message.content)
                             while relevance == False:
                                 relevance_res = await generate_res("check", model_student, example_sentence, disagr_bank, 
-                                                               chat_history, agr_bank, None, None, PROMPT_CHECK_RELEVANCE_TOULMIN, 0)
+                                                               chat_history, agr_bank, None, None, PROMPT_CHECK_DISAGREEMENT, 0)
                                 relevance = load_json(relevance_res.choices[0].message.content)
 
                             print(relevance)
@@ -395,7 +404,7 @@ async def main():
                         print("cont toulmin")
                         teacher_res = await generate_res("tea", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_TALK_ABOUT_LF_CONV, 0)
                     else:
-                        teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_No_CoT, 1)
+                        teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_BASELINE, 1)
 
                     chat_history = ""
 
@@ -425,6 +434,16 @@ async def main():
                         utterance_student = await generate_res("student", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_DIVERT, 1)
                         utterance_student = utterance_student.choices[0].message.content
                         print(utterance_student)
+                    elif args.use_nm_debate:
+                        utterance_student = await generate_res("stu", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_NORMAL + PT_2, 0)
+                        student_u = load_json(utterance_student.choices[0].message.content)
+                        while student_u == False:
+                            utterance_student = await generate_res("stu", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_NORMAL + PT_2, 0)
+                            student_u = load_json(utterance_student.choices[0].message.content)                           
+                        utterance_student = student_u["res"]
+                        print("student strategy:"+student_u["option"])
+                        print(utterance_student)
+                        start_student_strategy = student_u["option"]
                     elif args.use_edu:
                         utterance_student = await generate_res("student", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_LACK_UNDERSTAND, 1)
                         utterance_student = utterance_student.choices[0].message.content
@@ -501,7 +520,7 @@ async def main():
         #summary of conversation and ending
         summary = await generate_res("sum", model_student, example_sentence, full_chat, None, None, None, None, PROMPT_SUMMARIZE, 0)
         summary = summary.choices[0].message.content
-        t_res = await generate_res("agt", model_teacher, example_sentence, summary, None, None, None, None, ENDING_PROMPT, 1)
+        t_res = await generate_res("agt", model_teacher, example_sentence, summary, None, None, [], [], ENDING_PROMPT, 1)
         t_res = t_res.choices[0].message.content
         s_res = await generate_res("student", model_student, example_sentence, None, None, None, [t_res], [], ENDING_STUDENT, 1)
         s_res = s_res.choices[0].message.content

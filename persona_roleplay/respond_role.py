@@ -1,10 +1,10 @@
 from openai import OpenAI
 import asyncio
 import time
-from mistralai.client import MistralClient
+# from mistralai.client import MistralClient
 import os
 import json
-
+import dotenv
 def load_json(json_f):
     success = False
     try:
@@ -25,7 +25,15 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
     #     # print("c")
     # else:
     #     client = OpenAI()
-    client = OpenAI()
+    dotenv.load_dotenv(".env")
+    env_key = os.environ.get("OPENAI_API_KEY")
+    ds_key = os.environ.get("QF_API_KEY")
+    OF_key = os.environ.get("DS_API_KEY")
+    if model_name in ["deepseek-reasoner", "deepseek-r1"]:
+        # client = OpenAI(base_url="https://qianfan.baidubce.com/v2", api_key=ds_key)
+        client = OpenAI(base_url="https://api.deepseek.com/v1", api_key=OF_key)
+    else:
+        client = OpenAI(api_key=str(env_key))
 
     p = prompt_gen
     msgs = []
@@ -46,6 +54,9 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
 
     msgs.append({"role": "system", "content": user_prompt})
 
+    if model_name in ["deepseek-r1","deepseek-reasoner"]:
+        msgs.append({"role": "user", "content": "Talk to the student. Make sure to limit your response in 50 words or less."})
+
 
     #teacher and student take turns
     if role in ["teacher_st", "teacher", "t_edu", "exp", "test", "old"]: 
@@ -59,10 +70,16 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
                 msgs.append({"role": "user", "content": t})
                 msgs.append({"role": "assistant", "content": s})
         msgs.append({"role": "user", "content": teacher_res[-1]})
+    # print(msgs)
     done = False
     while not done:
         try: 
-            if role in ["old","check","", "fact_bank", "find_contradiction", "strategy", "thought", "gen_strategy", "agent", "eval_t", "test", "stu", 'eval_s']:
+            if model_name in ["o3-mini", "deepseek-r1", "deepseek-reasoner"]:
+                response = client.chat.completions.create(
+                model=model_name,
+            messages=msgs,
+            )
+            elif role in ["old","check","", "fact_bank", "find_contradiction", "strategy", "thought", "gen_strategy", "agent", "eval_t", "test", "stu", 'eval_s']:
                 response = client.chat.completions.create(
                 model=model_name,
             messages=msgs,

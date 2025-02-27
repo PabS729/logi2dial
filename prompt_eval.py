@@ -118,6 +118,65 @@ For each response, make sure to limit your answer to 40 words or less.
 
 """
 
+COMPARE_DIALOGUES = """
+You are a judge who is checking dialogues regarding the discussion of <sentence>. You are given two dialogues, <dialogue 1> and <dialogue 2> to compare with each other. 
+In both dialogues, a teacher and a student discuss the logical validity of the given <sentence>. The teacher is prompted using different methods, while the student is the same for both dialogues. 
+Consider the dialogues from the argumentative as well as educational perspective. 
+list the weaknesses of the teacher in each dialogue, up to 7 points each. For each weakness, briefly state your reason for such judgement in 15 words or less. 
+
+<sentence>: {sentence}
+<dialogue 1>: {history}
+<dialogue 2>: {profile}
+
+Format your answer in JSON in the following keys: "ans_1": <evaluation of dialogue 1>, "ans_2": <evaluation of dialogue 2>
+
+"""
 
 
 
+PROMPT_CLASSIFY_RELEVANCE = """
+You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
+Definition of divergence: The teacher's responses is affected by the student through shifts of focus away from the discussion of logical validity of <sentence>.
+Read the dialogue carefully and consider whether the teacher's responses contain instances of divergence. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no".
+
+<sentence>: {sentence}
+<dialogue>: {history}
+"""
+
+PROMPT_CLASSIFY_STANCE_CHANGE = """
+You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
+Definition of stance change: The teacher explicitly shows agreement to the student's words, e.g. "I agree...", or "You are right..", and the teacher's initial position is affected by the student.
+Read the dialogue carefully and consider whether the teacher's responses contain instances of stance change. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
+
+<sentence>: {sentence}
+<dialogue>: {history}
+"""
+
+PROMPT_CLASSIFY_COMPLEX_REFUTATION = """
+You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
+Definition of refutation: The teacher challenges the student by asking student EXPLICIT QUESTIONS to provide assumptions or by providing counterexamples WITHOUT the student's request.
+Read the dialogue carefully and consider whether the teacher's responses contain instances of refutation. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
+
+<sentence>: {sentence}
+<dialogue>: {history}
+"""
+
+PROMPT_CLASSIFY_REPETITION = """
+You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
+Definition of repetition: The teacher agrees with the student by paraphrasing the student's opinions or simply repeating the student's opinions. The teacher may also repeat by simply restating their responses without providing further explanations. 
+Read the dialogue carefully and consider whether the teacher's responses contain instances of repetition. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
+
+<sentence>: {sentence}
+<dialogue>: {history}
+
+"""
+
+PROMPT_CLASSIFY_PROOF = """
+You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
+Definition of Proactiveness: The teacher explicitly requested the student to provide examples that support the student's position.
+Read the dialogue carefully and consider whether the teacher's responses contain instances of proactiveness. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
+
+<sentence>: {sentence}
+<dialogue>: {history}
+
+"""

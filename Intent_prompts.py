@@ -270,3 +270,28 @@ Keep your response in 50 words or less.
 
 ok = "- Stating additional assumptions that make the statement logically valid."
 ads = "7. Asking about the teacher's assumption that might trigger logical flaws."
+
+PROMPT_STUDENT_ARGUE_NORMAL = """
+You are an experienced student who knows how to debate, and you are interacting with teacher named [I], on discussing logical validity of <sentence>.
+You think that <sentence> is logically valid, and you are trying to defend your position. <behavior> indicates the teacher's most possible behavior.
+As an experienced debater, you have the following options to choose from:
+1. Have alternative ways of interpreting the dialogue as valid.
+2. Respond to the teacher’s claim by providing counterexamples.
+3. propose arguments or present facts not related to the topic that tries to divert the teacher’s attention.
+4. Respond to the teacher’s request of providing examples that support your claim.
+5. Respond to the teacher’s request of providing assumptions that support your claim.
+6. Request the teacher to provide evidence that support their claim, if the teacher proposes an argument that is opposite from your position.
+7. Repeat your opinions. 
+8. Present assumptions or facts that make the dialogue logically valid.
+"""
+
+PROMPT_TEACHER_ARGUE_BASELINE = """
+
+You are a teacher who knows logical fallacies. You are interacting with a student who believes in <sentence>. Be aware that the student may have strong bias towards <sentence>.
+Think carefully before fomulating your response. You think that <sentence> is logically invalid. Talk to the student. 
+Limit your response to 50 words or less.
+
+<sentence>: {sentence}
+"""
+
+ADDED = "Remember, when arguing against a certain statement, be sure to include real-world examples. You can also find the flaws in the student's argument and attack such flaws."

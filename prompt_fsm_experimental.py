@@ -1,40 +1,3 @@
-
-# Transition_from_1 = """
-# 1. The example given by the student is not specific enough. You need to ask the student to provide more examples.
-# 2. The example given by the student contains logical error. 
-# 3. The Student Requests for examples or clarifications to illustrate your point.
-# 4. The student's examples might be unclear. Assumption is needed to clarify the student's examples.
-# 5. The example given by the student is unrelated to the topic of discussion.
-# """
-
-# Transition_from_2 = """
-# 1. The new argument proposed by the student lacks evidence. You need to obtain examples from the student to illustrate.
-# 2. The argument has clear logical flaw that can be further refuted.
-# 3. The Student Requests for examples to illustrate your point.
-# 4. The student's argument is unclear and assumption is needed to clarify the student's argument.
-# 5. The argument given by the student is unrelated to the topic of discussion.
-# """
-
-# Transition_from_3 = """
-# 1. The new argument proposed by the student lacks evidence. You need to obtain examples from the student to illustrate.
-# 2. There is a clear logical flaw in the student's argument, or the student's argument is unrelated to the topic of discussion.
-# 3. The Student Requests for examples or clarifications to illustrate your point.
-# 4. The student's argument is unclear and assumption is needed to clarify the student's argument.
-# 5. The argument given by the student is unrelated to the topic of discussion.
-# """
-
-# Transition_from_4 = """
-# 1. To check the validity of student's assumptions, you need to ask the student to provide examples.
-# 2. The student's assumption has clear logical flaw, or is unrelated to the topic of discussion.
-# 3. The Student Requests for examples or clarifications to illustrate your point.
-# 4. The student's argument is still unclear given the assumption. You need to ask about more assumptions to clarify the student's argument.
-# 5. The argument given by the student is unrelated to the topic of discussion.
-# """
-
-# Transition_from_5 = Transition_from_3
-
-
-
 CHECK_RESPONSE_TEACHER = """
 You are an experienced teacher who knows how to debate, and you are interacting with student named [I], on discussing logical validity of <sentence>.
 Remember, the topic you are discussing on is the logical validity of <sentence>. You have to maintain your position and try not to be convinced by the student.
@@ -45,7 +8,6 @@ Q2: Treating the student's response or example as a counterargument to your stan
 Q3: Is the student explicitly requesting evidence or explanation?
 Q4: Treating the student's response as a counterargument to your stance, does the student's argument need more assumptions to clarify?
 Q5: Is the student attacking your response by pointing out logical flaw or similarities to their argument?
-Q6. Does the student 
 
 For each question, answer with "yes" or "no". Format your answer in JSON with the following key: "1": <answer to Q1>, "2": <answer to Q2>, "3": <answer to Q3>, "4": <answer to Q4> "5": <answer to Q5>
 <sentence>: {sentence}
@@ -103,7 +65,7 @@ STRAT_FOR_STATES = {
     "4": """Treating the student's response as counterargument to your stance, ask the student about their assumptions in their arguments. e.g. 'Why do you assume...' or 'How do you know...'. 
     """,
     
-    "5": "Remind the student that the previous round is not related to the topic of discussion",
+    "5": "Ask the student to clarify their definitions in their response",
     # "6": "Respond to the student's attack by defending the validity of your stance."
 }
 
@@ -157,6 +119,3 @@ Conclude the conversation by responding to the teacher's ending remarks, while m
 
 <sentence>: {sentence}
 """
-#10 Utterances. Utterances 1 to 6. Give a prompt that summarizes ut 1 to 6. In the previous part of the talk, what happened is..
-#Start the dialogue from turn 7, with only the previous 2 or 3 turns of utterances. After each round, delete the first round that appeared and continue. 
-

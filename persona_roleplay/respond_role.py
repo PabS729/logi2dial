@@ -55,8 +55,10 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
     msgs.append({"role": "system", "content": user_prompt})
 
     if model_name in ["deepseek-r1","deepseek-reasoner"]:
-        msgs.append({"role": "user", "content": "Talk to the student. Make sure to limit your response in 50 words or less."})
-
+        if role in ["teacher", "agt"]:
+            msgs.append({"role": "user", "content": "Talk to the student. Make sure to limit your response in 50 words or less."})
+        else:
+            msgs.append({"role": "user", "content": "Classify the sentence according to instructions above."})
 
     #teacher and student take turns
     if role in ["teacher_st", "teacher", "t_edu", "exp", "test", "old"]: 

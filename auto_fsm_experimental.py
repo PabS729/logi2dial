@@ -20,10 +20,10 @@ async def main():
     parser.add_argument("--use_diverge", type=bool, default=False)
     parser.add_argument("--use_edu", type=bool, default=False)
     parser.add_argument("--use_nm_debate", type=bool, default=True)
-    parser.add_argument("--use_banks", type=bool, default=False)
+    parser.add_argument("--use_banks", type=bool, default=True)
     parser.add_argument("--use_toulmin", type=bool, default=False)
-    parser.add_argument("--use_FSM", type=bool, default=False)
-    parser.add_argument("--save_fn", type=str, default='results/ds_0228_33')
+    parser.add_argument("--use_FSM", type=bool, default=True)
+    parser.add_argument("--save_fn", type=str, default='results/fsm_0227_33')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -48,8 +48,8 @@ async def main():
     # labels = labels[1000:1300]
     
     model_student = "gpt-4o"
-    # model_teacher = "gpt-4o"
-    model_teacher = "deepseek-reasoner"
+    model_teacher = "gpt-4o"
+    # model_teacher = "deepseek-reasoner"
     # model_teacher = "deepseek-r1"
     model_agent = model_student
     sampled_sentence = []
@@ -124,8 +124,8 @@ async def main():
         
         # for k in toulmin.keys():
         if True:
-            # teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, OPENING_PROMPT, 0)
-            teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_BASELINE, 0)
+            teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, OPENING_PROMPT, 0)
+            # teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_BASELINE, 0)
             # teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_BASELINE, 0)
             teacher_res = teacher_res.choices[0].message.content
             conv_teacher.append(teacher_res)

@@ -138,7 +138,7 @@ PROMPT_CLASSIFY_RELEVANCE = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
 Definition of divergence: The teacher's responses is affected by the student through shifts of focus away from the discussion of logical validity of <sentence>.
 Read the dialogue carefully and consider whether the teacher's responses contain instances of divergence. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no".
-
+Only answer with "yes" or "no" as requested, and DO NOT make any excessive comments or reasons.
 <sentence>: {sentence}
 <dialogue>: {history}
 """
@@ -147,7 +147,7 @@ PROMPT_CLASSIFY_STANCE_CHANGE = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
 Definition of stance change: The teacher explicitly shows agreement to the student's words, e.g. "I agree...", or "You are right..", and the teacher's initial position is affected by the student.
 Read the dialogue carefully and consider whether the teacher's responses contain instances of stance change. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
-
+Only answer with "yes" or "no" as requested, and DO NOT make any excessive comments or reasons.
 <sentence>: {sentence}
 <dialogue>: {history}
 """
@@ -156,7 +156,7 @@ PROMPT_CLASSIFY_COMPLEX_REFUTATION = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
 Definition of refutation: The teacher challenges the student by asking student EXPLICIT QUESTIONS to provide assumptions or by providing counterexamples WITHOUT the student's request.
 Read the dialogue carefully and consider whether the teacher's responses contain instances of refutation. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
-
+Only answer with "yes" or "no" as requested, and DO NOT make any excessive comments or reasons.
 <sentence>: {sentence}
 <dialogue>: {history}
 """
@@ -165,7 +165,7 @@ PROMPT_CLASSIFY_REPETITION = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
 Definition of repetition: The teacher agrees with the student by paraphrasing the student's opinions or simply repeating the student's opinions. The teacher may also repeat by simply restating their responses without providing further explanations. 
 Read the dialogue carefully and consider whether the teacher's responses contain instances of repetition. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
-
+Only answer with "yes" or "no" as requested, and DO NOT make any excessive comments or reasons.
 <sentence>: {sentence}
 <dialogue>: {history}
 
@@ -174,9 +174,28 @@ Read the dialogue carefully and consider whether the teacher's responses contain
 PROMPT_CLASSIFY_PROOF = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
 Definition of Proactiveness: The teacher explicitly requested the student to provide examples that support the student's position.
+Some examples for illustrating the existence of proactiveness.
+
 Read the dialogue carefully and consider whether the teacher's responses contain instances of proactiveness. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
+Only answer with "yes" or "no" as requested, and DO NOT make any excessive comments or reasons.
 
 <sentence>: {sentence}
 <dialogue>: {history}
 
+"""
+
+PROMPT_COMPARE_PROBLEMS = """
+You are a judge who is checking dialogues regarding the discussion of <sentence>. You are given two dialogues, <dialogue 1> and <dialogue 2> to compare with each other. 
+In both dialogues, a teacher and a student discuss the logical validity of the given <sentence>. The teacher is prompted using different methods, while the student is the same for both dialogues. 
+Consider the dialogues from the argumentative as well as educational perspective. List the problems with <dialogue 1> and tell me if <dialogue 2> can address those problems. Finally, discuss some weaknesses that still remains in <dialogue 2> which can be improved.
+
+<sentence>: The issue of abortion is a very difficult issue, one that I think that we all have to wrestle with, we have to come to terms with. I don't favor abortion. I don't think it's a good thing. I don't think most people do. The question is who makes the decision.
+
+<dialogue 1>: {history}
+<dialogue 2>: {profile}
+
+"""
+
+EXPS = """Example 1: I agree inclusivity and potential are essential. The vision isn't inherently invalid, but without specific examples, like successful policy initiatives or community programs, it's harder to measure feasibility. Exploring such examples ensures the vision transforms into actionable steps with tangible outcomes. 
+Example 2: You make a valid point about the potential impact of bipartisan cooperation. However, ensuring safety involves evaluating the effectiveness of specific policies and their implementation. Let's consider examining concrete evidence of how these collaborative efforts have directly contributed to measurable improvements in national safety.
 """

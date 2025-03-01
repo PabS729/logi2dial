@@ -138,7 +138,7 @@ PROMPT_CLASSIFY_RELEVANCE = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
 Definition of divergence: The teacher's responses is affected by the student through shifts of focus away from the discussion of logical validity of <sentence>.
 Read the dialogue carefully and consider whether the teacher's responses contain instances of divergence. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no".
-Only answer with "yes" or "no" as requested, and DO NOT make any excessive comments or reasons.
+
 <sentence>: {sentence}
 <dialogue>: {history}
 """
@@ -147,7 +147,7 @@ PROMPT_CLASSIFY_STANCE_CHANGE = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
 Definition of stance change: The teacher explicitly shows agreement to the student's words, e.g. "I agree...", or "You are right..", and the teacher's initial position is affected by the student.
 Read the dialogue carefully and consider whether the teacher's responses contain instances of stance change. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
-Only answer with "yes" or "no" as requested, and DO NOT make any excessive comments or reasons.
+
 <sentence>: {sentence}
 <dialogue>: {history}
 """
@@ -156,7 +156,7 @@ PROMPT_CLASSIFY_COMPLEX_REFUTATION = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
 Definition of refutation: The teacher challenges the student by asking student EXPLICIT QUESTIONS to provide assumptions or by providing counterexamples WITHOUT the student's request.
 Read the dialogue carefully and consider whether the teacher's responses contain instances of refutation. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
-Only answer with "yes" or "no" as requested, and DO NOT make any excessive comments or reasons.
+
 <sentence>: {sentence}
 <dialogue>: {history}
 """
@@ -165,7 +165,7 @@ PROMPT_CLASSIFY_REPETITION = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
 Definition of repetition: The teacher agrees with the student by paraphrasing the student's opinions or simply repeating the student's opinions. The teacher may also repeat by simply restating their responses without providing further explanations. 
 Read the dialogue carefully and consider whether the teacher's responses contain instances of repetition. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
-Only answer with "yes" or "no" as requested, and DO NOT make any excessive comments or reasons.
+
 <sentence>: {sentence}
 <dialogue>: {history}
 
@@ -177,7 +177,45 @@ Definition of Proactiveness: The teacher explicitly requested the student to pro
 Some examples for illustrating the existence of proactiveness.
 
 Read the dialogue carefully and consider whether the teacher's responses contain instances of proactiveness. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
-Only answer with "yes" or "no" as requested, and DO NOT make any excessive comments or reasons.
+
+
+<sentence>: {sentence}
+<dialogue>: {history}
+
+"""
+
+PROMPT_CLASSIFY_PERSPECTIVE = """
+You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
+Definition of balancedness: The teacher emphasizes "balanced perspectives" or "broader context" without explaining in detail the exact problem with the validity of <sentence>.
+Read the dialogue carefully and consider whether the teacher's responses contain instances of balancedness. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
+
+<sentence>: {sentence}
+<dialogue>: {history}
+"""
+
+PROMPT_CLASSIFY_TERMS = """
+You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
+Definition of term-reliance: The teacher mentions terms of logical fallacy e.g. strawman argument, ad hominem, without explaining these terms' definitions clearly.
+Read the dialogue carefully and consider whether the teacher's responses contain instances of term-reliance. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
+
+<sentence>: {sentence}
+<dialogue>: {history}
+"""
+
+# PROMPT_CLASSIFY_FOCUS = """
+# You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
+# Definition of focusedness: The teacher shows attempts to resolve disagreements by guiding the student through discussing 
+# Read the dialogue carefully and consider whether the teacher's responses contain instances of term-reliance. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
+# Only answer with "yes" or "no" as requested, and DO NOT make any excessive comments or reasons.
+# <sentence>: {sentence}
+# <dialogue>: {history}
+
+# """
+
+PROMPT_CLASSIFY_PROACTIVE = """
+You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
+Definition of activeness: The teacher is actively taking control of the conversation through refutations of the student's argument, or asking the student questions, WITHOUT shifting focus away from the discussion of logical validity of <sentence>, or being directed by the student's responses.
+Read the dialogue carefully and consider whether the teacher's responses fits the description of activeness. Answer with "yes" if you think the teacher shows activeness overall. Otherwise, answer with "no" only.
 
 <sentence>: {sentence}
 <dialogue>: {history}

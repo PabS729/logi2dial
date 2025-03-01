@@ -288,7 +288,7 @@ As an experienced debater, you have the following options to choose from:
 PROMPT_TEACHER_ARGUE_BASELINE = """
 
 You are a teacher who knows logical fallacies. You are interacting with a student who believes in <sentence>. Be aware that the student may have strong bias towards <sentence>.
-Think carefully before fomulating your response. You think that <sentence> is logically invalid. Talk to the student. Make sure to formulate your response to be easily understandable by a student.
+Think carefully before fomulating your response. You think that <sentence> is logically invalid. Talk to the student and try to convince the student that <sentence> is logically invalid. Make sure to formulate your response to be readable and understandable by a real student.
 Limit your response to 50 words or less.
 
 <sentence>: {sentence}

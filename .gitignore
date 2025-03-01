@@ -1,3 +1,2 @@
 .env
 classification_results/*
-eval_results/*

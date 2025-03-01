@@ -17,12 +17,12 @@ PF = [PROMPT_CLASSIFY_PERSPECTIVE, PROMPT_CLASSIFY_PROACTIVE, PROMPT_CLASSIFY_TE
 ns = [[],[],[],[],[]]
 async def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dialogue1", type=str, default='results/bsc_0222_base_1000_o')
+    parser.add_argument("--dialogue1", type=str, default='results/bsc_0222_base_2_200_o')
     parser.add_argument("--dataset", type=str, default='pos_train_set.csv')
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/classify_base_1000_add')
+    parser.add_argument("--save_fn", type=str, default='results/classify_base_2_200_add')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)

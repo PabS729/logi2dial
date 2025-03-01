@@ -15,7 +15,7 @@ import random
 
 async def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--file_to_annotate", type=str, default='pos_train_set.csv')
+    parser.add_argument("--file_to_annotate", type=str, default='st_wo_duplicates.csv')
     parser.add_argument("--components_to_read", type=str, default='decomposed_sentences_toulmin.xlsx')
     parser.add_argument("--use_diverge", type=bool, default=False)
     parser.add_argument("--use_edu", type=bool, default=False)
@@ -23,7 +23,7 @@ async def main():
     parser.add_argument("--use_banks", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=False)
     parser.add_argument("--use_FSM", type=bool, default=False)
-    parser.add_argument("--save_fn", type=str, default='results/ds_0301_33')
+    parser.add_argument("--save_fn", type=str, default='results/ds_0301_100')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -31,10 +31,10 @@ async def main():
     args = parser.parse_args()
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
-    sampled_df = df_to_argue.groupby("Label").sample(n=1, random_state=33)
+    # sampled_df = df_to_argue.groupby("Label").sample(n=1, random_state=33)
     # sampled_df = df_to_argue.sample(n=100, random_state=4)
-    # sampled_df = df_to_argue["Context"].values.tolist()
-    # labels = df_to_argue["Label"].values.tolist()
+    sampled_df = df_to_argue["Context"].values.tolist()
+    labels = df_to_argue["Label"].values.tolist()
     # df_lf = pd.read_csv
     # df_components = pd.read_excel(args.components_to_read)
     # sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "ad populum"].sample(n=1, random_state=15)
@@ -42,6 +42,8 @@ async def main():
     # strategy = emo_alt
     sentences = sampled_df["Context"].values.tolist()
     labels = sampled_df["Label"].values.tolist()
+    sentences = sentences[:100]
+    # labels = labels[:100]
     # sentences = sampled_df[1000:1300]
     # sentences = set(sentences)
     # sentences = list(sentences)[150:172]

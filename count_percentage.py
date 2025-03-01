@@ -1,7 +1,7 @@
 import pandas as pd
 import random
 import math
-fi = pd.read_excel("okk_all.xlsx", index_col=None)
+fi = pd.read_excel("okk_all_rest.xlsx", index_col=None)
 # from sklearn.utils import shuffle
 
 
@@ -10,17 +10,17 @@ kdd = [k for k in fi.keys() if k not in ["sentences", "chats"]]
 
 
 fi_1 = fi.drop_duplicates(["sentences"])
-print(fi_1)
-fi2 = pd.read_excel("okk_all_2.xlsx")
+# print(fi_1)
+fi2 = pd.read_excel("okk_all_rest_2.xlsx")
 comb = pd.concat([fi_1, fi2], axis=0)
 # comb.replace(to_replace=r'yes*|Yes*',
 #            value="yes")
 # comb.replace()
 # print(comb)
-comb.to_excel("all_talk.xlsx")
+# comb.to_excel("all_talk.xlsx")
 for k in kdd:
-    comb[k] = comb[k].str.replace(r'yes*|Yes*', "yes")
-    comb[k] = comb[k].str.replace(r'no*|No*', "no")
+    # comb[k] = comb[k].str.replace(r'yes*|Yes*', "yes")
+    # comb[k] = comb[k].str.replace(r'no*|No*', "no")
     fks.append(comb[k].values.tolist())
 # print(comb)
 # ln = [k for k in fi.keys()]
@@ -37,7 +37,7 @@ for (ar, k) in zip(fks, kdd):
     # print(ar)
     ct = 0
     for j,st in zip(ar, comb["sentences"]):
-        print(j)
+        # print(j)
         # print(ct)
         if "yes" in str(j)[:5].lower():
             yes+=1
@@ -56,11 +56,11 @@ for k in kdd:
     # rd_no = random.sample(st_note_no[k], 15)
     # nl_yes = comb.query("sentences == @rd_yes and ")
     # nl_no = comb.query("sentences == @rd_no"
-    nl_yes = comb[comb[k] == "yes"].sample(n=15, random_state = 10)
-    nl_no = comb[comb[k] == "no"].sample(n=15, random_state = 10)
+    nl_yes = comb[comb[k] == "yes"].sample(n=30, random_state = 10)
+    nl_no = comb[comb[k] == "no"].sample(n=30, random_state = 10)
 
     comab = pd.concat([nl_yes, nl_no], axis=0)
-    # comab.filter(["sentences", "chats", k]).to_excel("res_" + k + ".xlsx")
+    comab.filter(["sentences", "chats", k]).to_excel("res_" + k + ".xlsx")
     # shuf = shuffle(comab.filter(["sentences", "chats"]))
 
     # shuf.to_excel("shuf_lab_new_" + k + ".xlsx")

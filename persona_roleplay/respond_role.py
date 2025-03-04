@@ -104,6 +104,6 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
             done = True
         except Exception as e:
             print("error caught, waiting...", e)
-            time.sleep(60)
+            time.sleep(10)
     return response
     

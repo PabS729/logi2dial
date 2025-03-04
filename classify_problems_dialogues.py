@@ -12,17 +12,18 @@ from prompt_eval import *
 
 
 # PF = [PROMPT_CLASSIFY_RELEVANCE, PROMPT_CLASSIFY_STANCE_CHANGE, PROMPT_CLASSIFY_COMPLEX_REFUTATION, PROMPT_CLASSIFY_REPETITION]
-# PF = [PROMPT_CLASSIFY_RELEVANCE]
-PF = [PROMPT_CLASSIFY_PERSPECTIVE, PROMPT_CLASSIFY_PROACTIVE, PROMPT_CLASSIFY_TERMS]
-ns = [[],[],[],[],[]]
+# PF = [PROMPT_CLASSIFY_PERSPECTIVE]
+# PF = [PROMPT_CLASSIFY_PERSPECTIVE, PROMPT_CLASSIFY_PROACTIVE, PROMPT_CLASSIFY_TERMS]
+PF = [PROMPT_CLASSIFY_GUIDANCE, PROMPT_CLASSIFY_STRUCTURED_ANALYSIS, PROMPT_CLASSIFY_PERSPECTIVE, PROMPT_CLASSIFY_TERMS, PROMPT_CLASSIFY_RELEVANCE, PROMPT_CLASSIFY_STANCE_CHANGE, PROMPT_CLASSIFY_COMPLEX_REFUTATION, PROMPT_CLASSIFY_REPETITION, PROMPT_CLASSIFY_PROOF]
+ns = [[],[],[],[],[],[],[],[],[],[],[]]
 async def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dialogue1", type=str, default='results/bsc_0222_base_2_200_o')
+    parser.add_argument("--dialogue1", type=str, default='results/ds_0301_900')
     parser.add_argument("--dataset", type=str, default='pos_train_set.csv')
     parser.add_argument("--use_category", type=bool, default=False)
     parser.add_argument("--use_toulmin", type=bool, default=True)
     parser.add_argument("--mode", type=str, default='proposed')
-    parser.add_argument("--save_fn", type=str, default='results/classify_base_2_200_add')
+    parser.add_argument("--save_fn", type=str, default='results/classify_ds_900')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -71,21 +72,39 @@ async def main():
     #     # "asking for proof": ns[0],
     #     "repetition": ns[2],
     #     }
-    data_dict = {
-        "sentences": sentences, 
-        "chats": dl1,
-        # "divergence": ns[0],
-        "perspective": ns[0],
-        "activeness": ns[1],
-        # "asking for proof": ns[0],
-        "terms": ns[2],
-        }
+    # data_dict = {
+    #     "sentences": sentences, 
+    #     "chats": dl1,
+    #     # "divergence": ns[0],
+    #     "perspective": ns[0],
+    #     # "activeness": ns[1],
+    #     # "asking for proof": ns[0],
+    #     # "terms": ns[2],
+    #     }
     # data_dict = {
     #     "sentences": sentences,
     #     "proof_orig": dialogues_1["divergence"],
     #     "human label": dialogues_1["label"],
     #     "labels": ns[0]
     # }
+    data_dict = {
+        "sentences": sentences, 
+        "chats": dl1,
+        # "divergence": ns[0],
+        "guidance": ns[0],
+        "structured": ns[1],
+        # "focused": ns[2],
+        # "activeness": ns[1],
+        "perspective": ns[2],
+        
+        "terms": ns[3],
+        "divergence": ns[4],
+        "stance_change": ns[5],
+        "complex_refutation": ns[6],
+        "repetition": ns[7],
+        "asking_for_proof": ns[8],
+
+        }
 
     df = pandas.DataFrame.from_dict(data_dict)
 

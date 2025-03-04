@@ -55,11 +55,10 @@ TEACHER_ACT_EX_AS = """
 STRAT_FOR_STATES = {
     "1": "Treating the student's response as counterargument to your stance, request the student to provide evidence that supports his claim. e.g. Can you provide examples...",
     "2": """
-    Refute the student's argument, based on four ways. You can select any possible way.
+    Refute the student's argument, based on four ways. You can select any possible way. Note that, for each option, you must follow the option first, then provide a counterargument or counterexample which fits the option's description.
     a. Showing that the argument's conclusion or premise is wrong.
-    b. Proposing counterargument or counterexample with similar premises but different conclusions.
-    c. Showing that the argument's conclusion does not follow from the premise.
-    d. Showing that the student's argument is irrelevant to the topic of discussion. Even if the evidence provided is valid, it may be irrelevant to the logical validity of <sentence>, and thus can be dismissed.""",
+    b. Showing that the argument's conclusion does not follow from the premise.
+    c. Showing that the student's argument is irrelevant to the topic of discussion. Even if the evidence provided is valid, it may be irrelevant to the logical validity of <sentence>, and thus can be dismissed.""",
 
     "3": "Respond to the student's request on providing evidence or clarifications, and give support to your stance if necessary.",
     "4": """Treating the student's response as counterargument to your stance, ask the student about their assumptions in their arguments. e.g. 'Why do you assume...' or 'How do you know...'. 

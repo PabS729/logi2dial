@@ -186,9 +186,9 @@ Read the dialogue carefully and consider whether the teacher's responses contain
 
 PROMPT_CLASSIFY_PERSPECTIVE = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
-Definition of balancedness: The teacher emphasizes "balanced perspectives" or "broader context" without explaining in detail the exact problem with the validity of <sentence>.
+Definition of balancedness: The teacher explicitly mentions or maintains "balanced perspectives" or "broader context" without explaining in detail the exact problem with the validity of <sentence>.
 Read the dialogue carefully and consider whether the teacher's responses contain instances of balancedness. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
-
+ 
 <sentence>: {sentence}
 <dialogue>: {history}
 """
@@ -212,15 +212,15 @@ Read the dialogue carefully and consider whether the teacher's responses contain
 
 # """
 
-PROMPT_CLASSIFY_PROACTIVE = """
-You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
-Definition of activeness: The teacher is actively taking control of the conversation through refutations of the student's argument, or asking the student questions, WITHOUT shifting focus away from the discussion of logical validity of <sentence>, or being directed by the student's responses.
-Read the dialogue carefully and consider whether the teacher's responses fits the description of activeness. Answer with "yes" if you think the teacher shows activeness overall. Otherwise, answer with "no" only.
+# PROMPT_CLASSIFY_PROACTIVE = """
+# You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
+# Definition of activeness: The teacher is actively taking control of the conversation through refutations of the student's argument, or asking the student questions, WITHOUT shifting focus away from the discussion of logical validity of <sentence>, or being directed by the student's responses.
+# Read the dialogue carefully and consider whether the teacher's responses fits the description of activeness. Answer with "yes" if you think the teacher shows activeness overall. Otherwise, answer with "no" only.
 
-<sentence>: {sentence}
-<dialogue>: {history}
+# <sentence>: {sentence}
+# <dialogue>: {history}
 
-"""
+# """
 
 PROMPT_COMPARE_PROBLEMS = """
 You are a judge who is checking dialogues regarding the discussion of <sentence>. You are given two dialogues, <dialogue 1> and <dialogue 2> to compare with each other. 
@@ -236,4 +236,35 @@ Consider the dialogues from the argumentative as well as educational perspective
 
 EXPS = """Example 1: I agree inclusivity and potential are essential. The vision isn't inherently invalid, but without specific examples, like successful policy initiatives or community programs, it's harder to measure feasibility. Exploring such examples ensures the vision transforms into actionable steps with tangible outcomes. 
 Example 2: You make a valid point about the potential impact of bipartisan cooperation. However, ensuring safety involves evaluating the effectiveness of specific policies and their implementation. Let's consider examining concrete evidence of how these collaborative efforts have directly contributed to measurable improvements in national safety.
+"""
+
+PROMPT_CLASSIFY_MAINTAIN_FOCUS = """
+You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
+Definition of focused: The teacher focuses on the discussion of logical validity of <sentence> for the ENTIRE conversation.
+Read the dialogue carefully and consider whether the teacher's responses fits the description of focused. Answer with "yes" if you think that the teacher meets the requirements for focused. Otherwise, answer with "no" only.
+
+<sentence>: {sentence}
+<dialogue>: {history}
+
+"""
+
+PROMPT_CLASSIFY_STRUCTURED_ANALYSIS = """
+You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
+Definition of structuredness: The teacher breaks down the sentence into components using existing argumentation models while discussing logical validity of <sentence>.
+Read the dialogue carefully and consider whether the teacher's responses contain instances of structuredness. Answer with "yes" if you found at least one response fitting the description. Otherwise, answer with "no" only.
+
+<sentence>: {sentence}
+<dialogue>: {history}
+
+
+"""
+
+PROMPT_CLASSIFY_GUIDANCE = """
+You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
+Definition of passive guidance: For the dialogue, the teacher primarily follows the student's lead rather than providing clear direction on how to analyze logical validity of <sentence>.
+Read the dialogue carefully and consider whether the teacher's response fits the description passive guidance. Answer with "yes" if you found at least one response fitting the description. Otherwise, answer with "no" only.
+
+<sentence>: {sentence}
+<dialogue>: {history}
+
 """

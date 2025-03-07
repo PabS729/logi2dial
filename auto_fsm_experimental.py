@@ -9,7 +9,7 @@ from persona_roleplay.prompts_roleplay import *
 from persona_roleplay.respond_role import *
 from strategy_handle import * 
 from Intent_prompts import *
-from fsm_prompts import *
+from prompt_fsm_experimental import *
 import random
 
 
@@ -23,7 +23,7 @@ async def main():
     parser.add_argument("--use_banks", type=bool, default=True)
     parser.add_argument("--use_toulmin", type=bool, default=False)
     parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/fsm_0227_33')
+    parser.add_argument("--save_fn", type=str, default='results/fsm_EXP_0307_new_2')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -31,7 +31,7 @@ async def main():
     args = parser.parse_args()
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
-    sampled_df = df_to_argue.groupby("Label").sample(n=1, random_state=33)
+    sampled_df = df_to_argue.sample(n=5, random_state=2)
     # sampled_df = df_to_argue.sample(n=100, random_state=4)
     # sampled_df = df_to_argue["Context"].values.tolist()
     # labels = df_to_argue["Label"].values.tolist()
@@ -51,7 +51,7 @@ async def main():
     model_teacher = "gpt-4o"
     # model_teacher = "deepseek-reasoner"
     # model_teacher = "deepseek-r1"
-    model_agent = model_student
+    model_agent = "gpt-4o-mini"
     sampled_sentence = []
     sampled_labels = []
 
@@ -139,8 +139,14 @@ async def main():
             if args.use_toulmin:
                 student_res = await generate_res("student_bio", model_student, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_STUDENT_RESPOND, 0)
             else:
-                student_res = await generate_res("student", model_student, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_STUDENT_STUBBORN, 0)
-            utterance_student = student_res.choices[0].message.content
+                student_res = await generate_res("stu", model_student, example_sentence, "", None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_NORMAL + PT_2, 0)
+                student_u = load_json(student_res.choices[0].message.content)
+                while student_u == False:
+                    utterance_student = await generate_res("stu", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_NORMAL + PT_2, 0)
+                    student_u = load_json(utterance_student.choices[0].message.content)
+                                     
+            utterance_student = student_u["res"]
+            chat_history = "teacher: " + utterance_teacher + "\n" + "student: " + utterance_student  
             conv_student.append(utterance_student)
             full_chat += "teacher: " + utterance_teacher + "\n"
             full_chat += "student: " + utterance_student + "\n"
@@ -214,8 +220,8 @@ async def main():
                                 student_res = await generate_res("ag", model_student, relevance["Q2"][4:].lower(), chat_history, None, None, conv_teacher, conv_student, PROMPT_STUDENT_CONFIRM_TOUL, 0)
                                 student_res = student_res.choices[0].message.content
                                 print(student_res)
-                                conv_teacher.append(confirm_disagreement)
-                                conv_student.append(student_res)
+                                # conv_teacher.append(confirm_disagreement)
+                                # conv_student.append(student_res)
                                 # conversation_teacher.append(confirm_disagreement)
                                 # conversation_student.append(student_res)
                                 appends(confirm_disagreement, student_res, "", "", "", "", agr_bank, disagr_bank, '0', '0', '0')
@@ -390,8 +396,12 @@ async def main():
                         
                         #rephrase the teacher's response, if we found that it is not following the expected state.
                         
-                        if ("no" in cs['1'].lower() or "no" in cs['2'].lower()) and next_state in ['1', '4']:
-                            teacher_res = await generate_res("agents", model_teacher, example_sentence, teacher_res.choices[0].message.content, None, None, None, None, TEACHER_ACT_1 + STRAT_FOR_STATES[next_state] + TEACHER_ACT_EX_AS, 1)
+                        if ("no" in cs['1'].lower() or "no" in cs['2'].lower()) and next_state in ['1', '4', '2']:
+                            if next_state in ['1', '4']:
+                                pt = TEACHER_ACT_EX_AS
+                            else:
+                                pt = TEACHER_ACT_REFUTE
+                            teacher_res = await generate_res("agents", model_teacher, example_sentence, teacher_res.choices[0].message.content, None, None, None, None, TEACHER_ACT_1 + STRAT_FOR_STATES[next_state] + pt, 1)
                             check_following_res = await generate_res("eval_s", model_student, example_sentence, teacher_res.choices[0].message.content, STRAT_FOR_STATES[next_state], None, None, None, CHECK_FOLLOW_FSM_AGENT, 0)
                             cs = load_json(check_following_res.choices[0].message.content)
                             while cs == False:
@@ -482,13 +492,30 @@ async def main():
                     #     if "yes" in agr["2"].lower():
                     #         break
                     #check whether the student agrees with the teacher
-                    agent_res = await generate_res("eval_s", model_student, example_sentence, chat_history, None, None, None, None, PROMPT_AGENT_CHECK_EVIDENCE, 0)
+                    agent_res = await generate_res("eval_s", model_agent, example_sentence, chat_history, None, None, None, None, PROMPT_AGENT_CHECK_EVIDENCE, 0)
                     res = load_json(agent_res.choices[0].message.content)
                     while res == False:
-                        agent_res = await generate_res("eval_s", model_student, example_sentence, chat_history, None, None, None, None, PROMPT_AGENT_CHECK_EVIDENCE, 0)
+                        agent_res = await generate_res("eval_s", model_agent, example_sentence, chat_history, None, None, None, None, PROMPT_AGENT_CHECK_EVIDENCE, 0)
                         res = load_json(agent_res.choices[0].message.content) 
 
                     print(res)
+
+                    if "yes" in res['6'] and "yes" in res['7']:
+                        utter = "You have not answered the question I asked. Please answer it before making any requests. " + utterance_teacher
+                        utterance_student = await generate_res("stu", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_NORMAL + PT_2, 0)
+                        student_u = load_json(utterance_student.choices[0].message.content)
+                        while student_u == False:
+                            utterance_student = await generate_res("stu", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_NORMAL + PT_2, 0)
+                            student_u = load_json(utterance_student.choices[0].message.content)                           
+                        utterance_student = student_u["res"]
+                        print("student strategy:"+student_u["option"])
+                        print(utterance_student)
+                        conv_teacher.append(utter)
+                        conv_student.append(utterance_student)
+                        appends(utter, utterance_student, "", "", "", "", agr_bank, disagr_bank,'0','0', '0')
+                        chat_history = "teacher: " + utter + "\n" + "student: " + utterance_student
+
+
 
 
                     cp_agr = copy.deepcopy(agr_bank)

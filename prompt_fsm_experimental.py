@@ -5,7 +5,7 @@ Consider the student's response in <history>, and answer the following questions
 
 Q1: Treating the student's response as a counterargument to your stance, does the student make an argument without presenting enough evidence that supports it?
 Q2: Treating the student's response or example as a counterargument to your stance, does the student present argument or example with clear logical flaws?
-Q3: Is the student explicitly requesting evidence or explanation?
+Q3: Is the student requesting you to provide evidence or explanation?
 Q4: Treating the student's response as a counterargument to your stance, does the student's argument need more assumptions to clarify?
 Q5: Is the student attacking your response by pointing out logical flaw or similarities to their argument?
 
@@ -42,6 +42,14 @@ You are given a fixed option above, which you need to follow. Use the option abo
 <sentence>: {sentence}
 """
 
+TEACHER_ACT_REFUTE = """
+<response> is your current response based on the option above. Please rephrase the response so that it serves to refute the student's claim according to the option above, as well as making it relevant to the discussion of logical validity over <sentence>. Limit your answer to 50 words.
+
+<sentence>: {sentence}
+<response>: {history}
+
+"""
+
 TEACHER_ACT_EX_AS = """
 
 <response> is your current response based on the option above. Please rephrase the response so that it contains explicit questions to the student according to the option above, as well as making it relevant to the discussion of logical validity over <sentence>. Limit your answer to 50 words.
@@ -55,9 +63,9 @@ TEACHER_ACT_EX_AS = """
 STRAT_FOR_STATES = {
     "1": "Treating the student's response as counterargument to your stance, request the student to provide evidence that supports his claim. e.g. Can you provide examples...",
     "2": """
-    Refute the student's argument, based on four ways. You can select any possible way. Note that, for each option, you must follow the option first, then provide a counterargument or counterexample which fits the option's description.
-    a. Showing that the argument's conclusion or premise is wrong.
-    b. Showing that the argument's conclusion does not follow from the premise.
+    Refute the student's argument using one of the following strategy. 
+    a. Showing that the argument's conclusion or premise is wrong. Provide a counterargument or counterexample to illustrate your point.
+    b. Showing that the argument's conclusion does not follow from the premise. Provide a counterargument or counterexample to illustrate your point.
     c. Showing that the student's argument is irrelevant to the topic of discussion. Even if the evidence provided is valid, it may be irrelevant to the logical validity of <sentence>, and thus can be dismissed.""",
 
     "3": "Respond to the student's request on providing evidence or clarifications, and give support to your stance if necessary.",

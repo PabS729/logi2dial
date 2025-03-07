@@ -6,7 +6,7 @@ reads = pd.read_excel("all_talk_s.xlsx")
 ks = [k for k in reads.keys() if (k not in ["sentences","chats"]) ]
 
 for j in ks:
-    if j in ["guidance", "focused"]:
+    if j in ["focused"]:
         continue
     print(j)
     fn = "shuf_lab_new_" + str(j) + ".xlsx"
@@ -19,4 +19,4 @@ for j in ks:
         filt_s = reads[reads["chats"] == s]
         small_k.append(filt_s)
     smk = pd.concat(small_k)
-    smk.to_excel("ks_c_" + j + ".xlsx")
+    smk.to_excel("ks_l_" + j + ".xlsx")

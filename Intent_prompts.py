@@ -136,10 +136,13 @@ Q1. Did the teacher explicitly ask the student to provide evidence or examples? 
 Q2. Was the student unable to provide such evidence or examples? Note that any vague examples count. Also, the student can request the teacher to provide evidence instead, which makes this question's answer a "no".
 Q3. Did the student explicitly agree with the teacher's response?
 Q4. Did the student mention that the teacher's response aligns with their position that <sentence> is logically valid?
+Q5. Is the student responding to the teacher with EXPLICIT examples or assumptions that support their stance?
+Q6. Is the student asking questions to the teacher?
+Q7. Is the teacher EXPLICITLY asking questions to the student?
 <sentence>: {sentence}
 <chat_history>: {history}
 
-Answer with "yes" or "no" only. Format your answer in json with the following keys: "1": <answer to Q1>, "2": <answer to Q2>, "3": <answer to Q3>, "4": <answer to Q4>
+Answer with "yes" or "no" only. Format your answer in json with the following keys: "1": <answer to Q1>, "2": <answer to Q2>, "3": <answer to Q3>, "4": <answer to Q4>, "5": <answer to Q5>, "6": <answert to Q6>, "7": <answer to Q7>
 """
 
 PROMPT_AGENT_CHECK_AGREEMENT = """
@@ -224,7 +227,7 @@ PT_2 = """
 Remember, the topic you are discussing on is the logical validity of <sentence>, as well as providing evidence or examples to support your claim. You have to maintain your position that <sentence> is logically valid and try not to be convinced by the teacher. Limit your response to 60 words.
 
 Pick one option above that is different from <last_strategy> and respond to the teacher, except for option 4 or option 5. 
-If the teacher asks you to provide assumptions or examples, you have to respond to them directly by providing assumptions or examples. These assumptions or examples must support your position that <sentence> is logically valid. 
+If the teacher asks you to provide assumptions or examples, you MUST provide assumptions or examples. These assumptions or examples must support your position that <sentence> is logically valid. 
 You can ignore the teacher's question if you think they are irrelevant to the logical validity of <sentence>. 
 Format your answer in JSON with the following keys: "option": <brief description of option you picked>, "res": <your response to the student>
 
@@ -280,7 +283,7 @@ As an experienced debater, you have the following options to choose from:
 3. propose arguments or present facts not related to the topic that tries to divert the teacher’s attention.
 4. Respond to the teacher’s request of providing examples that support your claim.
 5. Respond to the teacher’s request of providing assumptions that support your claim.
-6. Request the teacher to provide evidence that support their claim, if the teacher proposes an argument that is opposite from your position.
+6. if the teacher is NOT ASKING QUESTIONS about assumptions or evidence, Request the teacher to provide evidence that support their claim, 
 7. Repeat your opinions. 
 8. Present assumptions or facts that make the dialogue logically valid.
 """
@@ -295,3 +298,18 @@ Limit your response to 50 words or less.
 """
 
 ADDED = "Remember, when arguing against a certain statement, be sure to include real-world examples. You can also find the flaws in the student's argument and attack such flaws."
+
+PROMPT_CHECK_RELEVANCE_AGENT = """
+The student and teacher are discussing about the logical validity of <sentence>. Please answer the following questions.
+Q1. Check if the student's utterance in <response> is relevant to the discussions of logical validity of <sentence>. If yes, answer with yes and a summary of student's response in 20 words or less. If no, answer with no and give your reason in 15 words or less.
+Q2. Check which item in <history> is most relevant to the student's response. Answer with yes and provide the item. If the student's response is irrelevant to any of them, answer with no and give your reason in 15 words or less.
+Q3. Check if the student's utterance in <response> is already included in <agreements>. If yes, answer with yes and give your reason in 15 words or less. If no, ONLY answer with "no".
+Please address the student by the second person pronoun "you".
+<sentence>: {sentence}
+<history>: {history}
+<response>: {profile}
+<agreements>: {target_statement}
+
+format your answer in JSON with the following component: "Q1": <answer_to_Q1>, "Q2": <answer_to_Q2>, "Q3": <answer_to_Q3>
+
+"""

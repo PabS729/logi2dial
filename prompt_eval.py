@@ -138,7 +138,7 @@ PROMPT_CLASSIFY_RELEVANCE = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
 Definition of divergence: The teacher's responses is affected by the student through shifts of focus away from the discussion of logical validity of <sentence>.
 Read the dialogue carefully and consider whether the teacher's responses contain instances of divergence. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no".
-
+Please only answer with "yes" or "no".
 <sentence>: {sentence}
 <dialogue>: {history}
 """
@@ -147,7 +147,7 @@ PROMPT_CLASSIFY_STANCE_CHANGE = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
 Definition of stance change: The teacher explicitly shows agreement to the student's words, e.g. "I agree...", or "You are right..", and the teacher's initial position is affected by the student.
 Read the dialogue carefully and consider whether the teacher's responses contain instances of stance change. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
-
+Please only answer with "yes" or "no".
 <sentence>: {sentence}
 <dialogue>: {history}
 """
@@ -156,7 +156,7 @@ PROMPT_CLASSIFY_COMPLEX_REFUTATION = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
 Definition of refutation: The teacher challenges the student by asking student EXPLICIT QUESTIONS to provide assumptions or by providing counterexamples WITHOUT the student's request.
 Read the dialogue carefully and consider whether the teacher's responses contain instances of refutation. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
-
+Please only answer with "yes" or "no".
 <sentence>: {sentence}
 <dialogue>: {history}
 """
@@ -165,7 +165,7 @@ PROMPT_CLASSIFY_REPETITION = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
 Definition of repetition: The teacher agrees with the student by paraphrasing the student's opinions or simply repeating the student's opinions. The teacher may also repeat by simply restating their responses without providing further explanations. 
 Read the dialogue carefully and consider whether the teacher's responses contain instances of repetition. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
-
+Please only answer with "yes" or "no".
 <sentence>: {sentence}
 <dialogue>: {history}
 
@@ -174,10 +174,8 @@ Read the dialogue carefully and consider whether the teacher's responses contain
 PROMPT_CLASSIFY_PROOF = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
 Definition of Proactiveness: The teacher explicitly requested the student to provide examples that support the student's position.
-Some examples for illustrating the existence of proactiveness.
-
 Read the dialogue carefully and consider whether the teacher's responses contain instances of proactiveness. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
-
+Please only answer with "yes" or "no".
 
 <sentence>: {sentence}
 <dialogue>: {history}
@@ -188,7 +186,7 @@ PROMPT_CLASSIFY_PERSPECTIVE = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
 Definition of balancedness: The teacher explicitly mentions or maintains "balanced perspectives" or "broader context" without explaining in detail the exact problem with the validity of <sentence>.
 Read the dialogue carefully and consider whether the teacher's responses contain instances of balancedness. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
- 
+Please only answer with "yes" or "no".
 <sentence>: {sentence}
 <dialogue>: {history}
 """
@@ -197,7 +195,7 @@ PROMPT_CLASSIFY_TERMS = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
 Definition of term-reliance: The teacher mentions terms of logical fallacy e.g. strawman argument, ad hominem, without explaining these terms' definitions clearly.
 Read the dialogue carefully and consider whether the teacher's responses contain instances of term-reliance. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
-
+Please only answer with "yes" or "no".
 <sentence>: {sentence}
 <dialogue>: {history}
 """
@@ -242,7 +240,7 @@ PROMPT_CLASSIFY_MAINTAIN_FOCUS = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
 Definition of focused: The teacher focuses on the discussion of logical validity of <sentence> for the ENTIRE conversation.
 Read the dialogue carefully and consider whether the teacher's responses fits the description of focused. Answer with "yes" if you think that the teacher meets the requirements for focused. Otherwise, answer with "no" only.
-
+Please only answer with "yes" or "no".
 <sentence>: {sentence}
 <dialogue>: {history}
 
@@ -252,7 +250,7 @@ PROMPT_CLASSIFY_STRUCTURED_ANALYSIS = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
 Definition of structuredness: The teacher breaks down the sentence into components using existing argumentation models while discussing logical validity of <sentence>.
 Read the dialogue carefully and consider whether the teacher's responses contain instances of structuredness. Answer with "yes" if you found at least one response fitting the description. Otherwise, answer with "no" only.
-
+Please only answer with "yes" or "no".
 <sentence>: {sentence}
 <dialogue>: {history}
 
@@ -263,7 +261,7 @@ PROMPT_CLASSIFY_GUIDANCE = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
 Definition of passive guidance: For the dialogue, the teacher primarily follows the student's lead rather than providing clear direction on how to analyze logical validity of <sentence>.
 Read the dialogue carefully and consider whether the teacher's response fits the description passive guidance. Answer with "yes" if you found at least one response fitting the description. Otherwise, answer with "no" only.
-
+Please only answer with "yes" or "no".
 <sentence>: {sentence}
 <dialogue>: {history}
 

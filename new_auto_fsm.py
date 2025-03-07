@@ -20,10 +20,10 @@ async def main():
     parser.add_argument("--use_diverge", type=bool, default=False)
     parser.add_argument("--use_edu", type=bool, default=False)
     parser.add_argument("--use_nm_debate", type=bool, default=True)
-    parser.add_argument("--use_banks", type=bool, default=False)
+    parser.add_argument("--use_banks", type=bool, default=True)
     parser.add_argument("--use_toulmin", type=bool, default=False)
-    parser.add_argument("--use_FSM", type=bool, default=False)
-    parser.add_argument("--save_fn", type=str, default='results/ds_0301_100')
+    parser.add_argument("--use_FSM", type=bool, default=True)
+    parser.add_argument("--save_fn", type=str, default='results/ca_fsm_o4_0306_o')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -32,9 +32,9 @@ async def main():
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
     # sampled_df = df_to_argue.groupby("Label").sample(n=1, random_state=33)
-    # sampled_df = df_to_argue.sample(n=100, random_state=4)
-    sampled_df = df_to_argue["Context"].values.tolist()
-    labels = df_to_argue["Label"].values.tolist()
+    sampled_df = df_to_argue.sample(n=1, random_state=25)
+    # sampled_df = df_to_argue["Context"].values.tolist()
+    # labels = df_to_argue["Label"].values.tolist()
     # df_lf = pd.read_csv
     # df_components = pd.read_excel(args.components_to_read)
     # sampled_df = df_to_argue.loc[df_to_argue["updated_label"] == "ad populum"].sample(n=1, random_state=15)
@@ -42,7 +42,7 @@ async def main():
     # strategy = emo_alt
     sentences = sampled_df["Context"].values.tolist()
     labels = sampled_df["Label"].values.tolist()
-    sentences = sentences[:100]
+    # sentences = sentences[:100]
     # labels = labels[:100]
     # sentences = sampled_df[1000:1300]
     # sentences = set(sentences)
@@ -50,10 +50,10 @@ async def main():
     # labels = labels[1000:1300]
     
     model_student = "gpt-4o"
-    # model_teacher = "gpt-4o"
-    model_teacher = "deepseek-reasoner"
+    model_teacher = "gpt-4o"
+    # model_teacher = "deepseek-reasoner"
     # model_teacher = "deepseek-r1"
-    model_agent = model_student
+    model_agent = "gpt-4o-mini"
     sampled_sentence = []
     sampled_labels = []
 
@@ -88,6 +88,14 @@ async def main():
         all_states.append(j)
         rs.append(k)
 
+    usage_tot = 0
+    out_tok_teacher = 0
+    out_tok_student = 0
+    out_tok_agent = 0
+    in_tok_teacher = 0
+    in_tok_student = 0
+    in_tok_agent = 0
+
     for j in range(len(sentences)):
         example_sentence = sentences[j]
         # example_label = labels[j]
@@ -99,16 +107,16 @@ async def main():
         # toulmin_res = await generate_res("gen_strategy", model_teacher, example_sentence, 
         #                                             None, None, None, None, None, PROMPT_DECOMPOSE_TOULMIN, 0)
         # toulmin = json.loads(toulmin_res.choices[0].message.content)
-        # print(toulmin)
+        # # print(toulmin)
         # for k in toulmin.keys():
         #     disagr_bank.append(toulmin[k])
-        if args.use_toulmin:
-            toulmin_res = await generate_res("gen_strategy", model_teacher, example_sentence, 
-                                                    None, None, None, None, None, PROMPT_DECOMPOSE_TOULMIN, 0)
-            toulmin = json.loads(toulmin_res.choices[0].message.content)
-            print(toulmin)
-            for k in toulmin.keys():
-                disagr_bank.append(toulmin[k])
+        # if args.use_toulmin:
+        #     toulmin_res = await generate_res("gen_strategy", model_teacher, example_sentence, 
+        #                                             None, None, None, None, None, PROMPT_DECOMPOSE_TOULMIN, 0)
+        #     toulmin = json.loads(toulmin_res.choices[0].message.content)
+        #     print(toulmin)
+        #     for k in toulmin.keys():
+        #         disagr_bank.append(toulmin[k])
 
             # opening_res = await generate_res("conv", model_student, example_sentence, 
             #                                         None, None, None, None, None, PROMPT_OPENING, 0)
@@ -126,9 +134,11 @@ async def main():
         
         # for k in toulmin.keys():
         if True:
-            # teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, OPENING_PROMPT, 0)
-            teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_BASELINE, 0)
+            teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, OPENING_PROMPT, 0)
             # teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_BASELINE, 0)
+            # teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_BASELINE, 0)
+            in_tok_teacher += teacher_res.usage.prompt_tokens
+            out_tok_teacher += teacher_res.usage.completion_tokens
             teacher_res = teacher_res.choices[0].message.content
             conv_teacher.append(teacher_res)
             utterance_teacher = teacher_res
@@ -143,6 +153,8 @@ async def main():
             else:
                 student_res = await generate_res("student", model_student, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_STUDENT_STUBBORN, 0)
             utterance_student = student_res.choices[0].message.content
+            in_tok_student += student_res.usage.prompt_tokens
+            out_tok_student += student_res.usage.completion_tokens
             conv_student.append(utterance_student)
             full_chat += "teacher: " + utterance_teacher + "\n"
             full_chat += "student: " + utterance_student + "\n"
@@ -199,10 +211,14 @@ async def main():
                         if args.use_banks:
                             relevance_res = await generate_res("check", model_student, example_sentence, disagr_bank, 
                                                                chat_history, agr_bank, None, None, PROMPT_CHECK_DISAGREEMENT, 0)
+                            in_tok_agent += relevance_res.usage.prompt_tokens
+                            out_tok_agent += relevance_res.usage.completion_tokens
                             relevance = load_json(relevance_res.choices[0].message.content)
                             while relevance == False:
                                 relevance_res = await generate_res("check", model_student, example_sentence, disagr_bank, 
                                                                chat_history, agr_bank, None, None, PROMPT_CHECK_DISAGREEMENT, 0)
+                                in_tok_agent += relevance_res.usage.prompt_tokens
+                                out_tok_agent += relevance_res.usage.completion_tokens
                                 relevance = load_json(relevance_res.choices[0].message.content)
 
                             print(relevance)
@@ -214,6 +230,8 @@ async def main():
                                 confirm_disagreement = "It seems that we have different opinions on this: " + relevance["Q2"][4:].lower()+ ", do you agree? If yes, then we can focus our discussion on this part." 
                                 print(confirm_disagreement)
                                 student_res = await generate_res("ag", model_student, relevance["Q2"][4:].lower(), chat_history, None, None, conv_teacher, conv_student, PROMPT_STUDENT_CONFIRM_TOUL, 0)
+                                in_tok_student += student_res.usage.prompt_tokens
+                                out_tok_student += student_res.usage.completion_tokens
                                 student_res = student_res.choices[0].message.content
                                 print(student_res)
                                 conv_teacher.append(confirm_disagreement)
@@ -227,9 +245,13 @@ async def main():
                                     print("Can you tell me which point you don't agree with?")
                                     student_utterance = await generate_res("stu", model_student, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_STRAT + PT_2, 0)
                                     student_u = load_json(student_utterance.choices[0].message.content)
+                                    in_tok_student += student_utterance.usage.prompt_tokens
+                                    out_tok_student += student_utterance.usage.completion_tokens
                                     while student_u == False:
                                         student_utterance = await generate_res("stu", model_student, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_STRAT + PT_2, 0)
                                         student_u = load_json(student_utterance.choices[0].message.content)
+                                        in_tok_student += student_utterance.usage.prompt_tokens
+                                        out_tok_student += student_utterance.usage.completion_tokens
 
                                     student_utterance = student_u["res"]
                                     print(student_u["option"])
@@ -314,9 +336,13 @@ async def main():
                         # print("before random generation: " + next_state)
                         # print(tr_res["rs"])
                         transition = await generate_res("agent", model_teacher, example_sentence, chat_history, None, None, None, None, CHECK_RESPONSE_TEACHER, 1)
+                        in_tok_agent += transition.usage.prompt_tokens
+                        out_tok_agent += transition.usage.completion_tokens
                         transition = load_json(transition.choices[0].message.content)
                         while transition == False:
                             transition = await generate_res("agent", model_teacher, example_sentence, chat_history, None, None, None, None, CHECK_RESPONSE_TEACHER, 1)
+                            in_tok_agent += transition.usage.prompt_tokens
+                            out_tok_agent += transition.usage.completion_tokens
                             transition = load_json(transition.choices[0].message.content)
                         
                         print(transition)
@@ -384,8 +410,12 @@ async def main():
 
                         check_following_res = await generate_res("eval_s", model_student, example_sentence, teacher_res.choices[0].message.content, STRAT_FOR_STATES[next_state], None, None, None, CHECK_FOLLOW_FSM_AGENT, 0)
                         cs = load_json(check_following_res.choices[0].message.content)
+                        in_tok_agent += check_following_res.usage.prompt_tokens
+                        out_tok_agent += check_following_res.usage.completion_tokens
                         while cs == False:
                             check_following_res = await generate_res("eval_s", model_student, example_sentence, teacher_res.choices[0].message.content, STRAT_FOR_STATES[next_state], None, None, None, CHECK_FOLLOW_FSM_AGENT, 0)
+                            in_tok_agent += check_following_res.usage.prompt_tokens
+                            out_tok_agent += check_following_res.usage.completion_tokens
                             cs = load_json(check_following_res.choices[0].message.content)
                         print("is the teacher following the transition? " + cs['1'])
                         print("is the teacher's question relevant? " + cs['2'])
@@ -394,10 +424,16 @@ async def main():
                         
                         if ("no" in cs['1'].lower() or "no" in cs['2'].lower()) and next_state in ['1', '4']:
                             teacher_res = await generate_res("agents", model_teacher, example_sentence, teacher_res.choices[0].message.content, None, None, None, None, TEACHER_ACT_1 + STRAT_FOR_STATES[next_state] + TEACHER_ACT_EX_AS, 1)
+                            in_tok_teacher += teacher_res.usage.prompt_tokens
+                            out_tok_teacher += teacher_res.usage.completion_tokens
                             check_following_res = await generate_res("eval_s", model_student, example_sentence, teacher_res.choices[0].message.content, STRAT_FOR_STATES[next_state], None, None, None, CHECK_FOLLOW_FSM_AGENT, 0)
                             cs = load_json(check_following_res.choices[0].message.content)
+                            in_tok_agent += check_following_res.usage.prompt_tokens
+                            out_tok_agent += check_following_res.usage.completion_tokens
                             while cs == False:
                                 check_following_res = await generate_res("eval_s", model_student, example_sentence, teacher_res.choices[0].message.content, STRAT_FOR_STATES[next_state], None, None, None, CHECK_FOLLOW_FSM_AGENT, 0)
+                                in_tok_agent += check_following_res.usage.prompt_tokens
+                                out_tok_agent += check_following_res.usage.completion_tokens
                                 cs = load_json(check_following_res.choices[0].message.content)
                             print("is the teacher following the transition after rephrasing? " + cs['1'])
                             print("is the teacher's question relevant after rephrasing? " + cs['2'])
@@ -412,7 +448,8 @@ async def main():
                         teacher_res = await generate_res("teacher", model_teacher, example_sentence, None, None, None, conv_teacher, conv_student, PROMPT_TEACHER_ARGUE_BASELINE, 1)
 
                     chat_history = ""
-
+                    in_tok_teacher += teacher_res.usage.prompt_tokens
+                    out_tok_teacher += teacher_res.usage.completion_tokens
                     utterance_teacher = teacher_res.choices[0].message.content
                     chat_history += "teacher: " + utterance_teacher + "\n"
                     
@@ -437,13 +474,19 @@ async def main():
                     print(utterance_teacher)
                     if args.use_diverge:
                         utterance_student = await generate_res("student", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_DIVERT, 1)
+                        in_tok_student += utterance_student.usage.prompt_tokens
+                        out_tok_student += utterance_student.usage.completion_tokens
                         utterance_student = utterance_student.choices[0].message.content
                         print(utterance_student)
                     elif args.use_nm_debate:
                         utterance_student = await generate_res("stu", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_NORMAL + PT_2, 0)
+                        in_tok_student += utterance_student.usage.prompt_tokens
+                        out_tok_student += utterance_student.usage.completion_tokens
                         student_u = load_json(utterance_student.choices[0].message.content)
                         while student_u == False:
                             utterance_student = await generate_res("stu", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_NORMAL + PT_2, 0)
+                            in_tok_student += utterance_student.usage.prompt_tokens
+                            out_tok_student += utterance_student.usage.completion_tokens
                             student_u = load_json(utterance_student.choices[0].message.content)                           
                         utterance_student = student_u["res"]
                         print("student strategy:"+student_u["option"])
@@ -451,13 +494,19 @@ async def main():
                         start_student_strategy = student_u["option"]
                     elif args.use_edu:
                         utterance_student = await generate_res("student", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_LACK_UNDERSTAND, 1)
+                        in_tok_student += utterance_student.usage.prompt_tokens
+                        out_tok_student += utterance_student.usage.completion_tokens
                         utterance_student = utterance_student.choices[0].message.content
                         print(utterance_student)
                     else:
                         utterance_student = await generate_res("stu", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, STU_PROMPT, 0)
+                        in_tok_student += utterance_student.usage.prompt_tokens
+                        out_tok_student += utterance_student.usage.completion_tokens
                         student_u = load_json(utterance_student.choices[0].message.content)
                         while student_u == False:
                             utterance_student = await generate_res("stu", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, STU_PROMPT, 0)
+                            in_tok_student += utterance_student.usage.prompt_tokens
+                            out_tok_student += utterance_student.usage.completion_tokens
                             student_u = load_json(utterance_student.choices[0].message.content)                           
                         utterance_student = student_u["res"]
                         print("student strategy:"+student_u["option"])
@@ -485,9 +534,13 @@ async def main():
                     #         break
                     #check whether the student agrees with the teacher
                     agent_res = await generate_res("eval_s", model_student, example_sentence, chat_history, None, None, None, None, PROMPT_AGENT_CHECK_EVIDENCE, 0)
+                    in_tok_agent += agent_res.usage.prompt_tokens
+                    out_tok_agent += agent_res.usage.completion_tokens
                     res = load_json(agent_res.choices[0].message.content)
                     while res == False:
                         agent_res = await generate_res("eval_s", model_student, example_sentence, chat_history, None, None, None, None, PROMPT_AGENT_CHECK_EVIDENCE, 0)
+                        in_tok_agent += agent_res.usage.prompt_tokens
+                        out_tok_agent += agent_res.usage.completion_tokens
                         res = load_json(agent_res.choices[0].message.content) 
 
                     print(res)
@@ -511,9 +564,13 @@ async def main():
                         print(confirm_disagreement)
                         conv_teacher.append(confirm_disagreement)
                         student_utterance = await generate_res("stu", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_STRAT + PT_2, 0)
+                        in_tok_student += student_utterance.usage.prompt_tokens
+                        out_tok_student += student_utterance.usage.completion_tokens
                         student_u = load_json(student_utterance.choices[0].message.content)
                         while student_u == False:
                             student_utterance = await generate_res("stu", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_STRAT + PT_2, 0)
+                            in_tok_student += student_utterance.usage.prompt_tokens
+                            out_tok_student += student_utterance.usage.completion_tokens
                             student_u = load_json(student_utterance.choices[0].message.content)
                         utterance_student = student_u["res"]
                         print("student strategy:"+student_u["option"])
@@ -523,11 +580,16 @@ async def main():
                         appends(confirm_disagreement, utterance_student, "", "", "", "", agr_bank, disagr_bank,'0','0', '0')
 
         #summary of conversation and ending
-        summary = await generate_res("sum", model_student, example_sentence, full_chat, None, None, None, None, PROMPT_SUMMARIZE, 0)
-        summary = summary.choices[0].message.content
+        # summary = await generate_res("sum", model_student, example_sentence, full_chat, None, None, None, None, PROMPT_SUMMARIZE, 0)
+        # summary = summary.choices[0].message.content
+        summary = ""
         t_res = await generate_res("agt", model_teacher, example_sentence, summary, None, None, [], [], ENDING_PROMPT, 1)
+        in_tok_teacher += t_res.usage.prompt_tokens
+        out_tok_teacher += t_res.usage.completion_tokens
         t_res = t_res.choices[0].message.content
         s_res = await generate_res("student", model_student, example_sentence, None, None, None, [t_res], [], ENDING_STUDENT, 1)
+        in_tok_student += s_res.usage.prompt_tokens
+        out_tok_student += s_res.usage.completion_tokens
         s_res = s_res.choices[0].message.content
         full_chat += "teacher: " + t_res + "\n"
         full_chat += "student: " + s_res + "\n"
@@ -536,6 +598,11 @@ async def main():
 
     print(len(lm_thought), len(anas), len(conversation_teacher), len(conversation_student), len(sums), len(reles), len(coll_agr), len(coll_bank), len(all_states), len(following), len(rs))
     print(FSM_STATES)
+    # usage_tot = usage_teacher + usage_agent + usage_student
+    print("teacher_in: " + str(in_tok_teacher) + ", teacher_out: " + str(out_tok_teacher))
+    print("student_in: " + str(in_tok_student) + ", student_out: " + str(out_tok_student))
+    print("agent_in: " + str(in_tok_agent) + ", agent_out: " + str(out_tok_agent))
+    # print("total_usage: ", usage_tot)
     data_dict = {
                  'teacher_analysis': anas,
                 #  'layman_thought': lm_thought, 

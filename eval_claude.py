@@ -26,13 +26,20 @@ async def eval_claude(role, model_name, sentence, history, profile, target_state
         
         api_key=str(env_key),
     )
-    message = client.messages.create(
-        model="claude-3-5-sonnet-20241022",
-        max_tokens=8192,
-        messages=[
-            {"role": "user", "content": user_prompt}
-        ]
-    )
+    done = False
+    while not done:
+        try:
+            message = client.messages.create(
+                model=model_name,
+                max_tokens=8192,
+                messages=[
+                    {"role": "user", "content": user_prompt}
+                ]
+            )
+            done = True
+        except Exception as e:
+            print(e)
+            time.sleep(5)
     return message
 
 async def main():

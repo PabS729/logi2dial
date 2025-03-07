@@ -29,9 +29,12 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
     env_key = os.environ.get("OPENAI_API_KEY")
     ds_key = os.environ.get("QF_API_KEY")
     OF_key = os.environ.get("DS_API_KEY")
+    QW_key = os.environ.get("QWEN_API_KEY")
     if model_name in ["deepseek-reasoner", "deepseek-r1"]:
         # client = OpenAI(base_url="https://qianfan.baidubce.com/v2", api_key=ds_key)
         client = OpenAI(base_url="https://api.deepseek.com/v1", api_key=OF_key)
+    elif model_name == "qwq-32b":
+        client = OpenAI(base_url="https://dashscope.aliyuncs.com/compatible-mode/v1", api_key=QW_key)
     else:
         client = OpenAI(api_key=str(env_key))
 
@@ -54,11 +57,11 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
 
     msgs.append({"role": "system", "content": user_prompt})
 
-    if model_name in ["deepseek-r1","deepseek-reasoner"]:
+    if model_name in ["deepseek-r1","deepseek-reasoner", "qwq-32b"]:
         if role in ["teacher", "agt"]:
             msgs.append({"role": "user", "content": "Talk to the student. Make sure to limit your response in 50 words or less."})
         else:
-            msgs.append({"role": "user", "content": "Classify the sentence according to instructions above."})
+            msgs.append({"role": "user", "content": "Classify the sentence according to the instruction above. Respond in this form: the answer should be 'yes' / the answer should be 'no'."})
 
     #teacher and student take turns
     if role in ["teacher_st", "teacher", "t_edu", "exp", "test", "old"]: 
@@ -76,9 +79,10 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
     done = False
     while not done:
         try: 
-            if model_name in ["o3-mini", "deepseek-r1", "deepseek-reasoner"]:
+            if model_name in ["o3-mini", "deepseek-r1", "deepseek-reasoner", "qwq-32b"]:
                 response = client.chat.completions.create(
                 model=model_name,
+                stream=True,
             messages=msgs,
             )
             elif role in ["old","check","", "fact_bank", "find_contradiction", "strategy", "thought", "gen_strategy", "agent", "eval_t", "test", "stu", 'eval_s']:

@@ -161,10 +161,21 @@ Please only answer with "yes" or "no".
 <dialogue>: {history}
 """
 
+PROMPT_CLASSIFY_REPETITION_N = """
+You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
+Definition of repetition: The teacher's response includes paraphrasing of the student's responses or simply repeating the student's responses, without expanding those into more topics. 
+Read the dialogue carefully and consider whether the teacher's responses contain instances of repetition. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
+Please only answer with "yes" or "no".
+<sentence>: {sentence}
+<dialogue>: {history}
+
+"""
+
+
 PROMPT_CLASSIFY_REPETITION = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
-Definition of repetition: The teacher agrees with the student by paraphrasing the student's opinions or simply repeating the student's opinions. The teacher may also repeat by simply restating their responses without providing further explanations. 
-Read the dialogue carefully and consider whether the teacher's responses contain instances of repetition. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
+Definition of repetition: The teacher agrees with the student by either paraphrasing the student's responses or simply repeating the student's responses. In the same response, the teacher does not show further disagreements.
+Read the dialogue carefully, excluding the teacher's summary in the last turn, and consider whether the teacher's responses contain instances of repetition. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
 Please only answer with "yes" or "no".
 <sentence>: {sentence}
 <dialogue>: {history}
@@ -173,7 +184,7 @@ Please only answer with "yes" or "no".
 
 PROMPT_CLASSIFY_PROOF = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
-Definition of Proactiveness: The teacher explicitly requested the student to provide examples that support the student's position.
+Definition of Proactiveness: The teacher explicitly requested the student to provide examples or evidence that support the student's position.
 Read the dialogue carefully and consider whether the teacher's responses contain instances of proactiveness. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
 Please only answer with "yes" or "no".
 
@@ -184,7 +195,7 @@ Please only answer with "yes" or "no".
 
 PROMPT_CLASSIFY_PERSPECTIVE = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
-Definition of balancedness: The teacher explicitly mentions or maintains "balanced perspectives" or "broader context" without explaining in detail the exact problem with the validity of <sentence>.
+Definition of balancedness: The teacher explicitly mentions or maintains "balanced perspectives" or "broader context" without linking such stance to exact problem with the validity of <sentence>.
 Read the dialogue carefully and consider whether the teacher's responses contain instances of balancedness. Answer with "yes" if you found at least one response fitting the problem above. Otherwise, answer with "no" only.
 Please only answer with "yes" or "no".
 <sentence>: {sentence}
@@ -248,7 +259,7 @@ Please only answer with "yes" or "no".
 
 PROMPT_CLASSIFY_STRUCTURED_ANALYSIS = """
 You are a judge who looks at a <dialogue> between a teacher and a student. They are discussing the logical validity of <sentence>. 
-Definition of structuredness: The teacher breaks down the sentence into components using existing argumentation models while discussing logical validity of <sentence>.
+Definition of structuredness: The teacher breaks down the sentence using argumentation models. e.g. Aristotelian (classical), Toulmin, and Rogerian models, or uses models of similar forms, while discussing logical validity of <sentence>.
 Read the dialogue carefully and consider whether the teacher's responses contain instances of structuredness. Answer with "yes" if you found at least one response fitting the description. Otherwise, answer with "no" only.
 Please only answer with "yes" or "no".
 <sentence>: {sentence}

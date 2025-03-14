@@ -1,12 +1,14 @@
 import pandas as pd
 import random
 import math
-fi = pd.read_excel("okk_all_gpt.xlsx", index_col=None)
+import asyncio
+from persona_roleplay.respond_role import generate_res
+fi = pd.read_excel("okk_all_ds_mod.xlsx", index_col=None)
 # from sklearn.utils import shuffle
 
 
 fks = []
-kdd = [k for k in fi.keys() if k not in ["sentences", "chats"]]
+kdd = [k for k in fi.keys() if k not in ["sentences", "chats", "Unnamed: 0"]]
 
 
 fi_1 = fi.drop_duplicates(["sentences"])
@@ -31,47 +33,96 @@ for k in kdd:
     st_note_yes[k] = []
     st_note_no[k] = []
 print(len(comb))
-for (ar, k) in zip(fks, kdd):
-    print(k)
-    yes = 0
-    no = 0
-    # print(ar)
-    ct = 0
-    for j,st in zip(ar, comb["sentences"]):
-        # print(j)
-        # print(ct)
-        left = str(j).lower().split("the answer should be")
-        # print(left)
-        if len(left) > 1 and "yes" in left[1]:
-            yes+=1
-            st_note_yes[k].append(st)
-        elif "yes" in left:
-            yes+=1
-            st_note_yes[k].append(st)
+
+PROMPT_J = """
+As an assistant, check if the teacher's <response> expresses whether there is existence of <key>. Answer with "yes" or "no" only.
+
+<response>: {sentence}
+<key>: {history}
+
+"""
+comb_b = comb.copy()
+yesss = [0 for j in range(len(kdd))]
+nooo = [0 for j in range(len(kdd))]
+async def sd():
+    cta = 0
+    for (ar, k) in zip(fks, kdd):
+        if k == "guidance":
+            ks = "passive " + k
+        elif k == "perspective":
+            ks = "balanced " + k 
+        elif k == "terms":
+            ks = k + " without explanation"
         else:
-            no+=1
-            st_note_no[k].append(st)
-        ct+=1
-    
-    print(yes, no)
-    print(len(st_note_yes[k]),len(st_note_no[k]))
+            ks = k
+        print(k)
+        yes = 0
+        no = 0
+        # print(ar)
+        ct = 0
+        for j,st in zip(ar, comb["sentences"]):
+            
+            # print(j)
+            # print(ct)
+            left = str(j).lower().split("the answer should be")
+            # print(left)
+            if len(left) > 1 and "yes" in left[1]:
+                yes+=1
+                comb_b.loc[k, ct] = "yes"
+                st_note_yes[k].append(st)
+            elif "yes" in j.lower():
+            # if "yes" in j[:5].lower():
+                yes+=1
+                comb_b.loc[k, ct] = "yes"
+                st_note_yes[k].append(st)
+            elif len(left) > 1 and "no" in left[1]:
+                no+=1
+                comb_b.loc[k, ct] = "no"
+                st_note_no[k].append(st)
+            else:
+                res = str(j).split("\n")[-1]
+                re = await generate_res("aft", "gpt-4o-mini", res, ks, None, None, None, None, PROMPT_J, 0)
+                
+                re = re.choices[0].message.content
+                print(res)
+                print(re)
+                if "yes" in re.lower():
+                    yes+=1
+                    comb_b.loc[k, ct] = "yes"
+                    st_note_yes[k].append(st)
+                else:
+                    no+=1
+                    comb_b.loc[k, ct] = "no"
+                    st_note_no[k].append(st)
+            ct+=1
+        
+        print(yes, no)
+        yesss[cta] = yes
+        nooo[cta] = no
+        cta += 1
+        print(len(st_note_yes[k]),len(st_note_no[k]))
+    return True
+d = asyncio.run(sd())
+print(yesss)
+print(nooo)
+comb_b.to_excel("processed_ds_mod.xlsx")
+# for k in kdd:
+#     random.seed(20)
+#     if k in ["divergence", "stance_change", "complex_refutation", "stance_change", "structured"]:
+#         continue
+#     # rd_yes = random.sample(st_note_yes[k], 15)
+#     # rd_no = random.sample(st_note_no[k], 15)
+#     # nl_yes = comb.query("sentences == @rd_yes and ")
+#     # nl_no = comb.query("sentences == @rd_no"
+#     print(k)
+#     nl_yes = comb[comb[k] == "yes"].sample(n=7, random_state = 100)
+#     nl_no = comb[comb[k] == "no"].sample(n=7, random_state = 100)
 
-for k in kdd:
-    random.seed(20)
-    if k in ["perspective", "activeness"]:
-        continue
-    # rd_yes = random.sample(st_note_yes[k], 15)
-    # rd_no = random.sample(st_note_no[k], 15)
-    # nl_yes = comb.query("sentences == @rd_yes and ")
-    # nl_no = comb.query("sentences == @rd_no"
-    nl_yes = comb[comb[k] == "yes"].sample(n=15, random_state = 10)
-    nl_no = comb[comb[k] == "no"].sample(n=15, random_state = 10)
+#     comab = pd.concat([nl_yes, nl_no], axis=0)
+#     # comab.filter(["sentences", "chats", k]).to_excel("resbbb_"+k+".xlsx")
+#     shuf = comab.filter(["sentences", "chats"]).sample(frac=1)
 
-    comab = pd.concat([nl_yes, nl_no], axis=0)
-    # comab.filter(["sentences", "chats", k]).to_excel("res_"+k+".xlsx")
-    shuf = comab.filter(["sentences", "chats"]).sample(frac=1)
-
-    shuf.to_excel("shuf_gpt_" + k + ".xlsx")
+    # shuf.to_excel("shuf_gpt_qwq_" + k + ".xlsx")
 
 
 

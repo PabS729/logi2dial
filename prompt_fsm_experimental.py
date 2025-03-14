@@ -63,7 +63,7 @@ TEACHER_ACT_EX_AS = """
 STRAT_FOR_STATES = {
     "1": "Treating the student's response as counterargument to your stance, request the student to provide evidence that supports his claim. e.g. Can you provide examples...",
     "2": """
-    Refute the student's argument using one of the following strategy. 
+    Refute the student's argument using one of the following strategy. If possible, also include counterargument/counterexamples in your response.
     a. Showing that the argument's conclusion or premise is wrong. Provide a counterargument or counterexample to illustrate your point.
     b. Showing that the argument's conclusion does not follow from the premise. Provide a counterargument or counterexample to illustrate your point.
     c. Showing that the student's argument is irrelevant to the topic of discussion. Even if the evidence provided is valid, it may be irrelevant to the logical validity of <sentence>, and thus can be dismissed.""",
@@ -125,4 +125,14 @@ You are a student who is excellent in debating, and you are interacting with a t
 Conclude the conversation by responding to the teacher's ending remarks, while maintaining your position that <sentence> is valid. Limit your response to 30 words.
 
 <sentence>: {sentence}
+"""
+
+PROMPT_RESTATE = """
+You are a teacher who knows logical fallacies, and you are interacting with a student on discussing validity of <sentence>.
+The student is talking about <response> that is already mentioned and addressed in previous talks. Remind the student to present a more convincing example/assumption that can answer the teacher's <question>. Start with "You have already presented the example/assumption of... "
+Limit your response to less than or equal to 40 words.
+
+<sentence>: {sentence}
+<response>: {history}
+<question>: {profile}
 """

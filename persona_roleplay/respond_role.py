@@ -64,7 +64,7 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
             msgs.append({"role": "user", "content": "Classify the sentence according to the instruction above. Respond in this form: the answer should be 'yes' / the answer should be 'no'."})
 
     #teacher and student take turns
-    if role in ["teacher_st", "teacher", "t_edu", "exp", "test", "old"]: 
+    if role in ["teacher_st", "teacher", "t_edu", "exp", "old"]: 
         for (t,s) in zip(teacher_res, student_res):
             msgs.append({"role": "assistant", "content": t})
             msgs.append({"role": "user", "content": s})
@@ -85,7 +85,7 @@ async def generate_res(role, model_name, sentence, history, profile, target_stat
                 stream=True,
             messages=msgs,
             )
-            elif role in ["old","check","", "fact_bank", "find_contradiction", "strategy", "thought", "gen_strategy", "agent", "eval_t", "test", "stu", 'eval_s']:
+            elif role in ["old","check","", "fact_bank", "find_contradiction", "strategy", "thought", "gen_strategy", "agent", "eval_t", "stu", 'eval_s']:
                 response = client.chat.completions.create(
                 model=model_name,
             messages=msgs,

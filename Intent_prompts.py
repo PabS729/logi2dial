@@ -136,13 +136,12 @@ Q1. Did the teacher explicitly ask the student to provide evidence or examples? 
 Q2. Was the student unable to provide such evidence or examples? Note that any vague examples count. Also, the student can request the teacher to provide evidence instead, which makes this question's answer a "no".
 Q3. Did the student explicitly agree with the teacher's response?
 Q4. Did the student mention that the teacher's response aligns with their position that <sentence> is logically valid?
-Q5. Is the student responding to the teacher with EXPLICIT examples or assumptions that support their stance?
-Q6. Is the student asking questions to the teacher?
-Q7. Is the teacher EXPLICITLY asking questions to the student?
+
 <sentence>: {sentence}
 <chat_history>: {history}
 
-Answer with "yes" or "no" only. Format your answer in json with the following keys: "1": <answer to Q1>, "2": <answer to Q2>, "3": <answer to Q3>, "4": <answer to Q4>, "5": <answer to Q5>, "6": <answert to Q6>, "7": <answer to Q7>
+Answer with "yes" or "no" only. Format your answer in json with the following keys: "1": <answer to Q1>, "2": <answer to Q2>, "3": <answer to Q3>, "4": <answer to Q4>
+
 """
 
 PROMPT_AGENT_CHECK_AGREEMENT = """
@@ -300,16 +299,36 @@ Limit your response to 50 words or less.
 ADDED = "Remember, when arguing against a certain statement, be sure to include real-world examples. You can also find the flaws in the student's argument and attack such flaws."
 
 PROMPT_CHECK_RELEVANCE_AGENT = """
-The student and teacher are discussing about the logical validity of <sentence>. Please answer the following questions.
-Q1. Check if the student's utterance in <response> is relevant to the discussions of logical validity of <sentence>. If yes, answer with yes and a summary of student's response in 20 words or less. If no, answer with no and give your reason in 15 words or less.
-Q2. Check which item in <history> is most relevant to the student's response. Answer with yes and provide the item. If the student's response is irrelevant to any of them, answer with no and give your reason in 15 words or less.
-Q3. Check if the student's utterance in <response> is already included in <agreements>. If yes, answer with yes and give your reason in 15 words or less. If no, ONLY answer with "no".
-Please address the student by the second person pronoun "you".
+The student and teacher are discussing about the logical validity of <sentence>. Please answer the following questions.Please address the student by the second person pronoun "you".
+Q1. Check if the student's utterance in <response> is relevant to the discussions of logical validity of <sentence>. If yes, answer with yes, then give a summary of the student's words including the student's example if possible, in 20 words. If no, answer with no, then give your reason in 15 words or less.
+Q2. Check whether the student's response is included in <history>. Note that it has to match the contents discussed in <history>. If yes, answer with yes first, then provide the item. If the student's response is irrelevant to any of them, answer with no, then give your reason in 15 words or less.
+Q3. Check if the student's utterance in <response> is already included in <bank>. If yes, answer with yes, then give your reason in 15 words or less. If no, ONLY answer with "no".
+Q4. If the student makes an example/assumption/request, check if the student's example/assumption/request appears in <history>. Answer with "yes" or "no", and give your reason in 15 words or less.
+Q5. Is the student making an example or assumption in the response? If yes, answer with yes, then summarize the example or assumption in 15 words or less. Otherwise, answer with "no" only.
 <sentence>: {sentence}
 <history>: {history}
 <response>: {profile}
-<agreements>: {target_statement}
+<bank>: {target_statement}
 
-format your answer in JSON with the following component: "Q1": <answer_to_Q1>, "Q2": <answer_to_Q2>, "Q3": <answer_to_Q3>
+format your answer in JSON with the following component: "Q1": <answer_to_Q1>, "Q2": <answer_to_Q2>, "Q3": <answer_to_Q3>, "Q4": <answer_to_Q4>, "Q5": <answer_to_Q5>
+
+"""
+
+PROMPT_TEACHER_ARGUE_DS = """
+You are a teacher who knows logical fallacies. You are interacting with a student who believes in <sentence>. Be aware that the student may have strong bias towards <sentence>.
+Think carefully before fomulating your response. You think that <sentence> is logically invalid. Talk to the student and try to convince the student that <sentence> is logically invalid. Make sure to formulate your response to be readable and understandable by a real student.
+Try to avoid the following problems when talking to the student:
+- Not asking the student to provide examples to support their claim
+- Not challenging the student by providing counterexamples or counterarguments.
+- Emphasizing broader perspective or broader context without referring to problems of <sentence>
+- Changing your original stance by agreeing to the student
+- Repeating or rephrasing the student's word without further disagreement
+- Does not break down the sentence into components using existing models of argumentation before analyzing
+- Your response is affected by the student through shifts of focus away from the discussion of logical validity of <sentence>.
+- Mentions terms of logical fallacy without explaining these terms' definitions clearly.
+- Follows the student's lead rather than providing clear direction
+Limit your response to 50 words or less.
+
+<sentence>: {sentence}
 
 """

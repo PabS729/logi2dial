@@ -23,7 +23,7 @@ async def main():
     parser.add_argument("--use_banks", type=bool, default=True)
     parser.add_argument("--use_toulmin", type=bool, default=False)
     parser.add_argument("--use_FSM", type=bool, default=True)
-    parser.add_argument("--save_fn", type=str, default='results/fsm_EXP_0307_new_2')
+    parser.add_argument("--save_fn", type=str, default='results/fsm_EXP_0313_new_mini9')
     parser.add_argument("--sample", type=int, default=-1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num_gen", type=int, default=0)
@@ -31,7 +31,7 @@ async def main():
     args = parser.parse_args()
 
     df_to_argue = pd.read_csv(args.file_to_annotate)
-    sampled_df = df_to_argue.sample(n=5, random_state=2)
+    sampled_df = df_to_argue.sample(n=3, random_state=2)
     # sampled_df = df_to_argue.sample(n=100, random_state=4)
     # sampled_df = df_to_argue["Context"].values.tolist()
     # labels = df_to_argue["Label"].values.tolist()
@@ -139,7 +139,7 @@ async def main():
             if args.use_toulmin:
                 student_res = await generate_res("student_bio", model_student, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_STUDENT_RESPOND, 0)
             else:
-                student_res = await generate_res("stu", model_student, example_sentence, "", None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_NORMAL + PT_2, 0)
+                student_res = await generate_res("stu", model_student, example_sentence, "request the teacher to provide examples that support their claim", None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_NORMAL + PT_2, 0)
                 student_u = load_json(student_res.choices[0].message.content)
                 while student_u == False:
                     utterance_student = await generate_res("stu", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_NORMAL + PT_2, 0)
@@ -201,23 +201,27 @@ async def main():
                         #checks the relevance and potential repetition of the student's response
                         thought = 0
                         if args.use_banks:
-                            relevance_res = await generate_res("check", model_student, example_sentence, disagr_bank, 
-                                                               chat_history, agr_bank, None, None, PROMPT_CHECK_DISAGREEMENT, 0)
+                            relevance_res = await generate_res("check", model_agent, example_sentence, disagr_bank, 
+                                                               chat_history, agr_bank, None, None, PROMPT_CHECK_RELEVANCE_AGENT, 0)
                             relevance = load_json(relevance_res.choices[0].message.content)
                             while relevance == False:
-                                relevance_res = await generate_res("check", model_student, example_sentence, disagr_bank, 
-                                                               chat_history, agr_bank, None, None, PROMPT_CHECK_DISAGREEMENT, 0)
+                                relevance_res = await generate_res("check", model_agent, example_sentence, disagr_bank, 
+                                                               chat_history, agr_bank, None, None, PROMPT_CHECK_RELEVANCE_AGENT, 0)
                                 relevance = load_json(relevance_res.choices[0].message.content)
 
-                            print(relevance)
+                            print("relevance check: ", relevance)
                             reles.append(relevance)
 
-                            if "yes" in relevance["Q2"].lower(): 
-                                disagr_bank.append(relevance["Q2"])
+                            if "yes" not in relevance["Q1"].lower():
+                                thought = 6
+                            elif "yes" in relevance["Q4"]:
+                                thought = 7
+                            elif "yes" not in relevance["Q2"].lower(): 
+                                disagr_bank.append(relevance["Q1"])
 
-                                confirm_disagreement = "It seems that we have different opinions on this: " + relevance["Q2"][4:].lower()+ ", do you agree? If yes, then we can focus our discussion on this part." 
+                                confirm_disagreement = "It seems that we have different opinions on this: " + relevance["Q1"][4:].lower()+ ", do you agree? If yes, then we can focus our discussion on this part." 
                                 print(confirm_disagreement)
-                                student_res = await generate_res("ag", model_student, relevance["Q2"][4:].lower(), chat_history, None, None, conv_teacher, conv_student, PROMPT_STUDENT_CONFIRM_TOUL, 0)
+                                student_res = await generate_res("ag", model_student, relevance["Q1"][4:].lower(), chat_history, None, None, conv_teacher, conv_student, PROMPT_STUDENT_CONFIRM_TOUL, 0)
                                 student_res = student_res.choices[0].message.content
                                 print(student_res)
                                 # conv_teacher.append(confirm_disagreement)
@@ -256,11 +260,15 @@ async def main():
                                     continue
 
                             #if the student's response is not addressed previously, then we have a new topic. Identify the student's states to be used later
-                            if "yes" not in relevance["Q1"].lower():
-                                # agreement_bank.append(relevance)
-                                # disagr_bank.append(relevance)
-                                a = ""
-                                thought = 5
+                            # elif "yes" in relevance["Q1"].lower() and "yes" not in relevance["Q2"].lower():
+                            #     # agreement_bank.append(relevance)
+                            #     disagr_bank.append(relevance["Q1"])
+                            #     a = ""
+                            #     thought = 5
+
+                            elif "yes" not in relevance["Q4"] and "yes" in relevance["Q5"]:
+                                disagr_bank.append(relevance["Q5"])
+                            
                             elif "yes" in relevance["Q3"].lower(): 
                                 thought = 7
                             else:
@@ -290,10 +298,14 @@ async def main():
                         teacher_res = await generate_res("tea", model_teacher, example_sentence, toulmin, None, None, conv_teacher, conv_student, PROMPT_TALK_ABOUT_LF, 0)
                         summary = ""
                     elif i != 0 and args.use_banks and (thought == 7):
-                        print("taken")
+                        print("student response is already discussed ------------ ")
 
                         #teacher's response when the student is repeating topics that has been previously discussed
-                        teacher_res = await generate_res("cov", model_teacher, example_sentence, relevance["Q3"], None, None, [], None, PROMPT_REMIND_FOCUSED, 0)
+                        if args.use_FSM and next_state in ["1", "4"]:
+                            teacher_res = await generate_res("test", model_teacher, example_sentence, relevance["Q5"], conv_teacher[-1], None, [], None, PROMPT_RESTATE, 0)
+                        else:
+                            teacher_res = await generate_res("cov", model_teacher, example_sentence, relevance["Q5"], None, None, [], None, PROMPT_REMIND_FOCUSED, 0)
+                        
                         if args.use_FSM:
                             following.append('0')
                             all_states.append('0')
@@ -432,7 +444,7 @@ async def main():
                     # if i == 0:
                     #     agreement_bank.append(summary)
                     summary = ""
-                    print(summary)
+                    # print(summary)
                     sums.append(summary)
 
                     if i != 0 and args.use_FSM and next_state in ["1", "4"]:
@@ -498,10 +510,12 @@ async def main():
                         agent_res = await generate_res("eval_s", model_agent, example_sentence, chat_history, None, None, None, None, PROMPT_AGENT_CHECK_EVIDENCE, 0)
                         res = load_json(agent_res.choices[0].message.content) 
 
-                    print(res)
+                    print("agreement check: ", res)
 
-                    if "yes" in res['6'] and "yes" in res['7']:
+                    his_chat = chat_history
+                    while "?" in utterance_teacher and "?" in utterance_student:
                         utter = "You have not answered the question I asked. Please answer it before making any requests. " + utterance_teacher
+                        conv_teacher.append(utter)
                         utterance_student = await generate_res("stu", model_student, example_sentence, start_student_strategy, None, None, conv_teacher, conv_student, PROMPT_STUDENT_ARGUE_NORMAL + PT_2, 0)
                         student_u = load_json(utterance_student.choices[0].message.content)
                         while student_u == False:
@@ -510,10 +524,21 @@ async def main():
                         utterance_student = student_u["res"]
                         print("student strategy:"+student_u["option"])
                         print(utterance_student)
-                        conv_teacher.append(utter)
+                        
                         conv_student.append(utterance_student)
                         appends(utter, utterance_student, "", "", "", "", agr_bank, disagr_bank,'0','0', '0')
-                        chat_history = "teacher: " + utter + "\n" + "student: " + utterance_student
+                        full_chat += his_chat
+                        chat_history = "teacher: " + utter + "\n" + "student: " + utterance_student + "\n"
+                        # relevance_res = await generate_res("check", model_agent, example_sentence, disagr_bank, 
+                        #                                        chat_history, agr_bank, None, None, PROMPT_CHECK_RELEVANCE_AGENT, 0)
+                        # relevance = load_json(relevance_res.choices[0].message.content)
+                        # while relevance == False:
+                        #     relevance_res = await generate_res("check", model_agent, example_sentence, disagr_bank, 
+                        #                                        chat_history, agr_bank, None, None, PROMPT_CHECK_RELEVANCE_AGENT, 0)
+                        #     relevance = load_json(relevance_res.choices[0].message.content)
+                        # if "yes" not in relevance["Q2"].lower(): 
+                        #     disagr_bank.append(relevance["Q2"])
+                        
 
 
 
